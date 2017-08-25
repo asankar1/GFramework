@@ -19,7 +19,6 @@ namespace GFramework
 	{
 	}
 
-
 	GReflection::~GReflection()
 	{
 	}
@@ -31,16 +30,16 @@ namespace GFramework
 
 	void GMetaclass::addProperty(const char * _name, GMetaproperty * _p)
 	{
-		Gmetaproperties.insert(std::make_pair(std::string(_name), _p));
+		Gmetaproperties[properties_version].insert(std::make_pair(std::string(_name), _p));
 	}
 
 	void GMetaclass::addEditableProperty(const char * _name, GMetaproperty * _p)
 	{
-		Gmetaeditableproperties.insert(std::make_pair(std::string(_name), _p));
+		Gmetaeditableproperties[properties_version].insert(std::make_pair(std::string(_name), _p));
 	}
 
 	GMetaclass::GMetaclass():name("")
 	{
-
+		properties_version = 0;
 	}
 }

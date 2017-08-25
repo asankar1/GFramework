@@ -7,6 +7,7 @@ namespace GFramework
 	BEGIN_DEFINE_META(Node)
 		GMetaclassList::instance().define<Node>("node")
 		.baseMetaclass("Object")
+		.version(1)
 		.function("about", &Node::about)
 		.function("setPosition", &Node::setPosition)
 		.function("setParent", &Node::setParent)

@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <atomic>
 #include <string>
 #include <memory>
@@ -73,7 +74,31 @@ namespace GFramework
 		*/
 		virtual void initialize() = 0;
 
+		/**
+		* This is a pure virtual function, all the inheritors should implement this.
+		* Typically this should return the metaclass name of the class.
+		* \return constant pointer to the string
+		*/
 		virtual const char* metaclassName() = 0;
+
+		/**
+		* This is a virtual function, all the inheritors may override to have its own implementation.
+		* The default implementation will use the meta class info to serialize all the properties.
+		* Any implementation should ensure that all the base classes are serialized before its own properties.
+		* \param serializer is the GSerializer using which the properties must be serialized.
+		* \return the result of serialization.
+		*/
+		virtual bool serialize(GSerializer& serializer);
+
+		/**
+		* This is a virtual function, all the inheritors may override to have its own implementation.
+		* The default implementation will use the meta class info to deserialize all the properties.
+		* Any implementation should ensure that all the base classes are deserialized before its own properties.
+		* \param stream is the output stream to which the properties must be serialized.
+		* \param version is the version of the class saved into the stream. Use this to handle files saved with previous class version.
+		* \return result of the deserialization
+		*/
+		virtual bool deserialize(GDeserializer& deserializer, unsigned int version);
 	protected:
 		/**
 		* Constructs the Object class.

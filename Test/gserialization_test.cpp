@@ -10,23 +10,44 @@ void run_serialization_testcases()
 {
 	cout << endl << "Starting test cases for 'Serialization'..." << endl << endl;
 	
-	//Text serialization
-
-	ofstream ots("test.txt");
-	GTextSerializer g(ots);
 	NodeSharedPtr np(NULL);
-	sphere os1("s1", np, 1);
-
-	NodeSharedPtr s1p(&os1);
+	auto os1 = new sphere("s1", np, 1);
+	NodeSharedPtr s1p(os1);
 	sphere os2("s2", s1p, 2);
-	g << os1 << os2;
-	ots.close();
 
-	ifstream its("test.txt");
-	GTextDeSerializer d(its);
-	Object* is1 = nullptr;
-	Object* is2 = nullptr;
-	(d >> &is1) >> &is2;
-	its.close();
-	d.resolveDependencies();
+	{
+		//Text serialization
+		GTextSerializer ts;
+		ts.open("test.txt");
+		ts << os1 << os2;
+		ts.close();
+
+		//Text serialization
+		GTextDeSerializer tds;
+		tds.open("test.txt");
+		Object* is1 = nullptr;
+		Object* is2 = nullptr;
+		(tds >> &is1) >> &is2;
+		tds.close();
+		tds.resolveDependencies();
+	}
+
+	{
+		//Binary serialization
+		GBinarySerializer bs;
+		bs.open("test.bin");
+		bs << os1 << os2;
+		bs.close();
+
+		//Binary serialization
+		GBinaryDeSerializer bds;
+		bds.open("test.bin");
+		Object* is1 = nullptr;
+		Object* is2 = nullptr;
+		(bds >> &is1) >> &is2;
+		bds.close();
+		bds.resolveDependencies();
+	}
+
+	s1p.reset();
 }

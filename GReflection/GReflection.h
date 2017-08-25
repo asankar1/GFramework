@@ -135,9 +135,9 @@ namespace GFramework
 
 		virtual void set(void* _object, GVariant &value) = 0;
 		virtual GVariant get(void* _object) = 0;
-		virtual std::ostream& writeBinaryValue(std::ostream& os, Object* obj) = 0;
+		virtual std::ostream& writeBinaryValue(std::ostream& os, const Object* obj) = 0;
 		virtual std::istream& readBinaryValue(std::istream& is, Object* obj) = 0;
-		virtual std::ostream& writeASCIIValue(std::ostream& os, Object* obj) = 0;
+		virtual std::ostream& writeASCIIValue(std::ostream& os, const Object* obj) = 0;
 		virtual std::istream& readASCIIValue(std::istream& is, Object* obj) = 0;
 	protected:
 		GMetaproperty(const char* _name) {
@@ -164,8 +164,8 @@ namespace GFramework
 			return (o->*ptr).get();
 		}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os, Object* obj) {
-			C* o = static_cast<C*>(obj);
+		virtual std::ostream& writeBinaryValue(std::ostream& os, const Object* obj) {
+			const C* o = static_cast<const C*>(obj);
 			return (o->*ptr).writeBinaryValue(os);
 		}
 
@@ -174,8 +174,8 @@ namespace GFramework
 			return (o->*ptr).readBinaryValue(is);
 		}
 
-		virtual std::ostream& writeASCIIValue(std::ostream& os, Object* obj) {
-			C* o = static_cast<C*>(obj);
+		virtual std::ostream& writeASCIIValue(std::ostream& os, const Object* obj) {
+			const C* o = static_cast<const C*>(obj);
 			return (o->*ptr).writeASCIIValue(os);
 		}
 
@@ -205,8 +205,8 @@ namespace GFramework
 			return (o->*ptr).get();
 		}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os, Object* obj) {
-			C* o = static_cast<C*>(obj);
+		virtual std::ostream& writeBinaryValue(std::ostream& os, const Object* obj) {
+			const C* o = static_cast<const C*>(obj);
 			return (o->*ptr).writeBinaryValue(os);
 		}
 
@@ -215,8 +215,8 @@ namespace GFramework
 			return (o->*ptr).readBinaryValue(is);
 		}
 
-		virtual std::ostream& writeASCIIValue(std::ostream& os, Object* obj) {
-			C* o = static_cast<C*>(obj);
+		virtual std::ostream& writeASCIIValue(std::ostream& os, const Object* obj) {
+			const C* o = static_cast<const C*>(obj);
 			return (o->*ptr).writeASCIIValue(os);
 		}
 
@@ -494,8 +494,10 @@ namespace GFramework
 				if (basemetaclass)
 					basemetaclass->getPropertiesList(properties_list);
 			}
-			for (auto it = Gmetaproperties.begin(); it != Gmetaproperties.end(); ++it) {
-				properties_list.push_back(it->first);
+			for (auto it1 = Gmetaproperties.begin(); it1 != Gmetaproperties.end(); ++it1) {
+				for (auto it2 = it1->second.begin(); it2 != it1->second.end(); ++it2) {
+					properties_list.push_back(it2->first);
+				}
 			}
 			return;
 		}
@@ -508,10 +510,17 @@ namespace GFramework
 				if (basemetaclass)
 					basemetaclass->getEditablePropertiesList(properties_list);
 			}
-			for (auto it = Gmetaeditableproperties.begin(); it != Gmetaeditableproperties.end(); ++it) {
-				properties_list.push_back(it->first);
+			for (auto it1 = Gmetaeditableproperties.begin(); it1 != Gmetaeditableproperties.end(); ++it1) {
+				for (auto it2 = it1->second.begin(); it2 != it1->second.end(); ++it2) {
+					properties_list.push_back(it2->first);
+				}
 			}
 			return;
+		}
+
+		unsigned int getVersion()
+		{
+			return properties_version;
 		}
 
 	protected:
@@ -523,10 +532,11 @@ namespace GFramework
 	protected:		
 		std::vector<std::string> GBaseMetaclasses;
 		std::map<std::string, GMetafunction*> Gmetafunctions;
-		std::map<std::string, GMetaproperty*> Gmetaproperties;
-		std::map<std::string, GMetaproperty*> Gmetaeditableproperties;
+		std::map<unsigned int, std::map<std::string, GMetaproperty*>> Gmetaproperties;
+		std::map<unsigned int, std::map<std::string, GMetaproperty*>> Gmetaeditableproperties;
 		std::string name;
 		friend GMetaclassList;
+		unsigned int properties_version;
 	};
 
 	template<typename T>
@@ -583,6 +593,13 @@ namespace GFramework
 			addFunction(_name, f);
 			return *this;
 		}
+
+		GDerivedAbstractMetaclass<T>& version(unsigned int v)
+		{
+			properties_version = v;
+			return *this;
+		}
+
 		GMetafunction* getFunction(const char *_name)
 		{
 			if (Gmetafunctions.find(std::string(_name)) != Gmetafunctions.end())
@@ -605,35 +622,38 @@ namespace GFramework
 
 		GMetaproperty* getProperty(const char *_name)
 		{
-			if (Gmetaeditableproperties.find(std::string(_name)) != Gmetaeditableproperties.end())
-			{
-				return Gmetaeditableproperties[std::string(_name)];
-			}
-			else
-			{
-				for (auto basemetaclass : GBaseMetaclasses)
+			std::map<unsigned int, std::map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
+			for (; it1 != Gmetaeditableproperties.end(); ++it1) {
+				std::map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
+				if (result != it1->second.end())
 				{
-					GMetaproperty* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
-					if (f != NULL)
-					{
-						return f;
-					}
+					return result->second;
 				}
 			}
 
-			if (Gmetaproperties.find(std::string(_name)) != Gmetaproperties.end())
+			for (auto basemetaclass : GBaseMetaclasses)
 			{
-				return Gmetaproperties[std::string(_name)];
-			}
-			else
-			{
-				for (auto basemetaclass : GBaseMetaclasses)
+				GMetaproperty* p = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
+				if (p != NULL)
 				{
-					GMetaproperty* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
-					if (f != NULL)
-					{
-						return f;
-					}
+					return p;
+				}
+			}
+
+			for (auto it1 = Gmetaproperties.begin(); it1 != Gmetaproperties.end(); ++it1) {
+				auto result = it1->second.find(std::string(_name));
+				if (result != it1->second.end())
+				{
+					return result->second;
+				}
+			}
+
+			for (auto basemetaclass : GBaseMetaclasses)
+			{
+				GMetaproperty* p = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
+				if (p != NULL)
+				{
+					return p;
 				}
 			}
 			return NULL;
@@ -688,6 +708,12 @@ namespace GFramework
 			addProperty(_name, p);
 			return *this;
 		}
+		
+		GDerivedMetaclass<T>& version(unsigned int v)
+		{
+			properties_version = v;
+			return *this;
+		}
 
 		template<typename FUNC>
 		GDerivedMetaclass<T>& function(const char *_name, FUNC _f)
@@ -718,35 +744,38 @@ namespace GFramework
 
 		GMetaproperty* getProperty(const char *_name)
 		{
-			if (Gmetaeditableproperties.find(std::string(_name)) != Gmetaeditableproperties.end())
-			{
-				return Gmetaeditableproperties[std::string(_name)];
-			}
-			else
-			{
-				for (auto basemetaclass : GBaseMetaclasses)
+			std::map<unsigned int, std::map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
+			for (; it1 != Gmetaeditableproperties.end(); ++it1) {
+				std::map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
+				if (result != it1->second.end())
 				{
-					GMetaproperty* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
-					if (f != NULL)
-					{
-						return f;
-					}
+					return result->second;
 				}
 			}
 
-			if (Gmetaproperties.find(std::string(_name)) != Gmetaproperties.end())
+			for (auto basemetaclass : GBaseMetaclasses)
 			{
-				return Gmetaproperties[std::string(_name)];
-			}
-			else
-			{
-				for (auto basemetaclass : GBaseMetaclasses)
+				GMetaproperty* p = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
+				if (p != NULL)
 				{
-					GMetaproperty* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
-					if (f != NULL)
-					{
-						return f;
-					}
+					return p;
+				}
+			}
+
+			for (auto it1 = Gmetaproperties.begin(); it1 != Gmetaproperties.end(); ++it1) {
+				auto result = it1->second.find(std::string(_name));
+				if (result != it1->second.end())
+				{
+					return result->second;
+				}
+			}
+
+			for (auto basemetaclass : GBaseMetaclasses)
+			{
+				GMetaproperty* p = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getProperty(_name);
+				if (p != NULL)
+				{
+					return p;
 				}
 			}
 			return NULL;

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <functional>
-#include <GReflection.h>
 #include <Object.h>
 #include <Node.h>
 #include "GSerializer.h"
@@ -18,60 +17,41 @@ namespace GFramework
 	std::mutex GDeserializer::reference_seeker_mutex;
 	std::mutex GDeserializer::reference_provider_mutex;
 
-	template<typename T>
-	void binary_write(ostream& stream, T& t)
-	{
-		stream.write((const char*)&t, sizeof(t));
-	}
-
-	template<typename T>
-	void binary_write(ostream& stream, T t)
-	{
-		stream.write((const char*)&t, sizeof(t));
-	}
-
-	template<typename T>
-	void binary_read(istream& stream, T& t)
-	{
-		stream.read((char*)&t, sizeof(t));
-	}
-
-	template<typename T>
-	void text_write(ostream& stream, T& t)
-	{
-		stream << t ;
-	}
-
-	template<typename T>
-	void text_read(istream& stream, T& t)
-	{
-		stream >> t;
-	}
-
-	GSerializer::GSerializer(std::ofstream& _stream):stream(_stream)
-	{
-
-	}
-
 	GSerializer::~GSerializer()
 	{
-
+		close();
 	}
 
-	void GSerializer::addReferenceSeeker(unsigned int _object_id, Object* _seeking_object)
+	void GSerializer::close()
 	{
-		std::lock_guard<std::mutex> lk(reference_seeker_mutex);
-
-		(reference_seekers[_object_id]).push_back(_seeking_object);
-	}
-
-	void GSerializer::addReferenceProviders(unsigned int _object_id, Object* _seeking_object)
-	{
-		std::lock_guard<std::mutex> lk(reference_provider_mutex);
-
-		(reference_providers[_object_id]).push_back(_seeking_object);
+		if (stream.is_open())
+		{
+			stream.close();
+		}
 	}
 	
+	GBinarySerializer::~GBinarySerializer()
+	{
+		close();
+	}
+
+	bool GBinarySerializer::open(const char* filename)
+	{
+		stream.open(filename, ios_base::out | ios_base::binary);
+		if (!stream.is_open())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool GBinarySerializer::writeMetaProperty(const Object* _obj, GMetaproperty* property)
+	{
+		property->writeBinaryValue(stream, _obj);
+		return true;
+	}
+
 	GSerializer & GBinarySerializer::operator<<(Object &_obj)
 	{
 		return (*this) << &_obj;
@@ -79,25 +59,42 @@ namespace GFramework
 
 	GSerializer & GBinarySerializer::operator<<(Object *_obj)
 	{
+		if (!stream.is_open())
+			return *this;
+
 		GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
-		std::vector<std::string> p_list;
-		m->getEditablePropertiesList(p_list);
-		m->getPropertiesList(p_list);
+		const char* classname = _obj->metaclassName();
+		size_t len = strlen(classname) + 1;
+		unsigned int version = m->getVersion();
+		stream.write((const char*)&len, sizeof(len));
+		stream.write(classname, len);
+		stream.write((const char*)&version, sizeof(version));
 
-		char len = 1+strlen(_obj->metaclassName());
-		stream.write(&len, sizeof(len));
-		stream.write(_obj->metaclassName(), len);
-
-		int i = 0;
-		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
-			string property_name = *it;
-			auto p = m->getProperty(property_name.c_str());
-			//stream << "\tProperty: " << property_name << "=" << i++ << endl;
-			//binary_write(stream, i++);
-			p->writeBinaryValue(stream, _obj);
-		}
-		//stream.flush();
+		_obj->serialize(*this);
 		return *this;
+	}
+
+	bool GTextSerializer::open(const char* filename)
+	{
+		stream.open(filename, ios_base::out);
+		if (!stream.is_open())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	GTextSerializer::~GTextSerializer()
+	{
+		close();
+	}
+
+	bool GTextSerializer::writeMetaProperty(const Object* _obj, GMetaproperty* property)
+	{
+		property->writeASCIIValue(stream, _obj);
+		stream << endl;
+		return true;
 	}
 
 	GSerializer & GTextSerializer::operator<<(Object &_obj)
@@ -107,33 +104,14 @@ namespace GFramework
 
 	GSerializer & GTextSerializer::operator<<(Object *_obj)
 	{
+		if (!stream.is_open())
+			return *this;
+
 		GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
-		std::vector<std::string> p_list;
-		m->getEditablePropertiesList(p_list);
-		m->getPropertiesList(p_list);
-
-		text_write(stream, string(_obj->metaclassName()));
-		int i = 0;
-		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
-			string property_name = *it;
-			auto p = m->getProperty(property_name.c_str());
-			//text_write(stream, property_name.append(": "));
-			text_write(stream, "\n");
-			p->writeASCIIValue(stream, _obj);
-		}
-
+		stream << string(_obj->metaclassName()) << endl;
+		stream << m->getVersion() << endl;
+		_obj->serialize(*this);
 		return *this;
-	}
-
-
-	GDeserializer::GDeserializer(std::ifstream& _stream) :stream(_stream)
-	{
-
-	}
-
-	GDeserializer::~GDeserializer()
-	{
-
 	}
 
 	void GDeserializer::resolveDependencies()
@@ -157,7 +135,8 @@ namespace GFramework
 				cout << "Error: NO reference provider for object id :" << object_id << endl;
 			}
 		}
-	
+		reference_seekers.clear();
+		reference_providers.clear();
 	}
 
 	void GDeserializer::addReferenceSeeker(unsigned int _object_id, NodeSharedPtr* _seeking_object)
@@ -174,49 +153,99 @@ namespace GFramework
 		reference_providers[_object_id] = _providing_object;
 	}
 
+	void GDeserializer::close()
+	{
+		if(!stream.is_open())
+		{ 
+			return;
+		}
+		resolveDependencies();
+		stream.close();
+	}
+
+	GDeserializer::~GDeserializer()
+	{
+		close();
+	}
+
+	bool GBinaryDeSerializer::open(const char* filename)
+	{
+		stream.open(filename, ios_base::in);
+		if (!stream.is_open())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool GBinaryDeSerializer::readMetaProperty(Object* _obj, GMetaproperty* property)
+	{
+		property->readBinaryValue(stream, _obj);
+		return true;
+	}
+
 	GDeserializer & GBinaryDeSerializer::operator >> (Object **_obj)
 	{
-		char class_name[255];
-		char len = 0;
-		stream.read(&len, sizeof(len));
-		stream.read(class_name, len);
+		size_t len = 0;
+		stream.read((char*)&len, sizeof(len));
 
-		GMetaclass* m = GMetaclassList::instance().getMetaclass(class_name);
+		char* classname = new char[len];
+		stream.read(classname, len);
+		
+		unsigned int version = 0;				
+		stream.read((char*)&version, sizeof(version));
+
+		GMetaclass* m = GMetaclassList::instance().getMetaclass(classname);
 		*_obj = m->createInstance();
-
-		std::vector<std::string> p_list;
-		m->getEditablePropertiesList(p_list);
-		m->getPropertiesList(p_list);
-
-		int i = 0;
-		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
-			string property_name = *it;
-			auto p = m->getProperty(property_name.c_str());
-			p->readBinaryValue(stream, *_obj);
-		}
+		(*_obj)->deserialize(*this, version);
+		
 		addReferenceProviders((*_obj)->getObjectId(), (*_obj));
+
 		return *this;
+	}
+
+	GBinaryDeSerializer::~GBinaryDeSerializer()
+	{
+		close();
+	}
+
+	bool GTextDeSerializer::open(const char* filename)
+	{
+		stream.open(filename, ios_base::in);
+		if (!stream.is_open())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool GTextDeSerializer::readMetaProperty(Object* _obj, GMetaproperty* property)
+	{
+		property->readASCIIValue(stream, _obj);
+		return true;
 	}
 
 	GDeserializer & GTextDeSerializer::operator>>(Object **_obj)
 	{
 		string class_name;
 		stream >> class_name;
-		//text_write(stream, _obj);
+
+		unsigned int version = 0;
+		stream >> version;
+
 		GMetaclass* m = GMetaclassList::instance().getMetaclass(class_name.c_str());
 		*_obj = m->createInstance();
+		(*_obj)->deserialize(*this, version);
 
-		std::vector<std::string> p_list;
-		m->getEditablePropertiesList(p_list);
-		m->getPropertiesList(p_list);
-
-		int i = 0;
-		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
-			string property_name = *it;
-			auto p = m->getProperty(property_name.c_str());
-			p->readASCIIValue(stream, *_obj);
-		}
 		addReferenceProviders((*_obj)->getObjectId(), (*_obj));
+
 		return *this;
+	}
+
+	GTextDeSerializer::~GTextDeSerializer()
+	{
+		close();
 	}
 }

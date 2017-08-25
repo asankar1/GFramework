@@ -23,9 +23,9 @@ namespace GFramework
 	public:
 		virtual void set(GVariant& _value) = 0;
 		virtual GVariant get() = 0;
-		virtual std::ostream& writeBinaryValue(std::ostream& os) = 0;
+		virtual std::ostream& writeBinaryValue(std::ostream& os) const = 0;
 		virtual std::istream& readBinaryValue(std::istream& is) = 0;
-		virtual std::ostream& writeASCIIValue(std::ostream& os) = 0;
+		virtual std::ostream& writeASCIIValue(std::ostream& os) const = 0;
 		virtual std::istream& readASCIIValue(std::istream& is) = 0;
 	protected:
 		GPropertyInterface() {}
@@ -53,7 +53,7 @@ namespace GFramework
 			return value;
 		}
 
-		std::ostream& writeASCIIValue(std::ostream& os) {
+		std::ostream& writeASCIIValue(std::ostream& os) const {
 			os << value << " ";
 			return os;
 		}
@@ -63,8 +63,8 @@ namespace GFramework
 			return is;
 		}
 
-		std::ostream& writeBinaryValue(std::ostream& os) {
-			os.write(reinterpret_cast<char*>(&value), sizeof(T));
+		std::ostream& writeBinaryValue(std::ostream& os) const {
+			os.write(reinterpret_cast<const char*>(&value), sizeof(T));
 			return os;
 		}
 
@@ -98,7 +98,7 @@ namespace GFramework
 			return value;
 		}
 
-		std::ostream& writeASCIIValue(std::ostream& os) {
+		std::ostream& writeASCIIValue(std::ostream& os) const {
 			os << value.length() << " " << value << " ";
 			return os;
 		}
@@ -116,7 +116,7 @@ namespace GFramework
 			return is;
 		}
 
-		std::ostream& writeBinaryValue(std::ostream& os) {
+		std::ostream& writeBinaryValue(std::ostream& os) const {
 			size_t size = value.length()+1;
 			os.write(reinterpret_cast<char*>(&size), sizeof(size_t));
 			os.write(value.c_str(), size);
@@ -159,9 +159,9 @@ namespace GFramework
 			return value;
 		}
 
-		std::ostream& writeASCIIValue(std::ostream& os) {
+		std::ostream& writeASCIIValue(std::ostream& os) const {
 			unsigned int size = value.length();
-			float* pointer = glm::value_ptr(value);
+			const float* pointer = glm::value_ptr(value);
 			for (unsigned int i= 0; i < size; i++)
 			{
 				os << pointer[i] << " ";
@@ -179,10 +179,10 @@ namespace GFramework
 			return is;
 		}
 
-		std::ostream& writeBinaryValue(std::ostream& os) {
+		std::ostream& writeBinaryValue(std::ostream& os) const {
 			unsigned int size = value.length();
-			float* pointer = glm::value_ptr(value);
-			os.write(reinterpret_cast<char*>(pointer), size * sizeof(float));
+			const float* pointer = glm::value_ptr(value);
+			os.write(reinterpret_cast<const char*>(pointer), size * sizeof(float));
 			return os;
 		}
 
@@ -234,7 +234,7 @@ namespace GFramework
 			return value;
 		}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os) { 
+		virtual std::ostream& writeBinaryValue(std::ostream& os) const {
 			if (value)
 			{
 				os << value->getObjectId();
@@ -256,7 +256,7 @@ namespace GFramework
 			return is; 
 		}
 
-		virtual std::ostream& writeASCIIValue(std::ostream& os) { 
+		virtual std::ostream& writeASCIIValue(std::ostream& os) const {
 			if (value)
 			{
 				os << value->getObjectId();
@@ -303,9 +303,9 @@ namespace GFramework
 			return value;
 		}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os) { return os; }
+		virtual std::ostream& writeBinaryValue(std::ostream& os) const { return os; }
 		virtual std::istream& readBinaryValue(std::istream& is) { return is; }
-		virtual std::ostream& writeASCIIValue(std::ostream& os) { return os; }
+		virtual std::ostream& writeASCIIValue(std::ostream& os) const { return os; }
 		virtual std::istream& readASCIIValue(std::istream& is) { return is; }
 
 	private:

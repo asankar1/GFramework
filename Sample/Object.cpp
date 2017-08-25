@@ -71,4 +71,42 @@ namespace GFramework
 			}
 		}
 	}
+
+	bool Object::serialize(GSerializer& serializer)
+	{
+		const char* metaclassname = metaclassName();
+		GMetaclass* m = GMetaclassList::instance().getMetaclass(metaclassname);
+
+		std::vector<std::string> p_list;
+		m->getEditablePropertiesList(p_list);
+		m->getPropertiesList(p_list);
+
+		int i = 0;
+		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
+			string property_name = *it;
+			auto p = m->getProperty(property_name.c_str());
+			serializer.writeMetaProperty(this, p);
+		}
+
+		return true;
+	}
+
+	bool Object::deserialize(GDeserializer& deserializer, unsigned int version)
+	{
+		const char* metaclassname = metaclassName();
+		GMetaclass* m = GMetaclassList::instance().getMetaclass(metaclassname);
+
+		std::vector<std::string> p_list;
+		m->getEditablePropertiesList(p_list);
+		m->getPropertiesList(p_list);
+
+		int i = 0;
+		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
+			string property_name = *it;
+			auto p = m->getProperty(property_name.c_str());
+			deserializer.readMetaProperty(this, p);
+		}
+		return true;
+	}
+
 }

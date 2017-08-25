@@ -35,25 +35,7 @@ namespace GFramework
 		Node(const char *_name, NodeSharedPtr& _parent);
 
 		~Node();
-	/*
-		GMetafunction::returnType about_meta(GMetafunction::argsType& args)
-		{
-			GMetafunction::returnType ret;
-			about();
-			return ret;
-		}
 
-		GMetafunction::returnType setPosition_meta(GMetafunction::argsType& args)
-		{
-			GMetafunction::returnType ret;
-			auto iter = args.begin();
-			float x = boost::get<float>(*(iter++));
-			float y = boost::get<float>(*(iter++));
-			float z = boost::get<float>(*(iter++));
-			setPosition(x, y, z);
-			return ret;
-		}
-		*/
 		/**
 		* Sets the position of the node.
 		* \param x is x position of the node
