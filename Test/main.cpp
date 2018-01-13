@@ -6,6 +6,7 @@
 #include "gvariant_test.h"
 #include "greflection_test.h"
 #include "gserialization_test.h"
+#include "gscript_test.h"
 using namespace std;
 #define ROUGH 0
 void rough();
@@ -18,6 +19,7 @@ void main()
 	run_variant_testcases();
 	run_reflection_testcases();
 	run_serialization_testcases();
+	run_script_testcases();
 #endif
 	cout << "\nPress any key to exit...";
 	_getch();

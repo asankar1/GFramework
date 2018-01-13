@@ -10,10 +10,11 @@ namespace GFramework
 
 	BEGIN_DEFINE_META(Object)
 		GMetaclassList::instance().define<Object>("Object")
-		.function("getName", &Object::getName)
-		.function("rename", &Object::rename)
-		.editableProperty("name", &Object::name)
-		.property("object_id", &Object::object_id);
+			.version(1)
+			.function("getName", &Object::getName)
+			.function("rename", &Object::rename)
+			.editableProperty("name", &Object::name)
+			.property("object_id", &Object::object_id);
 	END_DEFINE_META(Object)
 
 	Object::Object(const char *_name)

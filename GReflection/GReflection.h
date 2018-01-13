@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <typeinfo>
 #include <algorithm>
 #include <type_traits>
@@ -531,9 +532,9 @@ namespace GFramework
 
 	protected:		
 		std::vector<std::string> GBaseMetaclasses;
-		std::map<std::string, GMetafunction*> Gmetafunctions;
-		std::map<unsigned int, std::map<std::string, GMetaproperty*>> Gmetaproperties;
-		std::map<unsigned int, std::map<std::string, GMetaproperty*>> Gmetaeditableproperties;
+		std::unordered_map<std::string, GMetafunction*> Gmetafunctions;
+		std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>> Gmetaproperties;
+		std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>> Gmetaeditableproperties;
 		std::string name;
 		friend GMetaclassList;
 		unsigned int properties_version;
@@ -622,9 +623,9 @@ namespace GFramework
 
 		GMetaproperty* getProperty(const char *_name)
 		{
-			std::map<unsigned int, std::map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
+			std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
 			for (; it1 != Gmetaeditableproperties.end(); ++it1) {
-				std::map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
+				std::unordered_map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
 				if (result != it1->second.end())
 				{
 					return result->second;
@@ -744,9 +745,9 @@ namespace GFramework
 
 		GMetaproperty* getProperty(const char *_name)
 		{
-			std::map<unsigned int, std::map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
+			std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
 			for (; it1 != Gmetaeditableproperties.end(); ++it1) {
-				std::map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
+				std::unordered_map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
 				if (result != it1->second.end())
 				{
 					return result->second;

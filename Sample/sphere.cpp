@@ -8,6 +8,7 @@ namespace GFramework
 	BEGIN_DEFINE_META(sphere)
 		GMetaclassList::instance().define<sphere>("sphere")
 			.baseMetaclass("node")
+			.version(1)
 			.function("setRadius", &sphere::setRadius)
 			.function("getRadius", &sphere::getRadius)
 			.editableProperty("radius", &sphere::radius);

@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GReflection", "GReflection\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GSerialization", "GSerialization\GSerialization.vcxproj", "{879CF2EF-C46F-4AE8-B972-370974ADF0D4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GScript", "GScript\GScript.vcxproj", "{FA30DEA4-C940-445D-92E3-B7B67846912A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{879CF2EF-C46F-4AE8-B972-370974ADF0D4}.Release|x64.Build.0 = Release|x64
 		{879CF2EF-C46F-4AE8-B972-370974ADF0D4}.Release|x86.ActiveCfg = Release|Win32
 		{879CF2EF-C46F-4AE8-B972-370974ADF0D4}.Release|x86.Build.0 = Release|Win32
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Debug|x64.ActiveCfg = Debug|x64
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Debug|x64.Build.0 = Debug|x64
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Debug|x86.ActiveCfg = Debug|Win32
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Debug|x86.Build.0 = Debug|Win32
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Release|x64.ActiveCfg = Release|x64
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Release|x64.Build.0 = Release|x64
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Release|x86.ActiveCfg = Release|Win32
+		{FA30DEA4-C940-445D-92E3-B7B67846912A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

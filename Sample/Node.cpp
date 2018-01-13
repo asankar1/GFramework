@@ -6,16 +6,16 @@ namespace GFramework
 {
 	BEGIN_DEFINE_META(Node)
 		GMetaclassList::instance().define<Node>("node")
-		.baseMetaclass("Object")
-		.version(1)
-		.function("about", &Node::about)
-		.function("setPosition", &Node::setPosition)
-		.function("setParent", &Node::setParent)
-		.function("getParent", &Node::getParent)
-		.function("addChild", &Node::addChild)
-		.function("getChild", &Node::getChild)
-		.editableProperty("position", &Node::position)
-		.property("parent", &Node::parent);
+			.baseMetaclass("Object")
+			.version(1)
+			.function("about", &Node::about)
+			.function("setPosition", &Node::setPosition)
+			.function("setParent", &Node::setParent)
+			.function("getParent", &Node::getParent)
+			.function("addChild", &Node::addChild)
+			.function("getChild", &Node::getChild)
+			.editableProperty("position", &Node::position)
+			.property("parent", &Node::parent);
 	END_DEFINE_META(Node)
 
 	Node::Node(const char *_name, NodeSharedPtr& _parent) : Object(_name), parent(this)

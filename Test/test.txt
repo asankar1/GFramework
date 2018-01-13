@@ -1,9 +1,12 @@
 sphere
+1
 2 s1 
 0 0 0 
 1 
 5 
-0sphere
+0
+sphere
+1
 2 s2 
 0 0 0 
 2 
