@@ -1,47 +1,69 @@
 #include <string>
 #include <iostream>
+#include <GVariant.h>
+#include <sphere.h>
 #include "gscript_test.h"
 using namespace std;
 using namespace GFramework;
 /* Notes:
 	> for every property type a meta table needs to be defined with meta methods:
 		. __tostring for print
-		. __metatable to prtect modifying metatable
+		. __metatable to protect modifying metatable
 */
-int add(lua_State *L);
 
-int add(lua_State *L)
-{
-	double n1 = lua_tonumber(L, 1);
-	double n2 = lua_tonumber(L, 2);
+static int new_node(lua_State *L) {
+	Node* s = new Node("node_srs", NodeSharedPtr(nullptr));
+	size_t nbytes = sizeof(Glua_abstract_ptr);
+	Glua_abstract_ptr* userdata = (Glua_abstract_ptr*)lua_newuserdata(L, nbytes);
+	userdata->object = s;
 
-	lua_pushnumber(L, n1 + n2);
+	luaL_getmetatable(L, "node");
+	lua_setmetatable(L, -2);
 
 	return 1;
 }
 
-const char* script =	{ 
-							"x=add(2,7)\n" 
-							"print(x)\n"
-						};
+static int new_sphere(lua_State *L) {
+	sphere* sp = new sphere("sphere_srs_parent", NodeSharedPtr(nullptr), 23);
+	sphere* s = new sphere("sphere_srs", NodeSharedPtr(sp), 23);
+	size_t nbytes = sizeof(Glua_abstract_ptr);
+	Glua_abstract_ptr* userdata = (Glua_abstract_ptr*)lua_newuserdata(L, nbytes);
+	userdata->object = s;
+
+	luaL_getmetatable(L, "sphere");
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
+int register_lua_test_module(lua_State *L)
+{
+	luaL_Reg GPropertiesList[] = {
+		{ "new_node", new_node },
+		{ "new_sphere", new_sphere },
+		{ NULL, NULL }
+	};
+
+	luaL_newlib(L, GPropertiesList);
+
+	return 1;
+}
+
+void open_lua_test_module(lua_State *L)
+{
+	luaL_requiref(L, "test", register_lua_test_module, 1);
+}
 
 void tmain()
 {
-	lua_State* L = luaL_newstate();
-	luaL_requiref(L, "vector2d", luaopen_vector2d, 1);
+	lua_State* L = GLuaState::getState();
+	//luaL_requiref(L, "vector2d", luaopen_vector2d, 1);
+	open_lua_variant_module(L);
+	open_lua_classes_module(L);
+	open_lua_test_module(L);
 	luaL_openlibs(L);
-	lua_pushcfunction(L, add);
-	lua_setglobal(L, "add");
 
-	//luaL_dostring(L, script);
-/*	bool iswrong = luaL_dofile(L, "H:\\github\\GFramework\\GScript\\script.lua");
-	if (iswrong)
-	{
-		cout << "Error in lua script\n";
-	}*/
-
-
-	int error = luaL_loadfile(L, "H:\\github\\GFramework\\GScript\\script.lua");
+	int error = luaL_loadfile(L, "../GScript/script.lua");
 	if (error) // if non-0, then an error
 	{
 		// the top of the stack should be the error string
@@ -66,12 +88,6 @@ void tmain()
 			break;
 		}
 	}
-
-	lua_getglobal(L,"x");
-
-	cout << lua_tonumber(L, -1) << endl;
-
-	lua_close(L);
 }
 
 void run_script_testcases()

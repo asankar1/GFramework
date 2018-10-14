@@ -63,6 +63,7 @@
     <Import Project="..\Sample\Sample.props" />
     <Import Project="..\GReflection\GReflection.props" />
     <Import Project="..\GSerialization\GSerialization.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -70,6 +71,7 @@
     <Import Project="..\Sample\Sample.props" />
     <Import Project="..\GReflection\GReflection.props" />
     <Import Project="..\GSerialization\GSerialization.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -77,6 +79,7 @@
     <Import Project="..\Sample\Sample.props" />
     <Import Project="..\GReflection\GReflection.props" />
     <Import Project="..\GSerialization\GSerialization.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -84,10 +87,12 @@
     <Import Project="..\Sample\Sample.props" />
     <Import Project="..\GReflection\GReflection.props" />
     <Import Project="..\GSerialization\GSerialization.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>$(SolutionDir)Build\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\output\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)Build\$(Configuration)\</IntDir>
@@ -156,6 +161,7 @@
     <ClInclude Include="property.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GProperty.cpp" />
     <ClCompile Include="GVariant.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

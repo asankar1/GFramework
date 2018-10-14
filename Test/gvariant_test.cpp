@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 #include <boost/core/typeinfo.hpp>
 #include <GVariant.h>
 #include <Node.h>
@@ -12,7 +13,7 @@ using namespace GFramework;
 
 /*	Notes:
 	> using boost::get<T>() is preferred, simply using the GVariant may give issues
-	> Definig a base class in the variant's templaes can accept derived class. But that base class SHOULD NOT be a abstract class; But base class pointer is acceptable.
+	> Definig a base class in the variant's templaes can accept derived class. But that base class SHOULD NOT be an abstract class; But base class pointer is acceptable.
 	> if a reference is added in the variant template, then that variant can be ONLY initialized. Reassignment is not possible.
 	> variants are not automatically casted to the actual type
 	> cout can automatically resolve the variant type without explicit get<T>.
@@ -26,32 +27,173 @@ void print_data(bool i, int j, float k)
 	std::cout << "Print_data:  " << i << "," << j << "," << k << endl;
 }
 #endif
+
+int& add(const int& j)
+{
+	int i = 3;
+	return i;
+}
+
+static GVariant call_add()
+{
+	int j = 0;
+	return add(j);
+}
+
 void run_variant_testcases()
 {
 #if 1
-	cout << endl << "Starting test cases for 'Variant'..." << endl << endl;
-
+	std::cout << endl << "Starting test cases for 'Variant'..." << endl << endl;
+	NodeSharedPtr grant_parent_node_sharedptr(std::make_shared<Node>("grant_parent", NodeSharedPtr()));
+	SphereSharedPtr parent_node_sharedptr(std::make_shared<sphere>("parent_node", grant_parent_node_sharedptr, 32));
+	sphere sphere_node("sphere_node", static_pointer_cast<Node>(parent_node_sharedptr), 64);
+	
 	GVariant gv;
 
 	//simple POD types
-	gv = 2;
-	cout << "Integer: " << GVariant::cast<int>(gv) << endl;
+	{
+		gv = 4;
+		assert(GVariant::cast<int>(gv) == 4);
+		std::cout << "int: " << GVariant::cast<int>(gv) << endl;
 
-	gv = 3.14f;
-	cout << "float: " << GVariant::cast<float>(gv) << endl;
+#if 1
+		int h = 9;
+		gv = h;
+		h = 3;
+		assert(GVariant::cast<int>(gv) == 9);
 
-	gv = 'S';
-	cout << "Char: " << GVariant::cast<char>(gv) << endl;
+		gv = 3.14f;
+		assert(GVariant::cast<float>(gv) == 3.14f);
+		std::cout << "float: " << GVariant::cast<float>(gv) << endl;
 
-	//std::string
-	gv = string("NodeA");
-	cout << "std::string: " << GVariant::cast<std::string>(gv) << endl;
+		gv = 'S';
+		assert(GVariant::cast<char>(gv) == 'S');
+		std::cout << "Char: " << GVariant::cast<char>(gv) << endl;
+#endif
+		int j = 5;
+		int &rj = j;
+		gv = GVariant::ref<int>(rj);
+		j = 7;
+		assert(GVariant::cast<int&>(gv) == 7);
+		std::cout << "int reference: " << GVariant::cast<int&>(gv) << endl;
+		
+	}
 
-	//abstract class pointer
-	NodeSharedPtr np(NULL);
-	NodeSharedPtr sp = std::make_shared<sphere>("node", np);
-	gv = sp;
-	cout << "Abstract class pointer: " << GVariant::cast<NodeSharedPtr>(gv)->getName() << endl;
+	//string types
+	{
+		//std::string
+		gv = string("NodeA");
+		std::cout << "std::string: " << GVariant::cast<std::string>(gv) << endl;
+
+		//std::string reference
+		string str = string("NodeA");
+		string& str_ref = str;
+		gv = GVariant::ref<string>(str_ref);
+		string& new_ref = gv;
+		std::cout << "std::string reference: " << new_ref << endl;
+		new_ref = string("modifed NodeA");
+		std::cout << "std::string reference modified: " << str << endl;
+	}
+
+	//pointer
+	{
+		float i = 2.0f;
+		float* ip = &i;
+		gv = ip;
+		float* ipc = GVariant::cast<float*>(gv);
+		std::cout << "value of int pointer: " << *ipc << endl;
+		i = 33;
+		assert(*ipc == 33.0f);
+		std::cout << "value of int pointer: " << *ipc << endl;
+	}
+
+	//GVariant inside GVariant
+	{
+		int i = 4;
+		GVariant gv2 = i;
+		gv = gv2;
+		assert(GVariant::cast<int>(gv) == 4);
+	}
+
+	//const pointer
+	{
+		int i = 2;
+		const int* ip = &i;
+		gv = ip;
+		const int* ipc = GVariant::cast<const int*>(gv);
+		std::cout << "value of const int pointer: " << *ipc << endl;
+		i = 33;
+		std::cout << "value of const int pointer: " << *ipc << endl;
+	}
+
+	//reference
+	{
+		float i = 2.0f;
+		float& ip = i;
+		gv = GVariant::ref<float>(ip);
+		float& ipc = GVariant::cast<float&>(gv);
+		std::cout << "value of float reference: " << ipc << endl;
+		i = 33;
+		assert(ipc == 33.0f);
+		std::cout << "value of float reference: " << ipc << endl;
+	}
+
+	//const reference
+	{
+		float i = 2.0f;
+		const float& ip = i;
+		gv = GVariant::ref<const float>(ip);
+		const float& ipc = GVariant::cast<const float&>(gv);
+		std::cout << "value of const float reference: " << ipc << endl;
+		i = 33.0f;
+		assert(ipc == 33.0f);
+		std::cout << "value of const float reference: " << ipc << endl;
+
+	}
+
+	//class object
+	{
+		boost::any a = sphere_node;
+		gv = sphere_node;
+		assert(GVariant::cast<sphere>(gv).getRadius() == 64);
+	}
+
+	//class object reference
+	{
+		sphere& sref = sphere_node;
+		gv = GVariant::ref<sphere>(sref);
+		sphere_node.setRadius(96);
+		assert(GVariant::cast<sphere&>(gv).getRadius() == 96);
+		sphere_node.setRadius(64);
+	}
+
+	//class object const reference
+	{
+		const sphere& sref = sphere_node;
+		gv = GVariant::ref<const sphere>(sref);
+		sphere_node.setRadius(56);
+		assert(GVariant::cast<const sphere&>(gv).getRadius() == 56);
+		sphere_node.setRadius(64);
+	}
+
+	//class object that cannot be copied
+	{
+		//TODO: design a test case to test how GVariant can store objects that cannot be copied
+	}
+
+	//class raw pointer
+	{
+		gv = parent_node_sharedptr.get();
+		parent_node_sharedptr->setRadius(73);
+		assert(GVariant::cast<sphere*>(gv)->getRadius() == 73);
+		parent_node_sharedptr->setRadius(32);
+	}
+
+	//class shared pointer
+	{
+		gv = parent_node_sharedptr;
+		assert(GVariant::cast<SphereSharedPtr>(gv)->getRadius() == 32);
+	}
 
 	//passing variant as argument to a function taking POD
 	GVariant a1, a2, a3;

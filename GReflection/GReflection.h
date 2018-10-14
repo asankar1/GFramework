@@ -20,6 +20,8 @@
 #include <boost/function_types/result_type.hpp>
 #include <boost/function_types/function_arity.hpp>
 #include <GVariant.h>
+#include <GLua_data_exchange.h>
+#include <GLuaScript.h>
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
@@ -33,7 +35,7 @@
 
 #define META_FRIEND(c) friend struct c##_metacreator; friend GDerivedMetaclass<c>;
 #define BEGIN_DEFINE_META(c) struct c##_metacreator	{ c##_metacreator() {
-#define END_DEFINE_META(c) } }; static c##_metacreator _c##_metacreator;
+#define END_DEFINE_META(c) register_script_for_metaclass(GMetaclassList::instance().getMetaclassByType<c>());} }; static c##_metacreator _c##_metacreator;
 
 /*! \file GReflection.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to GReflection class.
@@ -67,7 +69,10 @@ namespace GFramework
 {
 	class GMetaclass;
 	class GMetafunction;
+	class GMetaMemberfunction;
 	class GMetaconstructor;
+	
+	typedef GMetafunction GMetaStaticfunction;
 
 	class LIBRARY_API GMetaconstructor
 	{
@@ -111,11 +116,26 @@ namespace GFramework
 	template <typename Func, size_t... Inds>
 	struct PrototypePrintHelper<Func, std::integer_sequence<size_t, Inds...> >
 	{
-		static std::string getPrototype()
+		static std::string getMemberFunctionPrototype()
 		{
 			std::string result("");			
 			string typeNames[] = { typeid(ArgType<Func, Inds>).name()... };
 			if (Arity<Func>::value > 1)
+			{
+				result.append(typeNames[1]);
+			}
+			for (int i = 2; i < Arity<Func>::value; ++i)
+			{
+				result.append(", ").append(typeNames[i]);
+			}
+			return result;
+		}
+
+		static std::string getStaticFunctionPrototype()
+		{
+			std::string result("");
+			string typeNames[] = { "", typeid(ArgType<Func, Inds>).name()... };
+			if (Arity<Func>::value > 0)
 			{
 				result.append(typeNames[1]);
 			}
@@ -151,13 +171,17 @@ namespace GFramework
 	class LIBRARY_API GDerivedMetaEditableproperty : public GMetaproperty
 	{
 	public:
-		GDerivedMetaEditableproperty(const char* _name, T _ptr) : GMetaproperty(_name) {
+		GDerivedMetaEditableproperty(const char* _name, T _ptr, std::function<void(C*)> callback) : GMetaproperty(_name) {
 			ptr = _ptr;
+			onupdate_cb = callback;
 		}
 
 		void set(void* _object, GVariant &value) {
 			C* o = static_cast<C*>(_object);
 			(o->*ptr).set(value);// = boost::get<T>(value);
+			if (onupdate_cb) {
+				onupdate_cb(o);
+			}
 		}
 
 		GVariant get(void* _object) {
@@ -186,6 +210,7 @@ namespace GFramework
 		}
 	private:
 		T ptr;
+		std::function<void(C*)> onupdate_cb;
 	};
 
 	template<typename C, typename T>
@@ -229,34 +254,16 @@ namespace GFramework
 		T ptr;
 	};
 
-	class LIBRARY_API GMetafunction
-	{
-	public:
-		GMetafunction(const char *_name) : name(_name){
-		}
-		const std::string& getName() { return name; }
-		const unsigned int getArgsCount() { return args.size();  }
-		const std::list<std::string>& getArgsList() { return args; }
-		virtual GVariant invoke(void * o, std::vector<GVariant>& args)=0 ;
-		virtual std::string getPrototype() = 0;		
-		virtual std::string getReturntype() = 0;
-		virtual std::string getParameters() = 0;
-
-	protected:
-		std::list<std::string> args;
-	private:
-		std::string name;
-	};
-
 	// helper for functions taking non-void arguments and returning a non-void value
 	template<typename R, typename C, typename F, int n>
-	struct invoke_helper {
+	struct member_function_invoke_helper {
 		static GVariant call(void* _object, F f, std::vector<GVariant>& args)
 		{
 			GVariant result;
-			result = call_internal(_object, f, args, std::make_index_sequence<n-1>());
+			result = call_internal(_object, f, args, std::make_index_sequence<n - 1>());
 			return result;
 		}
+
 	private:
 		template<typename F, std::size_t... I>
 		static GVariant call_internal(void* _object, F f, std::vector<GVariant>& args, std::index_sequence<I...>)
@@ -268,13 +275,14 @@ namespace GFramework
 
 	// helper for functions taking non-void arguments and returning a void value
 	template<typename C, typename F, int n>
-	struct invoke_helper<void, C, F, n> {
+	struct member_function_invoke_helper<void, C, F, n> {
 		static GVariant call(void* _object, F f, std::vector<GVariant>& args)
 		{
 			GVariant result;
 			call_internal(_object, f, args, std::make_index_sequence<n - 1>());
 			return result;
 		}
+
 	private:
 		template<typename F, std::size_t... I>
 		static void call_internal(void* _object, F f, std::vector<GVariant>& args, std::index_sequence<I...>)
@@ -284,9 +292,10 @@ namespace GFramework
 		}
 	};
 
-	// helper for functions taking void arguments and returning a non-void value
-	template<typename R, typename C, typename F> 
-	struct invoke_helper<R, C, F, 1> {
+	//helper for creating GVariant if return type is non reference
+	template<typename R, typename C, typename F, bool b>
+	struct member_function_invoke_helper_returns_reference
+	{
 		static GVariant call(void* _object, F f, std::vector<GVariant>& args)
 		{
 			GVariant result;
@@ -296,9 +305,36 @@ namespace GFramework
 		}
 	};
 
+	//helper for creating GVariant if return type is reference
+	template<typename R, typename C, typename F>
+	struct member_function_invoke_helper_returns_reference<R, C, F, true> {
+		static GVariant call(void* _object, F f, std::vector<GVariant>& args)
+		{
+			GVariant result;
+			auto casted_object = static_cast<C*>(_object);
+			typedef std::remove_reference<R>::type NON_REFERENCE_TYPE;
+			result = GVariant::ref<NON_REFERENCE_TYPE>((casted_object->*f)());
+			return result;
+		}
+	};
+
+	// helper for functions taking void arguments and returning a non-void value
+	template<typename R, typename C, typename F>
+	struct member_function_invoke_helper<R, C, F, 1> {
+		static GVariant call(void* _object, F f, std::vector<GVariant>& args)
+		{
+			GVariant result;
+			//auto casted_object = static_cast<C*>(_object);
+			//result = (casted_object->*f)();
+			result = member_function_invoke_helper_returns_reference < R, C, F, std::is_reference<R>::value >::call(_object, f, args);
+			//result = std::conditional<std::is_reference<R>::value, GVariant::ref<std::remove_reference<F>::type>((casted_object->*f)()), (casted_object->*f)();
+			return result;
+		}
+	};
+
 	// helper for functions taking void arguments and returning a void value
 	template<typename C, typename F> //specialization for no parammeters function
-	struct invoke_helper<void, C, F, 1> {
+	struct member_function_invoke_helper<void, C, F, 1> {
 		static GVariant call(void* _object, F f, std::vector<GVariant>& args)
 		{
 			GVariant result;
@@ -308,17 +344,56 @@ namespace GFramework
 		}
 	};
 
-	template<typename C, typename F>
-	class LIBRARY_API GDerivedMetafunction : public GMetafunction
+	//static function invoke helpers
+	// helper for functions taking non-void arguments and returning a non-void value
+	template<typename R, typename C, typename F, int n>
+	struct nonmember_function_invoke_helper {
+		static GVariant static_call(F f, std::vector<GVariant>& args)
+		{
+			GVariant result;
+			result = static_call_internal(f, args, std::make_index_sequence<n>());
+			return result;
+		}
+	private:
+		template<typename F, std::size_t... I>
+		static GVariant static_call_internal(F f, std::vector<GVariant>& args, std::index_sequence<I...>)
+		{
+			return (*f)(args[I]...);
+		}
+	};
+
+	// helper for functions taking non-void arguments and returning a void value
+	template<typename C, typename F, int n>
+	struct nonmember_function_invoke_helper<void, C, F, n> {
+		static GVariant static_call(F f, std::vector<GVariant>& args)
+		{
+			GVariant result;
+			static_call_internal(f, args, std::make_index_sequence<n>());
+			return result;
+		}
+	private:
+		template<typename F, std::size_t... I>
+		static void static_call_internal(F f, std::vector<GVariant>& args, std::index_sequence<I...>)
+		{
+			(*f)(args[I]...);
+		}
+	};
+
+	class LIBRARY_API GMetafunction_Base
 	{
 	public:
-		GDerivedMetafunction(const char *_name, F _f) : GMetafunction(_name), f(_f) {
+		GMetafunction_Base(const char *_name) : name(_name){
 		}
+		const std::string& getName() { return name; }
+		//const unsigned int getArgsCount() { return args.size();  }
+		//const std::list<std::string>& getArgsList() { return args; }
+		virtual int invoke_lua(lua_State*L) = 0;
+		//virtual std::string getPrototype() = 0;		
+		virtual std::string getReturntype() = 0;
+		virtual std::string getParameters() = 0;
 
-		void arguments(){}
 		virtual std::string getPrototype()
 		{
-			std::string return_type = getReturntype();
 			std::string parameters = getParameters();
 			std::string prototype = getReturntype();
 			prototype = prototype.append(" ").append(getName()).append("(");
@@ -326,6 +401,125 @@ namespace GFramework
 			prototype = prototype.append(")");
 			//return PrototypePrintHelper<F, std::make_index_sequence<Arity<F>::value> >::getPrototype();
 			return prototype;
+		}
+	protected:
+		template<typename first>
+		static void iterate_arg_type(lua_State* L, std::vector<GVariant>& args, int offset)
+		{
+			//cout << typeid(first).name() << endl;
+			Glua_puller< std::decay<first>::type >(L, args, offset);
+		}
+
+		template<>
+		static void iterate_arg_type<void>(lua_State* L, std::vector<GVariant>& args, int offset)
+		{
+			//TODO: see if this specialization can be removed
+			//cout << typeid(first).name() << endl;
+			//do nothing
+		}
+
+		template<typename first, typename second, typename... rest>
+		static void iterate_arg_type(lua_State* L, std::vector<GVariant>& args, int offset)
+		{
+			//cout << typeid(first).name() << endl;
+			Glua_puller< std::decay<first>::type >(L, args, offset);
+			iterate_arg_type<second, rest...>(L, args, offset);
+		}
+
+		template<class R, class C, class... Args>
+		static void proto(R(C::*)(Args...), lua_State* L, std::vector<GVariant>& args, int offset)
+		{
+			GMetafunction::iterate_arg_type<Args...>(L, args, offset);
+		}
+
+		template<class R, class C, class... Args>
+		static void proto(R(C::*)(Args...)const, lua_State* L, std::vector<GVariant>& args, int offset)
+		{
+			GMetafunction::iterate_arg_type<Args...>(L, args, offset);
+		}
+
+		template<class R, class... Args>
+		static void proto(R(*)(Args...), lua_State* L, std::vector<GVariant>& args, int offset)
+		{
+			GMetafunction::iterate_arg_type<Args...>(L, args, offset);
+		}
+
+		template<typename F>
+		class non_void {
+		public:
+			static void pass(F f, lua_State* L, std::vector<GVariant>& args, int offset) {
+				proto(f, L, args, offset);
+			}
+		};
+
+		template<typename F>
+		class yes_void {
+		public:
+			static void pass(F f, lua_State* L, std::vector<GVariant>& args, int offset) {
+
+			}
+		};
+
+		template<class F>
+		struct function_traits;
+
+		template<class R, class... Args>
+		struct function_traits<R(Args...)>
+		{
+			using return_type = R;
+
+			static constexpr std::size_t arity = sizeof...(Args);
+
+			template <std::size_t N>
+			struct argument
+			{
+				static_assert(N < arity, "error: invalid parameter index.");
+				using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+			};
+		};
+
+		template<class R, class... Args>
+		struct function_traits<R(*)(Args...)> : public function_traits<R(Args...)>
+		{};
+
+		// function pointer
+		template<class R, class C, class... Args>
+		struct function_traits<R(C::*)(Args...)const> : public function_traits<R(Args...)>
+		{};
+
+		template<class R, class C, class... Args>
+		struct function_traits<R(C::*)(Args...)> : public function_traits<R(Args...)>
+		{};
+
+
+		//TODO: Try to avoid the offset parameter and handle member function and non member fumction arguments efficiently
+		template <typename F>
+		void fill_args_from_lua(F f, lua_State* L, std::vector<GVariant>& args, int offset)
+		{
+			typedef std::conditional<function_traits<F>::arity, non_void<F>, yes_void<F> >::type selection;
+			//std::cout << "boost arity for " << getName().c_str() << " is " << Arity<F>::value << std::endl;
+			//std::cout << "simple arity for " << getName().c_str() << " is " << function_traits<F>::arity << std::endl;
+			selection::pass(f, L, args, offset);
+			//iterate_arg_type<Args...>();
+		}
+
+	private:
+		std::string name;
+	};
+
+	class LIBRARY_API GMetaMemberfunction : public GMetafunction_Base
+	{
+	public:
+		GMetaMemberfunction(const char *_name) : GMetafunction_Base(_name) {
+		}
+		virtual GVariant invoke(void * o, std::vector<GVariant>& args) = 0;
+	};
+
+	template<typename C, typename F>
+	class LIBRARY_API GMetaMemberfunction_derived : public GMetaMemberfunction
+	{
+	public:
+		GMetaMemberfunction_derived(const char *_name, F _f) : GMetaMemberfunction(_name), func(_f) {
 		}
 
 		virtual std::string getReturntype()
@@ -335,25 +529,74 @@ namespace GFramework
 
 		virtual std::string getParameters()
 		{
-			return PrototypePrintHelper<F, std::make_index_sequence<Arity<F>::value> >::getPrototype();
+			return PrototypePrintHelper<F, std::make_index_sequence<Arity<F>::value> >::getMemberFunctionPrototype();
 		}
 
-		template<typename ARG1, typename ARG2, typename ARG3>
-		void arguments() {
-			args.push_back(typeid(T1).name());
-			args.push_back(typeid(T2).name());
-			args.push_back(typeid(T3).name());
-		}
-		
-		GVariant invoke(void * _object, std::vector<GVariant>& _args) {
+		virtual GVariant invoke(void * _object, std::vector<GVariant>& _args) {
 			GVariant result;
-			result = invoke_helper<ResultType<F>, C, F, Arity<F>::value>::call(_object, f, _args);
+			result = member_function_invoke_helper<ResultType<F>, C, F, Arity<F>::value>::call(_object, func, _args);
 			return result;
+		}
+
+		virtual int invoke_lua(lua_State* L)
+		{
+			Glua_abstract_ptr* userdata = (Glua_abstract_ptr*)lua_touserdata(L, 1);
+			std::vector<GVariant> args;
+			fill_args_from_lua(func, L, args, 2);
+			GVariant rv = invoke(userdata->object, args);
+			Glua_pusher< std::decay<ResultType<F> >::type >(L, rv);
+			return 1;
+		}
+	private:
+		//boost::function<typename std::remove_reference<std::remove_const<decltype(*f)>::type>::type>  f;
+		typename F func;
+	};
+
+	class LIBRARY_API GMetafunction : public GMetafunction_Base
+	{
+	public:
+		GMetafunction(const char *_name) : GMetafunction_Base(_name) {
+		}
+		virtual GVariant invoke(std::vector<GVariant>& _args) = 0;
+	};
+	
+	template<typename C, typename F>
+	class LIBRARY_API GMetafunction_derived : public GMetafunction
+	{
+	public:
+		GMetafunction_derived(const char *_name, F _f) : GMetafunction(_name), func(_f) {
+		}
+
+		virtual std::string getReturntype()
+		{
+			return typeid(ResultType<F>).name();
+		}
+
+		virtual std::string getParameters()
+		{
+			return PrototypePrintHelper<F, std::make_index_sequence<Arity<F>::value> >::getStaticFunctionPrototype();
+		}
+
+		virtual GVariant invoke(std::vector<GVariant>& _args) override 
+		{
+			GVariant result;
+			result = nonmember_function_invoke_helper<ResultType<F>, C, F, Arity<F>::value>::static_call(func, _args);
+			return result;
+		}
+
+		virtual int invoke_lua(lua_State* L) override
+		{
+			std::vector<GVariant> args;
+			fill_args_from_lua(func, L, args, 1);
+			GVariant rv = invoke(args);
+			Glua_pusher< std::decay<ResultType<F> >::type >(L, rv);
+			//Glua_pusher< std::remove_cv< ResultType<F> > >(L, rv);
+			return 1;
 		}
 
 	private:
 		//boost::function<typename std::remove_reference<std::remove_const<decltype(*f)>::type>::type>  f;
-		typename F f;
+		typename F func;
 	};
 #else
 	class LIBRARY_API GMetafunction
@@ -376,12 +619,12 @@ namespace GFramework
 	};
 
 	template<typename C>
-	class LIBRARY_API GDerivedMetafunction : public GMetafunction
+	class LIBRARY_API GMetaMemberfunction : public GMetafunction
 	{
 	public:
-		GDerivedMetafunction(const char *_name, returnType(C::*_f)(argsType&)) : GMetafunction(_name), f(_f) {
+		GMetaMemberfunction(const char *_name, returnType(C::*_f)(argsType&)) : GMetafunction(_name), f(_f) {
 		}
-		GDerivedMetafunction<C>& tooltip(const char *_tooltip) {
+		GMetaMemberfunction<C>& tooltip(const char *_tooltip) {
 			tooltipInfo = std::string(_tooltip);
 			return *this;
 		}
@@ -444,10 +687,10 @@ namespace GFramework
 		}
 
 		template<typename T>
-		auto& getMetaclassByType()
+		auto getMetaclassByType()
 		{
 			auto m = std::conditional<std::is_abstract<T>::value, GDerivedAbstractMetaclass<T>, GDerivedMetaclass<T>>::type::getInstance();
-			return *m;
+			return m;
 		}
 
 		GMetaclass* getMetaclass(const char* _name)
@@ -471,7 +714,8 @@ namespace GFramework
 	public:
 		const std::string& getName() { return name; }
 		virtual Object* createInstance() = 0;
-		virtual GMetafunction* getFunction(const char *_name)=0;
+		virtual GMetaMemberfunction* getMemberFunction(const char *_name)=0;
+		virtual GMetaStaticfunction* getStaticFunction(const char *_name) = 0;
 		virtual GMetaproperty* getProperty(const char *_name) = 0;
 		void getFunctionsList(std::vector<std::string> &functions_list)
 		{
@@ -481,10 +725,24 @@ namespace GFramework
 				if(basemetaclass)
 					basemetaclass->getFunctionsList(functions_list);
 			}
-			for (auto it = Gmetafunctions.begin(); it != Gmetafunctions.end(); ++it) {
+			for (auto it = Gmetamemberfunctions.begin(); it != Gmetamemberfunctions.end(); ++it) {
 				functions_list.push_back(it->first);
 			}
 			return ;
+		}
+
+		void getStaticFunctionsList(std::vector<std::string> &functions_list)
+		{
+			for (std::string baseclass : GBaseMetaclasses)
+			{
+				GMetaclass* basemetaclass = GMetaclassList::instance().getMetaclass(baseclass.c_str());
+				if (basemetaclass)
+					basemetaclass->getStaticFunctionsList(functions_list);
+			}
+			for (auto it = GmetaStaticfunctions.begin(); it != GmetaStaticfunctions.end(); ++it) {
+				functions_list.push_back(it->first);
+			}
+			return;
 		}
 
 		void getPropertiesList(std::vector<std::string> &properties_list)
@@ -525,14 +783,16 @@ namespace GFramework
 		}
 
 	protected:
-		void addFunction(const char *_name, GMetafunction* _f);
+		void addFunction(const char *_name, GMetaMemberfunction* _f);
+		void addStaticFunction(const char *_name, GMetaStaticfunction* _f);
 		void addProperty(const char *_name, GMetaproperty* _p);
 		void addEditableProperty(const char *_name, GMetaproperty* _p);
 		GMetaclass();
 
 	protected:		
 		std::vector<std::string> GBaseMetaclasses;
-		std::unordered_map<std::string, GMetafunction*> Gmetafunctions;
+		std::unordered_map<std::string, GMetaMemberfunction*> Gmetamemberfunctions;
+		std::unordered_map<std::string, GMetaStaticfunction*> GmetaStaticfunctions;
 		std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>> Gmetaproperties;
 		std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>> Gmetaeditableproperties;
 		std::string name;
@@ -572,9 +832,9 @@ namespace GFramework
 		}
 
 		template<typename PROP>
-		GDerivedAbstractMetaclass<T>& editableProperty(const char* _name, PROP _p)
+		GDerivedAbstractMetaclass<T>& editableProperty(const char* _name, PROP _p, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GDerivedMetaEditableproperty<T, PROP>(_name, _p);
+			auto p = new GDerivedMetaEditableproperty<T, PROP>(_name, _p, callback);
 			addEditableProperty(_name, p);
 			return *this;
 		}
@@ -590,8 +850,16 @@ namespace GFramework
 		template<typename FUNC>
 		GDerivedAbstractMetaclass<T>& function(const char *_name, FUNC _f)
 		{
-			auto f = new GDerivedMetafunction<T, FUNC>(_name, _f);
+			auto f = new GMetaMemberfunction_derived<T, FUNC>(_name, _f);
 			addFunction(_name, f);
+			return *this;
+		}
+
+		template<typename FUNC>
+		GDerivedAbstractMetaclass<T>& staticFunction(const char *_name, FUNC _f)
+		{
+			auto f = new GMetafunction_derived<T, FUNC>(_name, _f);
+			addStaticFunction(_name, f);
 			return *this;
 		}
 
@@ -601,17 +869,37 @@ namespace GFramework
 			return *this;
 		}
 
-		GMetafunction* getFunction(const char *_name)
+		GMetaMemberfunction* getMemberFunction(const char *_name)
 		{
-			if (Gmetafunctions.find(std::string(_name)) != Gmetafunctions.end())
+			if (Gmetamemberfunctions.find(std::string(_name)) != Gmetamemberfunctions.end())
 			{
-				return Gmetafunctions[std::string(_name)];
+				return Gmetamemberfunctions[std::string(_name)];
 			}
 			else
 			{
 				for (auto basemetaclass : GBaseMetaclasses)
 				{
-					GMetafunction* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getFunction(_name);
+					GMetaMemberfunction* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getMemberFunction(_name);
+					if (f != NULL)
+					{
+						return f;
+					}
+				}
+			}
+			return NULL;
+		}
+
+		GMetaStaticfunction* getStaticFunction(const char *_name)
+		{
+			if (GmetaStaticfunctions.find(std::string(_name)) != GmetaStaticfunctions.end())
+			{
+				return GmetaStaticfunctions[std::string(_name)];
+			}
+			else
+			{
+				for (auto basemetaclass : GBaseMetaclasses)
+				{
+					GMetaStaticfunction* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getStaticFunction(_name);
 					if (f != NULL)
 					{
 						return f;
@@ -695,9 +983,9 @@ namespace GFramework
 		}
 
 		template<typename PROP>
-		GDerivedMetaclass<T>& editableProperty(const char* _name, PROP _p)
+		GDerivedMetaclass<T>& editableProperty(const char* _name, PROP _p, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GDerivedMetaEditableproperty<T, PROP>(_name, _p);
+			auto p = new GDerivedMetaEditableproperty<T, PROP>(_name, _p, callback);
 			addEditableProperty(_name, p);
 			return *this;
 		}
@@ -719,21 +1007,42 @@ namespace GFramework
 		template<typename FUNC>
 		GDerivedMetaclass<T>& function(const char *_name, FUNC _f)
 		{
-			auto f = new GDerivedMetafunction<T, FUNC>(_name, _f);
+			auto f = new GMetaMemberfunction_derived<T, FUNC>(_name, _f);
 			addFunction(_name, f);
 			return *this;
 		}
-		GMetafunction* getFunction(const char *_name)
+
+		GMetaMemberfunction* getMemberFunction(const char *_name)
 		{
-			if (Gmetafunctions.find(std::string(_name)) != Gmetafunctions.end())
+			if (Gmetamemberfunctions.find(std::string(_name)) != Gmetamemberfunctions.end())
 			{
-				return Gmetafunctions[std::string(_name)];
+				return Gmetamemberfunctions[std::string(_name)];
 			}
 			else
 			{
 				for (auto basemetaclass : GBaseMetaclasses)
 				{
-					GMetafunction* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getFunction(_name);
+					GMetaMemberfunction* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getMemberFunction(_name);
+					if (f != NULL)
+					{
+						return f;
+					}
+				}
+			}
+			return NULL;
+		}
+
+		GMetaStaticfunction* getStaticFunction(const char *_name)
+		{
+			if (GmetaStaticfunctions.find(std::string(_name)) != GmetaStaticfunctions.end())
+			{
+				return GmetaStaticfunctions[std::string(_name)];
+			}
+			else
+			{
+				for (auto basemetaclass : GBaseMetaclasses)
+				{
+					GMetaStaticfunction* f = GMetaclassList::instance().getMetaclass(basemetaclass.c_str())->getStaticFunction(_name);
 					if (f != NULL)
 					{
 						return f;

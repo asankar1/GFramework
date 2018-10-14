@@ -62,6 +62,7 @@
     <Import Project="..\GReflection\GReflection.props" />
     <Import Project="..\GVariant\GVariant.props" />
     <Import Project="..\Sample\Sample.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -70,6 +71,7 @@
     <Import Project="..\GVariant\GVariant.props" />
     <Import Project="..\Test\Test.props" />
     <Import Project="..\Sample\Sample.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -78,6 +80,7 @@
     <Import Project="..\GVariant\GVariant.props" />
     <Import Project="..\Test\Test.props" />
     <Import Project="..\Sample\Sample.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -86,11 +89,12 @@
     <Import Project="..\GVariant\GVariant.props" />
     <Import Project="..\Test\Test.props" />
     <Import Project="..\Sample\Sample.props" />
+    <Import Project="..\GScript\GScript.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Build\output\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>

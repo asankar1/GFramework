@@ -13,6 +13,13 @@
 
 namespace GFramework
 {
+	class sphere;
+
+	/** \var typedef std::shared_ptr<sphere> SphereSharedPtr;
+	*	\brief shared pointer type for the Sphere class
+	*/
+	typedef std::shared_ptr<sphere> SphereSharedPtr;
+
 	/*! \brief This the sphere class
 	*/
 	class LIBRARY_API sphere : public Node
@@ -40,7 +47,7 @@ namespace GFramework
 		* Gets the radius of the sphere object.
 		* \return radius of the sphere as const unsigned int.
 		*/
-		unsigned int getRadius();
+		unsigned int getRadius() const;
 
 		/**
 		* Prints the information about the sphere
@@ -54,7 +61,7 @@ namespace GFramework
 		void reconstruct();
 
 	private:
-		GScalarProperty<unsigned int> radius; /*!< Radius of the sphere*/
+		GUintProperty radius; /*!< Radius of the sphere*/
 
 		META_FRIEND(sphere);
 	};

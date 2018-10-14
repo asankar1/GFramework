@@ -1,10 +1,12 @@
 #pragma once
 #include <fstream>
 #include <string>
+#include <vector>
 #include <glm/gtc/type_ptr.hpp>
-#include <Object.h>
-#include <GVariant.h>
 #include <GSerializer.h>
+#include <GVariant.h>
+
+
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
@@ -18,6 +20,10 @@
 
 namespace GFramework
 {
+	class Object;
+
+	void register_lua_script_functions(lua_State *L, std::vector<luaL_Reg>& GPropertiesList);
+
 	class LIBRARY_API GPropertyInterface
 	{
 	public:
@@ -35,43 +41,24 @@ namespace GFramework
 	class GScalarProperty : public GPropertyInterface
 	{
 	public:
-		GScalarProperty() {}
+		GScalarProperty();
 
-		virtual void set(GVariant& _value) {
-			value = boost::any_cast<T>(_value);
-		}
+		virtual void set(GVariant& _value);
 
-		void setValue(T _value) {
-			value = _value;
-		}
+		void setValue(T _value);
 
-		virtual GVariant get() {
-			return value;
-		}
+		virtual GVariant get();
 
-		const T& getValue() const {
-			return value;
-		}
+		const T& getValue() const;
 
-		std::ostream& writeASCIIValue(std::ostream& os) const {
-			os << value << " ";
-			return os;
-		}
+		std::ostream& writeASCIIValue(std::ostream& os) const;
 
-		std::istream& readASCIIValue(std::istream& is) {
-			is >> value;
-			return is;
-		}
+		std::istream& readASCIIValue(std::istream& is);
 
-		std::ostream& writeBinaryValue(std::ostream& os) const {
-			os.write(reinterpret_cast<const char*>(&value), sizeof(T));
-			return os;
-		}
+		std::ostream& writeBinaryValue(std::ostream& os) const;
 
-		std::istream& readBinaryValue(std::istream& is) {
-			is.read(reinterpret_cast<char*>(&value), sizeof(T));
-			return is;
-		}
+		std::istream& readBinaryValue(std::istream& is);
+
 
 	private:
 		T value;
@@ -80,58 +67,23 @@ namespace GFramework
 	class GStringProperty : public GPropertyInterface
 	{
 	public:
-		GStringProperty() {}
+		GStringProperty();
 
-		virtual void set(GVariant& _value) {
-			value = boost::any_cast<std::string>(_value);
-		}
+		virtual void set(GVariant& _value);
 
-		void setValue(const std::string& _value) {
-			value = _value;
-		}
+		void setValue(const std::string& _value);
 
-		virtual GVariant get() {
-			return value;
-		}
+		virtual GVariant get();
 
-		const std::string& getValue() const {
-			return value;
-		}
+		const std::string& getValue() const;
 
-		std::ostream& writeASCIIValue(std::ostream& os) const {
-			os << value.length() << " " << value << " ";
-			return os;
-		}
+		std::ostream& writeASCIIValue(std::ostream& os) const;
 
-		std::istream& readASCIIValue(std::istream& is) {
-			size_t count;
-			is >> count;
-			std::string str;
-			while (value.length() < count)
-			{
-				is >> str;
-				value.append(str);
-			}
-			
-			return is;
-		}
+		std::istream& readASCIIValue(std::istream& is);
 
-		std::ostream& writeBinaryValue(std::ostream& os) const {
-			size_t size = value.length()+1;
-			os.write(reinterpret_cast<char*>(&size), sizeof(size_t));
-			os.write(value.c_str(), size);
-			return os;
-		}
+		std::ostream& writeBinaryValue(std::ostream& os) const;
 
-		std::istream& readBinaryValue(std::istream& is) {
-			size_t count;
-			is.read(reinterpret_cast<char*>(&count), sizeof(size_t));
-			char* str = new char[count];
-			is.read(str, count);
-			value = std::string(str);
-			delete[] str;
-			return is;
-		}
+		std::istream& readBinaryValue(std::istream& is);
 
 	private:
 		std::string value;
@@ -141,57 +93,23 @@ namespace GFramework
 	class GGlmProperty : public GPropertyInterface
 	{
 	public:
-		GGlmProperty() {}
+		GGlmProperty();
 
-		virtual void set(GVariant& _value) {
-			value = boost::any_cast<T>(_value);
-		}
+		virtual void set(GVariant& _value);
 
-		void setValue(T _value) {
-			value = _value;
-		}
+		void setValue(T _value);
 
-		virtual GVariant get() {
-			return value;
-		}
+		virtual GVariant get();
 
-		const T& getValue() const {
-			return value;
-		}
+		const T& getValue() const;
 
-		std::ostream& writeASCIIValue(std::ostream& os) const {
-			unsigned int size = value.length();
-			const float* pointer = glm::value_ptr(value);
-			for (unsigned int i= 0; i < size; i++)
-			{
-				os << pointer[i] << " ";
-			}
-			return os;
-		}
+		std::ostream& writeASCIIValue(std::ostream& os) const;
 
-		std::istream& readASCIIValue(std::istream& is) {
-			unsigned int size = value.length();
-			float* pointer = glm::value_ptr(value);
-			for (unsigned int i= 0; i < size; i++)
-			{
-				is >> pointer[i];
-			}
-			return is;
-		}
+		std::istream& readASCIIValue(std::istream& is);
 
-		std::ostream& writeBinaryValue(std::ostream& os) const {
-			unsigned int size = value.length();
-			const float* pointer = glm::value_ptr(value);
-			os.write(reinterpret_cast<const char*>(pointer), size * sizeof(float));
-			return os;
-		}
+		std::ostream& writeBinaryValue(std::ostream& os) const;
 
-		std::istream& readBinaryValue(std::istream& is) {
-			unsigned int size = value.length();
-			float* pointer = glm::value_ptr(value);
-			is.read(reinterpret_cast<char*>(pointer), size * sizeof(float));
-			return is;
-		}
+		std::istream& readBinaryValue(std::istream& is);
 
 	private:
 		T value;
@@ -312,6 +230,16 @@ namespace GFramework
 		T value;
 	};
 
-
+	typedef GGlmProperty<glm::vec2> GVec2Property;
+	typedef GGlmProperty<glm::vec3> GVec3Property;
+	typedef GScalarProperty<bool> GBoolProperty;
+	typedef GScalarProperty<char> GCharProperty;
+	typedef GScalarProperty<unsigned char> GUcharProperty;
+	typedef GScalarProperty<short> GPShortroperty;
+	typedef GScalarProperty<unsigned short> GUshortProperty;
+	typedef GScalarProperty<int> GIntProperty;
+	typedef GScalarProperty<unsigned int> GUintProperty;
+	typedef GScalarProperty<float> GFloatProperty;
+	typedef GScalarProperty<double> GDoubleProperty;
 
 }

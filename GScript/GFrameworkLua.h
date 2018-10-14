@@ -5,6 +5,8 @@ extern "C" {
 #include <lualib.h>
 }
 
-//int luaopen_vector2d(lua_State *L);
+namespace GFramework
+{
 
-//#define LUA_EXTRALIBS { "Vector2DLib", luaopen_vector2d },
+
+}

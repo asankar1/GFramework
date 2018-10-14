@@ -18,8 +18,8 @@ void main()
 #else
 	run_variant_testcases();
 	run_reflection_testcases();
-	run_serialization_testcases();
-	run_script_testcases();
+	//run_serialization_testcases();
+	//run_script_testcases();
 #endif
 	cout << "\nPress any key to exit...";
 	_getch();

@@ -23,10 +23,15 @@ namespace GFramework
 	{
 	}
 
-	void GMetaclass::addFunction(const char * _name, GMetafunction * _f)
+	void GMetaclass::addFunction(const char * _name, GMetaMemberfunction * _f)
 	{
-		Gmetafunctions.insert(std::make_pair(std::string(_name), _f));
+		Gmetamemberfunctions.insert(std::make_pair(std::string(_name), _f));
 	}
+
+	void GMetaclass::addStaticFunction(const char * _name, GMetaStaticfunction * _f)
+	{
+		GmetaStaticfunctions.insert(std::make_pair(std::string(_name), _f));
+	}	
 
 	void GMetaclass::addProperty(const char * _name, GMetaproperty * _p)
 	{

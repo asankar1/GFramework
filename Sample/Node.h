@@ -75,7 +75,7 @@ namespace GFramework
 		* get the parent of the node object		
 		* \return parent node
 		*/
-		NodeSharedPtr getParent();
+		std::shared_ptr<Node> getParent();
 
 		/**
 		* Add a child node to the node object
@@ -102,7 +102,7 @@ namespace GFramework
 	protected:
 		Node() {}
 	private:
-		GGlmProperty<glm::vec3> position; /*!< Position of the node*/
+		GVec3Property position; /*!< Position of the node*/
 		GNodePointerProperty<NodeSharedPtr> parent; /*!< Pointer to the parent of the node object*/
 		std::vector<NodeSharedPtr> children;
 

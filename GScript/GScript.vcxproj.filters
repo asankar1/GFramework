@@ -123,6 +123,9 @@
     <ClCompile Include="GLuaScript.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GLua_data_exchange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\third_party\lua-5.3.4\src\lapi.h">
@@ -210,6 +213,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GFrameworkLua.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLua_data_exchange.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

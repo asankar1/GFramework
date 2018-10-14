@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 #include <property.h>
-#include <GVariant.h>
 #include <GReflection.h>
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
@@ -44,16 +43,17 @@ namespace GFramework
 		void rename(const std::string& _name);
 
 		/**
-		* Get the name of the object
-		* \return name as const string reference
-		*/
-		const std::string & getName() const;
-
-		/**
 		* Get the id of the object
 		* \return object_id as const unsigned int
 		*/
 		const unsigned int& getObjectId() const;
+
+		/**
+		* set the id of the object
+		* \param _newid is an unsigned int as the new object_id
+		* \return void
+		*/
+		void setObjectId(unsigned int _newid);
 
 		/**
 		* Add a new object to the observers list
@@ -99,7 +99,38 @@ namespace GFramework
 		* \return result of the deserialization
 		*/
 		virtual bool deserialize(GDeserializer& deserializer, unsigned int version);
+
+		void name_modified() {
+			std::cout << "someone modified my name" << std::endl;
+		}
+
+		static void about() {
+			std::cout << "This is the base object!" << std::endl;
+		}
+
+		static unsigned int count() {
+			return 112233;
+		}
+
+		static int add(int x, int y) {
+			return (x+y);
+		}
+
+		static void updateMagicNumber(int x) {
+			static int i;
+			std::cout << "Old MagicNumber is " << i << " and new MagicNumber is " << x << std::endl;
+			i = x;
+		}
+
+
+
 	protected:
+		/**
+		* Get the name of the object
+		* \return name as const string reference
+		*/
+		const std::string & getName() const;
+
 		/**
 		* Constructs the Object class.
 		* \param _name is a string reference.
@@ -111,7 +142,7 @@ namespace GFramework
 
 	private:
 		GStringProperty name; /*!< Name of the object*/
-		GScalarProperty<unsigned int> object_id;
+		GUintProperty object_id;
 		static std::atomic<unsigned int> atomic_count;
 		std::map<Object*,  unsigned int> observers;
 		META_FRIEND(Object);

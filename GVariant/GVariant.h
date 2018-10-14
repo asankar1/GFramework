@@ -3,7 +3,7 @@
 #include <glm\vec3.hpp>
 #include <boost\variant.hpp>
 #include <boost\any.hpp>
-
+#include <GFrameworkLua.h>
 
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
@@ -27,6 +27,8 @@ namespace GFramework
 	class Node;
 	typedef std::shared_ptr<Object> ObjectSharedPtr;
 	typedef std::shared_ptr<Node> NodeSharedPtr;
+
+	int open_lua_variant_module(lua_State *L);
 
 	template <typename... Types>
 	struct myv : public boost::variant<Types...>
@@ -99,23 +101,87 @@ namespace GFramework
 		}
 
 		template<typename T>
-		static T cast(many& m )
+		static many ref(T& t)
 		{
-			return boost::any_cast<T>(m);
+			auto a = any(static_cast<T*>(&t));
+			many m;
+			a.swap(m);
+			return m;
 		}
 
-		template <class ValueType>
-		many(ValueType v) : boost::any(v) {
-
-		}
-
-		template <class ValueType>
-		many & operator=(ValueType&& rhs)
+		many & operator=(many rhs)
 		{
-			any(static_cast<ValueType&&>(rhs)).swap(*this);
+			//std::cout << "GVariant to GVariant copy" << std::endl;
+			rhs.swap(*this);
 			return *this;
 		}
 
+		template<typename T>
+		static T cast(many& m )
+		{
+			return cast_helper<T>::cast(m);
+		}
+
+		/*template<typename T&>
+		static T& cast(many& m)
+		{
+			return cast_helper<T&>::cast(m);
+		}*/
+
+		template<>
+		static void cast<void>(many& m)
+		{
+			//return boost::any_cast<T>(m);
+			return;// check_ref<std::is_reference<T>::value>::cast<std::remove_reference<T>::type>(m);
+		}
+
+		template <class T>
+		many(T v) : boost::any(v) {
+
+		}
+
+		template <class T>
+		many & operator=(T&& rhs)
+		{
+			//any(static_cast<T&&>(rhs)).swap(*this);
+			auto a = any(static_cast<T&&>(rhs));
+			a.swap(*this);
+			return *this;
+		}
+
+		/*many & operator=(many& rhs)
+		{
+			rhs.swap(*this);
+			return *this;
+		}*/
+
+		template <class T>
+		many & operator=(T* rhs)
+		{
+			//any(static_cast<T&&>(rhs)).swap(*this);
+			auto a = any(static_cast<T*>(rhs));
+			a.swap(*this);
+			return *this;
+		}
+
+		/*template <class T>
+		many & operator=(T& rhs)
+		{
+			//any(static_cast<T&&>(rhs)).swap(*this);
+			auto a = any(static_cast<T*>(&rhs));
+			a.swap(*this);
+			return *this;
+		}*/
+
+		template <class T>
+		many & operator=(T& rhs)
+		{
+			//any(static_cast<T&&>(rhs)).swap(*this);
+			auto a = any(static_cast<T>(rhs));
+			a.swap(*this);
+			return *this;
+		}
+#if 0
 		template<typename T>
 		operator T&()
 		{
@@ -139,12 +205,49 @@ namespace GFramework
 		{
 			return cast<const T*>(*this);
 		}
+#endif
+		template<typename T>
+		operator T&() const
+		{
+			//return cast<T>(*this);
+			return cast_helper<T&>::cast(*this);
+		}
 
 		template<typename T>
 		operator T() const
 		{
-			return cast<T>(*this);
+			//return cast<T>(*this);
+			return cast_helper<T>::cast(*this);
 		}
+
+		template<typename T>
+		operator T() 
+		{
+			//return cast<T>(*this);
+			return cast_helper<T>::cast(*this);
+		}
+
+	private:
+		template<class T>
+		struct cast_helper {
+			static T cast(const many& m) {
+				return boost::any_cast<T>(m);
+			}
+		};
+
+		template<class T>
+		struct cast_helper<T&> {
+			static T& cast(const many& m) {
+				return *(boost::any_cast<T*>(m));
+			}
+		};
+
+		template<class T>
+		struct cast_helper<const T&> {
+			static const T& cast(const many& m) {
+				return *(boost::any_cast<const T*>(m));
+			}
+		};
 	};
 
 	/** \var typedef boost::variant<> GVariant;

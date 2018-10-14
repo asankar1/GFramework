@@ -7,16 +7,23 @@ namespace GFramework
 {
 	//object id starts from 1. 0 is reservedfor null object
 	std::atomic<unsigned int> Object::atomic_count = 1;
-
+#if 1
 	BEGIN_DEFINE_META(Object)
 		GMetaclassList::instance().define<Object>("Object")
 			.version(1)
 			.function("getName", &Object::getName)
 			.function("rename", &Object::rename)
+			.function("getObjectId", &Object::getObjectId)
+			.function("setObjectId", &Object::setObjectId)
+			.staticFunction("about", Object::about)
+			.function("rename", &Object::rename)
+			.staticFunction("count", Object::count)	
+			.staticFunction("add", Object::add)
+			.staticFunction("updateMagicNumber", Object::updateMagicNumber)
 			.editableProperty("name", &Object::name)
 			.property("object_id", &Object::object_id);
 	END_DEFINE_META(Object)
-
+#endif
 	Object::Object(const char *_name)
 	{
 		object_id.setValue(atomic_count.load());
@@ -32,6 +39,7 @@ namespace GFramework
 
 	void Object::rename(const std::string& _name)
 	{
+		cout << "Old name '" << name.getValue() << "' renamed to new name '" << _name << "'!" << endl;
 		name.setValue(_name);
 	}
 
@@ -43,6 +51,11 @@ namespace GFramework
 	const unsigned int & Object::getObjectId() const
 	{
 		return object_id.getValue();
+	}
+
+	void Object::setObjectId(unsigned int _newid)
+	{
+		object_id.setValue(_newid);
 	}
 
 	void Object::addObserver(Object* _object)
