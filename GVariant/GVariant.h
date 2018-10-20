@@ -94,11 +94,122 @@ namespace GFramework
 		}
 	};
 
-	struct many : public boost::any
+	class many : public boost::any
 	{
-		many() : boost::any() {
+	private:
+		typedef struct {} unknown_type;
 
+	public:
+		many() : boost::any() { }
+
+		many(many&& other) = default;
+
+		void operator=(many&& rhs) {
+			rhs.swap(*this);
+			return;
 		}
+
+		template<typename T>
+		static many create(T t) {
+			typedef unknown_type type1;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, std::conditional< \
+								std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, std::conditional< \
+								std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, create_as_it_is<T>, type3 >::type creater_type;
+
+			//typedef typename std::conditional<std::is_reference<T>::value, create_pointer_from_reference<T>, create_as_it_is<T> >::type creater_type;
+			return creater_type::create_internal(t);
+		}
+
+		template<typename T>
+		static many create() = delete;
+
+		template<>
+		static many create<void>() {
+			return many();
+		}
+
+		/*template<typename T>
+		static T cast(many& m) {
+			return boost::any_cast<T>(m);
+		}*/
+
+		template<typename T>
+		static T cast(many& m)
+		{
+			//typedef typename std::conditional<	std::is_reference<T>::value, cast_lvalue_reference_from_pointer<T>, cast_as_it_is<T> >::type caster_type;
+			typedef unknown_type type1;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, std::conditional< \
+								std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, std::conditional< \
+								std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, cast_as_it_is<T>, type3 >::type caster_type;
+
+			return caster_type::cast_internal(m);
+		}
+
+	private:
+		template<typename T>
+		struct create_as_it_is {
+			typedef T TYPE;
+			static many create_internal(T& t) {
+				return many(static_cast<TYPE>(t));
+			}
+		};
+
+		template<typename T>
+		struct create_pointer_from_lvalue_reference {
+			static many create_internal(T& t) {
+				return many(static_cast<T*>(&t));
+			}
+		};
+
+		template<typename T>
+		struct create_pointer_from_rvalue_reference {
+			static many create_internal(T& t) {
+				return many(static_cast<T>(t));
+			}
+		};
+
+		/*template<typename T>
+		struct create_pointer_from_reference {
+			typedef typename std::remove_reference<T>::type TYPE;
+			static many create_internal(T& t) {
+				return many(static_cast<TYPE*>(&t));
+			}
+		};*/
+
+		template<typename T>
+		struct cast_as_it_is {
+			typedef T TYPE;
+			static TYPE cast_internal(many& m) {
+				return boost::any_cast<TYPE>(m);
+			}
+		};
+
+		template<typename T>
+		struct cast_lvalue_reference_from_pointer {
+			static T& cast_internal(many& m) {
+				return *boost::any_cast<T*>(m);
+			}
+		};
+
+		template<typename T>
+		struct cast_rvalue_reference_from_pointer {
+			static T&& cast_internal(many& m) {
+				return boost::any_cast<T&&>(m);
+			}
+		};
+
+		template<typename T>
+		many(T t) : boost::any(t) { }
+
+#if 0
+		/*template<>
+		static GVariant& create<int>(int i) {
+			return any(i);
+		}*/
 
 		template<typename T>
 		static many ref(T& t)
@@ -181,6 +292,7 @@ namespace GFramework
 			a.swap(*this);
 			return *this;
 		}
+#endif
 #if 0
 		template<typename T>
 		operator T&()
@@ -206,6 +318,7 @@ namespace GFramework
 			return cast<const T*>(*this);
 		}
 #endif
+#if 0
 		template<typename T>
 		operator T&() const
 		{
@@ -248,6 +361,7 @@ namespace GFramework
 				return *(boost::any_cast<const T*>(m));
 			}
 		};
+#endif
 	};
 
 	/** \var typedef boost::variant<> GVariant;
