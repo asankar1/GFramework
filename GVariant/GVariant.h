@@ -116,7 +116,10 @@ namespace GFramework
 								std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
 			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, std::conditional< \
 								std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
-			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, create_as_it_is<T>, type3 >::type creater_type;
+			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, std::conditional< \
+								std::is_array<T>::value, create_as_it_is<std::decay<T>::type>, type3 >::type, type3 >::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, create_as_it_is<T>, type4 >::type creater_type;
+			//typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, create_as_it_is<T>, type3 >::type creater_type;
 
 			//typedef typename std::conditional<std::is_reference<T>::value, create_pointer_from_reference<T>, create_as_it_is<T> >::type creater_type;
 			return creater_type::create_internal(t);
@@ -144,7 +147,10 @@ namespace GFramework
 								std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
 			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, std::conditional< \
 								std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
-			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, cast_as_it_is<T>, type3 >::type caster_type;
+			typedef typename	std::conditional < std::is_same<unknown_type, type3>::value, std::conditional < \
+								std::is_array<T>::value, cast_as_it_is <std::decay<T>::type> , type3 > ::type, type3 > ::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, cast_as_it_is<T>, type4 >::type caster_type;
+			//typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, cast_as_it_is<T>, type3 >::type caster_type;
 
 			return caster_type::cast_internal(m);
 		}
@@ -153,6 +159,7 @@ namespace GFramework
 		template<typename T>
 		struct create_as_it_is {
 			typedef T TYPE;
+			//typedef typename std::conditional<std::is_array<T>::value, typename std::decay<T>::type, T >::type TYPE;
 			static many create_internal(T& t) {
 				return many(static_cast<TYPE>(t));
 			}
@@ -168,7 +175,7 @@ namespace GFramework
 		template<typename T>
 		struct create_pointer_from_rvalue_reference {
 			static many create_internal(T& t) {
-				return many(static_cast<T>(t));
+				return many(static_cast<T*>(&t));
 			}
 		};
 
@@ -198,7 +205,7 @@ namespace GFramework
 		template<typename T>
 		struct cast_rvalue_reference_from_pointer {
 			static T&& cast_internal(many& m) {
-				return boost::any_cast<T&&>(m);
+				return std::move(*boost::any_cast<T*>(m));
 			}
 		};
 

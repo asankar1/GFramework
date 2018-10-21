@@ -23,6 +23,8 @@ using namespace GFramework;
 	> passing direct POD types to a function taking variant arguments works but automatic type cast is not as expected. For ex, 'true' is printed as 1;
 */
 
+int int_array[3] = { 1, 2, 3 };
+
 enum unscoped_enum_type {
 	unscoped_type1 = -1,
 	unscoped_type2,
@@ -46,6 +48,14 @@ union Color {
 	RGB rgb;
 };
 
+int add(int a, int b) {
+	return a + b;
+}
+
+int sub(int a, int b) {
+	return a - b;
+}
+
 class simple_class {
 
 };
@@ -62,13 +72,31 @@ protected:
 
 class non_copyable_class {
 public:
+	non_copyable_class() {}
 	non_copyable_class(const non_copyable_class &) = delete;
 	non_copyable_class & operator=(const non_copyable_class &) = delete;
+	int get_number()const {
+		return number;
+	}
+	void set_number(int n) {
+		number = n;
+	}
+private:
+	int number = 14;
 };
 
 class non_moveable_class {
 public:
+	non_moveable_class() {}
 	non_moveable_class(non_moveable_class&&) = delete;
+	int get_number() const {
+		return number;
+	}
+	void set_number(int n) {
+		number = n;
+	}
+private:
+	int number = 27;
 };
 
 class base_class {
@@ -228,6 +256,14 @@ void run_variant_testcases()
 
 		gv = GVariant::create<long double>(numeric_limits<long double>::infinity());
 		assert(isinf(GVariant::cast<long double>(gv)));
+
+		gv = GVariant::create<std::string>("TestStr");
+		assert(GVariant::cast<std::string>(gv) == std::string("TestStr"));
+
+		std::string another_str = "AnotherStr";
+		gv = GVariant::create<std::string>(another_str);
+		another_str = "modified";
+		assert(GVariant::cast<std::string>(gv) == std::string("AnotherStr"));
 #endif
 	}
 
@@ -271,6 +307,10 @@ void run_variant_testcases()
 		CHECK_LVALUE_REFERENCE_TYPE(long double);
 		CHECK_LVALUE_REFERENCE_TYPE(long double);
 		CHECK_LVALUE_REFERENCE_TYPE(long double);
+		std::string str = "TestStr";
+		gv = GVariant::create<std::string&>(str);
+		str = "modified";
+		assert(GVariant::cast<std::string&>(gv) == std::string("modified"));
 
 		CHECK_RVALUE_REFERENCE_TYPE(bool);
 		CHECK_RVALUE_REFERENCE_TYPE(char);
@@ -299,6 +339,9 @@ void run_variant_testcases()
 		CHECK_RVALUE_REFERENCE_TYPE(long double);
 		CHECK_RVALUE_REFERENCE_TYPE(long double);
 		CHECK_RVALUE_REFERENCE_TYPE(long double);
+		str = "TestStr";
+		gv = GVariant::create<std::string&&>(std::move(str));
+		assert(GVariant::cast<std::string&&>(gv) == std::string("TestStr"));
 
 		CHECK_CONST_LVALUE_REFERENCE_TYPE(bool);
 		CHECK_CONST_LVALUE_REFERENCE_TYPE(char);
@@ -327,6 +370,11 @@ void run_variant_testcases()
 		CHECK_CONST_LVALUE_REFERENCE_TYPE(long double);
 		CHECK_CONST_LVALUE_REFERENCE_TYPE(long double);
 		CHECK_CONST_LVALUE_REFERENCE_TYPE(long double);
+		str = "TestStr";
+		const std::string& str_ref = str;
+		gv = GVariant::create<const std::string&>(str_ref);
+		str = "modified";
+		assert(GVariant::cast<const std::string&>(gv) == std::string("modified"));
 
 		CHECK_CONST_RVALUE_REFERENCE_TYPE(bool);
 		CHECK_CONST_RVALUE_REFERENCE_TYPE(char);
@@ -355,6 +403,9 @@ void run_variant_testcases()
 		CHECK_CONST_RVALUE_REFERENCE_TYPE(long double);
 		CHECK_CONST_RVALUE_REFERENCE_TYPE(long double);
 		CHECK_CONST_RVALUE_REFERENCE_TYPE(long double);
+		str = "TestStr";
+		gv = GVariant::create<const std::string&&>(std::move(str));
+		assert(GVariant::cast<const std::string&&>(gv) == std::string("TestStr"));
 #endif
 	}
 
@@ -430,25 +481,205 @@ void run_variant_testcases()
 #endif
 	}
 
-	//objects
+	//objects - value, reference and pointers
 	{
 		GVariant gv;
 		RGB brown = { 255, 128, 0 };
 
+		//lvalue
 		gv = GVariant::create<RGB>(brown);
+		brown.blue = 32;
 		assert(GVariant::cast<RGB>(gv).red == 255);
 		assert(GVariant::cast<RGB>(gv).green == 128);
 		assert(GVariant::cast<RGB>(gv).blue == 0);
+
+		//rvalue
+		gv = GVariant::create<RGB>({ 255, 128, 0 });
+		assert(GVariant::cast<RGB>(gv).red == 255);
+		assert(GVariant::cast<RGB>(gv).green == 128);
+		assert(GVariant::cast<RGB>(gv).blue == 0);
+
+		//lvalue reference
+		gv = GVariant::create<RGB&>(brown);
+		brown.blue = 0;
+		assert(GVariant::cast<RGB&>(gv).red == 255);
+		assert(GVariant::cast<RGB&>(gv).green == 128);
+		assert(GVariant::cast<RGB&>(gv).blue == 0);
+
+		//rvalue reference
+		gv = GVariant::create<RGB&&>({ 255, 128, 0 });
+		assert(GVariant::cast<RGB&&>(gv).red == 255);
+		assert(GVariant::cast<RGB&&>(gv).green == 128);
+		assert(GVariant::cast<RGB&&>(gv).blue == 0);
 	}
 
 	//pointers to objects
 	{
+		GVariant gv;
+		RGB brown = { 255, 128, 0 };
+		RGB* brown_ptr = &brown;
+		const RGB* const_brown_ptr = &brown;
 
+		//non const pointer
+		gv = GVariant::create<RGB*>(brown_ptr);
+		brown.blue = 32;
+		assert(GVariant::cast<RGB*>(gv)->red == 255);
+		assert(GVariant::cast<RGB*>(gv)->green == 128);
+		assert(GVariant::cast<RGB*>(gv)->blue == 32);
+
+		//const pointer
+		gv = GVariant::create<const RGB*>(const_brown_ptr);
+		brown.blue = 64;
+		assert(GVariant::cast<const RGB*>(gv)->red == 255);
+		assert(GVariant::cast<const RGB*>(gv)->green == 128);
+		assert(GVariant::cast<const RGB*>(gv)->blue == 64);
 	}
 
 	//pointers to functions
 	{
+		GVariant gv;
+		typedef int(*func_ptr)(int, int);
+		func_ptr f = add;
+		
+		//function pointer
+		gv = GVariant::create<func_ptr>(f);
+		assert(GVariant::cast<func_ptr>(gv)(3,2) == 5);
 
+		//pointer to function pointer
+		gv = GVariant::create<func_ptr*>(&f);
+		assert((*GVariant::cast<func_ptr*>(gv))(3, 2) == 5);
+		f = sub;
+		assert((*GVariant::cast<func_ptr*>(gv))(3, 2) == 1);
+	}
+
+	//pointer to object public members
+	{
+		GVariant gv;
+		RGB brown = { 255, 128, 0 };
+		RGB* brown_ptr = &brown;
+		const RGB* const_brown_ptr = &brown;
+
+		unsigned char  RGB::* red_ptr = &RGB::red;
+		brown.*red_ptr = 20;
+		gv = GVariant::create<unsigned char RGB::*>(red_ptr);
+		assert(brown.*GVariant::cast<unsigned char RGB::*>(gv) == 20);
+	}
+
+	//pointer to object public member functions
+	{
+		GVariant gv;
+		base_class bc;
+		derived_class dc;
+		base_class& dbc = dc;
+
+		//general member function
+		typedef int (derived_class::* general_func_ptr)(void);
+		general_func_ptr derive_only_func_ptr = &derived_class::derive_only_func;
+		gv = GVariant::create<general_func_ptr>(derive_only_func_ptr);
+		assert((dc.*GVariant::cast<general_func_ptr>(gv))() == 44);
+
+		//lvalue ref qualified member function
+		typedef int (derived_class::* lvalue_ref_qualified_func_ptr)(void)&;
+		lvalue_ref_qualified_func_ptr lref_qualified_member_func_ptr = &derived_class::lref_qualified_member_func;
+		gv = GVariant::create<lvalue_ref_qualified_func_ptr>(lref_qualified_member_func_ptr);
+		assert((dc.*GVariant::cast<lvalue_ref_qualified_func_ptr>(gv))() == 77);
+
+		//rvalue ref qualified member function
+		typedef int (derived_class::* rvalue_ref_qualified_func_ptr)(void)&&;
+		rvalue_ref_qualified_func_ptr rref_qualified_member_func_ptr = &derived_class::rref_qualified_member_func;
+		gv = GVariant::create<rvalue_ref_qualified_func_ptr>(rref_qualified_member_func_ptr);
+		assert((std::move(dc).*GVariant::cast<rvalue_ref_qualified_func_ptr>(gv))() == 88);
+
+		//virtual member function
+		typedef int (derived_class::* derived_virtual_func_ptr)(void);
+		typedef int (base_class::* base_virtual_func_ptr)(void);
+		derived_virtual_func_ptr derived_virtual_func = &derived_class::get_virtual_id;
+		base_virtual_func_ptr base_virtual_func = &base_class::get_virtual_id;
+		
+		gv = GVariant::create<base_virtual_func_ptr>(base_virtual_func);
+		assert((bc.*GVariant::cast<base_virtual_func_ptr>(gv))() == 11);
+
+		gv = GVariant::create<derived_virtual_func_ptr>(derived_virtual_func);
+		assert((dc.*GVariant::cast<derived_virtual_func_ptr>(gv))() == 22);
+
+		gv = GVariant::create<base_virtual_func_ptr>(base_virtual_func);
+		assert((dbc.*GVariant::cast<base_virtual_func_ptr>(gv))() == 22);
+
+		gv = GVariant::create<base_virtual_func_ptr>(base_virtual_func);
+		assert((dc.*GVariant::cast<base_virtual_func_ptr>(gv))() == 22);
+
+		//non virtual function
+		typedef int (derived_class::* common_non_virtual_func_ptr)(void);
+		common_non_virtual_func_ptr common_non_virtual_func = &derived_class::common_non_virtual_func;
+		gv = GVariant::create<common_non_virtual_func_ptr>(common_non_virtual_func);
+		assert((dc.*GVariant::cast<common_non_virtual_func_ptr>(gv))() == 66);
+	}
+
+	//array types
+	{
+		GVariant gv;
+
+		gv = GVariant::create<int[]>(int_array);
+		assert(GVariant::cast<int*>(gv)[0] == 1);
+		assert(GVariant::cast<int*>(gv)[1] == 2);
+		assert(GVariant::cast<int*>(gv)[2] == 3);
+	}
+
+	//class types
+	{
+		GVariant gv;
+		non_copyable_class ncc;
+		non_moveable_class nmc;
+
+		//gv = GVariant::create<non_copyable_class>(ncc); //expected compile error
+
+		gv = GVariant::create<non_copyable_class&>(ncc);
+		ncc.set_number(17);
+		assert(GVariant::cast<non_copyable_class&>(gv).get_number() == 17);
+
+		gv = GVariant::create<const non_copyable_class&>(ncc);
+		ncc.set_number(22);
+		assert(GVariant::cast<const non_copyable_class&>(gv).get_number() == 22);
+
+		gv = GVariant::create<non_copyable_class&&>(std::move(ncc));
+		ncc.set_number(17);
+		assert(GVariant::cast<non_copyable_class&&>(gv).get_number() == 17);
+
+		gv = GVariant::create<non_copyable_class&&>(non_copyable_class());
+		assert(GVariant::cast<non_copyable_class&&>(gv).get_number() == 14);
+
+		gv = GVariant::create<const non_copyable_class&&>(std::move(ncc));
+		ncc.set_number(17);
+		assert(GVariant::cast<const non_copyable_class&&>(gv).get_number() == 17);
+
+		gv = GVariant::create<const non_copyable_class&&>(non_copyable_class());
+		assert(GVariant::cast<const non_copyable_class&&>(gv).get_number() == 14);
+
+		gv = GVariant::create<non_copyable_class*>(&ncc);
+		ncc.set_number(37);
+		assert(GVariant::cast<non_copyable_class*>(gv)->get_number() == 37);
+
+		gv = GVariant::create<const non_copyable_class*>(&ncc);
+		ncc.set_number(42);
+		assert(GVariant::cast<const non_copyable_class*>(gv)->get_number() == 42);
+
+		//gv = GVariant::create<non_moveable_class>(nmc); //expected compile error
+
+		gv = GVariant::create<non_moveable_class&>(nmc);
+		nmc.set_number(17);
+		assert(GVariant::cast<non_moveable_class&>(gv).get_number() == 17);
+
+		gv = GVariant::create<const non_moveable_class&>(nmc);
+		nmc.set_number(22);
+		assert(GVariant::cast<const non_moveable_class&>(gv).get_number() == 22);
+
+		gv = GVariant::create<non_moveable_class*>(&nmc);
+		nmc.set_number(37);
+		assert(GVariant::cast<non_moveable_class*>(gv)->get_number() == 37);
+
+		gv = GVariant::create<const non_moveable_class*>(&nmc);
+		nmc.set_number(42);
+		assert(GVariant::cast<const non_moveable_class*>(gv)->get_number() == 42);
 	}
 
 #if 0
