@@ -3,7 +3,7 @@
 #include <atomic>
 #include <string>
 #include <memory>
-#include <property.h>
+#include <GProperty.h>
 #include <GReflection.h>
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT

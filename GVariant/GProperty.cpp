@@ -1,23 +1,11 @@
-#include <property.h>
 #include <sstream>
+#include <iomanip>
+#include <GVariant/GProperty.h>
 using namespace std;
 
 namespace GFramework
 {
-
-	template class GScalarProperty<bool>;
-	template class GScalarProperty<char>;
-	template class GScalarProperty<unsigned char>;
-	template class GScalarProperty<short>;
-	template class GScalarProperty<unsigned short>;
-	template class GScalarProperty<int>;
-	template class GScalarProperty<unsigned int>;
-	template class GScalarProperty<float>;
-	template class GScalarProperty<double>;
-
-	template class GGlmProperty<glm::vec2>;
-	template class GGlmProperty<glm::vec3>;
-
+#ifdef GFRAMEWORK_LUA_SUPPORT
 	static int tostring(lua_State *L)
 	{
 		lua_getmetatable(L, 1);
@@ -73,53 +61,77 @@ namespace GFramework
 	{
 		GPropertiesList.push_back({ "newVec2", new_vec2_data });
 	}	
-
+#endif
 
 	template <typename T>
-	GScalarProperty<T>::GScalarProperty() {
+	GArithmeticProperty<T>::GArithmeticProperty(T v):value(v) {
 	
 	}
 
 	template <typename T>
-	void GScalarProperty<T>::set(GVariant& _value) {
-		value = boost::any_cast<T>(_value);
+	void GArithmeticProperty<T>::set(GVariant& _value) {
+		value = GVariant::cast<T>(_value);
 	}
 
 	template <typename T>
-	void GScalarProperty<T>::setValue(T _value) {
+	void GArithmeticProperty<T>::setValue(T _value) {
 		value = _value;
 	}
 
 	template <typename T>
-	GVariant GScalarProperty<T>::get() {
+	GVariant GArithmeticProperty<T>::get() const {
+		return GVariant::create<T>(value);
+	}
+
+	template <typename T>
+	const T& GArithmeticProperty<T>::getValue() const {
 		return value;
 	}
 
 	template <typename T>
-	const T& GScalarProperty<T>::getValue() const {
-		return value;
-	}
-
-	template <typename T>
-	std::ostream& GScalarProperty<T>::writeASCIIValue(std::ostream& os) const {
+	std::ostream& GArithmeticProperty<T>::writeASCIIValue(std::ostream& os) const {
 		os << value << " ";
 		return os;
 	}
 
+	template <>
+	std::ostream& GArithmeticProperty<float>::writeASCIIValue(std::ostream& os) const {
+		os << std::hex << *((int32*)&value) << " ";
+		return os;
+	}
+
+	template <>
+	std::ostream& GArithmeticProperty<double>::writeASCIIValue(std::ostream& os) const {
+		os << std::hex << *((int64*)&value) << " ";
+		return os;
+	}
+
 	template <typename T>
-	std::istream& GScalarProperty<T>::readASCIIValue(std::istream& is) {
+	std::istream& GArithmeticProperty<T>::readASCIIValue(std::istream& is) {
 		is >> value;
 		return is;
 	}
 
+	template <>
+	std::istream& GArithmeticProperty<float>::readASCIIValue(std::istream& is) {
+		is >> std::hex >> *((int32*)&value);
+		return is;
+	}
+
+	template <>
+	std::istream& GArithmeticProperty<double>::readASCIIValue(std::istream& is) {
+		is >> std::hex >> *((int64*)&value);
+		return is;
+	}
+
 	template <typename T>
-	std::ostream& GScalarProperty<T>::writeBinaryValue(std::ostream& os) const {
+	std::ostream& GArithmeticProperty<T>::writeBinaryValue(std::ostream& os) const {
 		os.write(reinterpret_cast<const char*>(&value), sizeof(T));
 		return os;
 	}
 
 	template <typename T>
-	std::istream& GScalarProperty<T>::readBinaryValue(std::istream& is) {
+	std::istream& GArithmeticProperty<T>::readBinaryValue(std::istream& is) {
 		is.read(reinterpret_cast<char*>(&value), sizeof(T));
 		return is;
 	}
@@ -129,15 +141,15 @@ namespace GFramework
 	}
 
 	void GStringProperty::set(GVariant& _value) {
-		value = boost::any_cast<std::string>(_value);
+		value = GVariant::cast<std::string>(_value);
 	}
 
 	void GStringProperty::setValue(const std::string& _value) {
 		value = _value;
 	}
 
-	GVariant GStringProperty::get() {
-		return value;
+	GVariant GStringProperty::get() const {
+		return GVariant::create<std::string>(value);
 	}
 
 	const std::string& GStringProperty::getValue() const {
@@ -179,12 +191,14 @@ namespace GFramework
 		return is;
 	}
 
+
+
 	template <typename T>
-	GGlmProperty<T>::GGlmProperty() {}
+	GGlmProperty<T>::GGlmProperty(T v):value(v) {}
 
 	template <typename T>
 	void GGlmProperty<T>::set(GVariant& _value) {
-		value = boost::any_cast<T>(_value);
+		value = GVariant::cast<T>(_value);
 	}
 
 	template <typename T>
@@ -193,8 +207,8 @@ namespace GFramework
 	}
 
 	template <typename T>
-	GVariant GGlmProperty<T>::get() {
-		return value;
+	GVariant GGlmProperty<T>::get() const {
+		return GVariant::create<T>(value);
 	}
 
 	template <typename T>
@@ -204,29 +218,31 @@ namespace GFramework
 
 	template <typename T>
 	std::ostream& GGlmProperty<T>::writeASCIIValue(std::ostream& os) const {
-		unsigned int size = value.length();
+		const unsigned int size = sizeof(typename T::type) / sizeof(typename T::value_type);
 		const float* pointer = glm::value_ptr(value);
 		for (unsigned int i = 0; i < size; i++)
 		{
-			os << pointer[i] << " ";
+			//os << pointer[i] << " ";
+			os << std::hex << *((int32*)pointer+i) << " ";
 		}
 		return os;
 	}
 
 	template <typename T>
 	std::istream& GGlmProperty<T>::readASCIIValue(std::istream& is) {
-		unsigned int size = value.length();
+		const unsigned int size = sizeof(typename T::type) / sizeof(typename T::value_type);
 		float* pointer = glm::value_ptr(value);
 		for (unsigned int i = 0; i < size; i++)
 		{
-			is >> pointer[i];
+			//is >> pointer[i];
+			is >> std::hex >> *((int32*)pointer+i);
 		}
 		return is;
 	}
 
 	template <typename T>
 	std::ostream& GGlmProperty<T>::writeBinaryValue(std::ostream& os) const {
-		unsigned int size = value.length();
+		const unsigned int size = sizeof(typename T::type) / sizeof(typename T::value_type);
 		const float* pointer = glm::value_ptr(value);
 		os.write(reinterpret_cast<const char*>(pointer), size * sizeof(float));
 		return os;
@@ -234,9 +250,27 @@ namespace GFramework
 
 	template <typename T>
 	std::istream& GGlmProperty<T>::readBinaryValue(std::istream& is) {
-		unsigned int size = value.length();
+		const unsigned int size = sizeof(typename T::type) / sizeof(typename T::value_type);
 		float* pointer = glm::value_ptr(value);
 		is.read(reinterpret_cast<char*>(pointer), size * sizeof(float));
 		return is;
 	}
+
+	template class GArithmeticProperty<bool>;
+	template class GArithmeticProperty<int8>;
+	template class GArithmeticProperty<uint8>;
+	template class GArithmeticProperty<int16>;
+	template class GArithmeticProperty<uint16>;
+	template class GArithmeticProperty<int32>;
+	template class GArithmeticProperty<uint32>;
+	template class GArithmeticProperty<int64>;
+	template class GArithmeticProperty<uint64>;
+	template class GArithmeticProperty<float>;
+	template class GArithmeticProperty<double>;
+	template class GGlmProperty<glm::vec2>;
+	template class GGlmProperty<glm::vec3>;
+	template class GGlmProperty<glm::vec4>;
+	template class GGlmProperty<glm::mat2>;
+	template class GGlmProperty<glm::mat3>;
+	template class GGlmProperty<glm::mat4>;
 }

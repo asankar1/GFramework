@@ -154,7 +154,7 @@ void run_reflection_testcases()
 		string name = "ParentNode-Renamed";
 		const string& re = name;
 		GVariant g;
-		g = GVariant::ref<const string>(re);
+		g = GVariant::create<const string&>(re);
 		args.push_back(g);
 		GVariant r = f->invoke(&n, args);
 	}

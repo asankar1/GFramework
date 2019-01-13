@@ -1,20 +1,12 @@
 #pragma once
 #include <string>
-#include <glm\vec3.hpp>
-#include <boost\variant.hpp>
-#include <boost\any.hpp>
+#include <glm/vec3.hpp>
+#include <boost/variant.hpp>
+#include <boost/any.hpp>
+#ifdef GFRAMEWORK_LUA_SUPPORT
 #include <GFrameworkLua.h>
-
-
-#ifdef VARIANT_DYNAMIC_LIBRARY
-	#ifdef DLL_EXPORT
-		#define LIBRARY_API __declspec( dllexport )
-	#else
-		#define LIBRARY_API __declspec( dllimport )
-	#endif
-#else
-	#define LIBRARY_API
 #endif
+
 
 /*! \file GVariant.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to GVariant class.
@@ -28,8 +20,9 @@ namespace GFramework
 	typedef std::shared_ptr<Object> ObjectSharedPtr;
 	typedef std::shared_ptr<Node> NodeSharedPtr;
 
+#ifdef GFRAMEWORK_LUA_SUPPORT
 	int open_lua_variant_module(lua_State *L);
-
+#endif
 	template <typename... Types>
 	struct myv : public boost::variant<Types...>
 	{
@@ -104,6 +97,24 @@ namespace GFramework
 
 		many(many&& other) = default;
 
+		many(const many& other) = default;
+
+		template<typename T>
+		many(T t) : boost::any(t) {
+		}
+
+		template<typename T>
+		void operator=(T&& rhs) {
+			*this = create<T>(rhs);
+			return;
+		}
+
+		template<typename T>
+		operator T()
+		{
+			return cast<T>(*this);
+		}
+
 		void operator=(many&& rhs) {
 			rhs.swap(*this);
 			return;
@@ -112,12 +123,12 @@ namespace GFramework
 		template<typename T>
 		static many create(T t) {
 			typedef unknown_type type1;
-			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, std::conditional< \
-								std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
-			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, std::conditional< \
-								std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
-			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, std::conditional< \
-								std::is_array<T>::value, create_as_it_is<std::decay<T>::type>, type3 >::type, type3 >::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional<\
+								std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<typename std::remove_reference<T>::type>, type1>::type, type1>::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
+								std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, typename std::conditional< \
+								std::is_array<T>::value, create_as_it_is<typename std::decay<T>::type>, type3 >::type, type3 >::type type4;
 			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, create_as_it_is<T>, type4 >::type creater_type;
 			//typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, create_as_it_is<T>, type3 >::type creater_type;
 
@@ -126,12 +137,21 @@ namespace GFramework
 		}
 
 		template<typename T>
-		static many create() = delete;
+		static many create() {
+			static_assert(std::is_void<T>::value, "Only void type can be used to call create without arguments!");
+			return many();
+		}
 
+		/*template<>
+		static many create<void>() {
+			return many();
+		}*/
+
+		/* gcc Error: explicit-specialization-in-non-namespace-scope
 		template<>
 		static many create<void>() {
 			return many();
-		}
+		}*/
 
 		/*template<typename T>
 		static T cast(many& m) {
@@ -143,12 +163,12 @@ namespace GFramework
 		{
 			//typedef typename std::conditional<	std::is_reference<T>::value, cast_lvalue_reference_from_pointer<T>, cast_as_it_is<T> >::type caster_type;
 			typedef unknown_type type1;
-			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, std::conditional< \
-								std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
-			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, std::conditional< \
-								std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
-			typedef typename	std::conditional < std::is_same<unknown_type, type3>::value, std::conditional < \
-								std::is_array<T>::value, cast_as_it_is <std::decay<T>::type> , type3 > ::type, type3 > ::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional< \
+								std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
+								std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional < std::is_same<unknown_type, type3>::value, typename std::conditional < \
+								std::is_array<T>::value, cast_as_it_is <typename std::decay<T>::type> , type3 > ::type, type3 > ::type type4;
 			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, cast_as_it_is<T>, type4 >::type caster_type;
 			//typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, cast_as_it_is<T>, type3 >::type caster_type;
 
@@ -209,8 +229,8 @@ namespace GFramework
 			}
 		};
 
-		template<typename T>
-		many(T t) : boost::any(t) { }
+		/*template<typename T>
+		many(T t) : boost::any(t) { }*/
 
 #if 0
 		/*template<>
@@ -371,6 +391,11 @@ namespace GFramework
 #endif
 	};
 
+	//template<>	many many::create<void>();
+	/*template<>
+	many many::create<void>() {
+		return many();
+	}*/
 	/** \var typedef boost::variant<> GVariant;
 	*	\brief variant designed to handle all data in the GFramework
 	*/

@@ -1,15 +1,17 @@
 #include <iostream>
+#include <vector>
 #include <cassert>
 #include <limits>
+#include <cmath>
 #include <boost/core/typeinfo.hpp>
-#include <GVariant.h>
+#include <GVariant/GVariant.h>
 /*
 #include <Node.h>
 #include <Sphere.h>
 */
 #include "gvariant_test.h"
-#include <boost\variant.hpp>
-#include <boost\function.hpp>
+#include <boost/variant.hpp>
+#include <boost/function.hpp>
 #include <array>
 using namespace std;
 using namespace GFramework;
@@ -102,7 +104,7 @@ private:
 class base_class {
 public:
 	static float get_static_PI() {
-		return 3.14;
+		return 3.14f;
 	}
 
 	virtual int get_virtual_id() {
@@ -159,13 +161,30 @@ void run_variant_testcases()
 	SphereSharedPtr parent_node_sharedptr(std::make_shared<sphere>("parent_node", grant_parent_node_sharedptr, 32));
 	sphere sphere_node("sphere_node", static_pointer_cast<Node>(parent_node_sharedptr), 64);
 	*/
-	
+
+	cout << "==========================" << endl;
+	cout << "Startig GVariant testcases" << endl;
+	cout << "==========================" << endl;
+
 	//fundamental types
 	{
+		cout << "Testing GVariant for fundemental types: ";
 		GVariant gv;
+
+		gv = 2;
+		char c = (int)gv;
+		gv = (int)3;
+		GVariant gv2(gv);
+		vector<GVariant> args;
+		args.push_back(gv2);
+		GVariant gv3(3U);
+		args.push_back((int)5);
+
 #if 1
 		//explicit type specification
 		gv = GVariant::create<void>();
+
+		//gv = GVariant::create<int>();
 
 		gv = GVariant::create<nullptr_t>(nullptr);
 		assert(GVariant::cast<nullptr_t>(gv) == nullptr);
@@ -265,6 +284,7 @@ void run_variant_testcases()
 		another_str = "modified";
 		assert(GVariant::cast<std::string>(gv) == std::string("AnotherStr"));
 #endif
+		cout << "Ok" << endl;
 	}
 
 	//compound type - reference(lvalue and rvalue)
@@ -278,6 +298,8 @@ void run_variant_testcases()
 													assert(GVariant::cast<TYPE&&>(gv) == numeric_limits<TYPE>::max()); }
 		#define CHECK_CONST_RVALUE_REFERENCE_TYPE(TYPE) {	TYPE val = numeric_limits<TYPE>::max(); gv = GVariant::create<const TYPE&&>(std::move(val)); \
 													assert(GVariant::cast<const TYPE&&>(gv) == numeric_limits<TYPE>::max()); }
+		
+		cout << "Testing GVariant for fundemental type references: ";
 		GVariant gv;
 #if 1
 		CHECK_LVALUE_REFERENCE_TYPE(bool);
@@ -407,82 +429,86 @@ void run_variant_testcases()
 		gv = GVariant::create<const std::string&&>(std::move(str));
 		assert(GVariant::cast<const std::string&&>(gv) == std::string("TestStr"));
 #endif
+		cout << "Ok" << endl;
 	}
 
 	//compound types - pointers
 	{
 #define CHECK_POINTER_TYPE(TYPE) { TYPE val = numeric_limits<TYPE>::max(); gv = GVariant::create<TYPE*>(&val); assert(*GVariant::cast<TYPE*>(gv) == val); }
 
-	GVariant gv;
-	void* void_ptr = nullptr;
+		cout << "Testing GVariant for fundemental type pointers: ";
+		GVariant gv;
+		void* void_ptr = nullptr;
 #if 1
-	//explicit type specification
-	gv = GVariant::create<void*>(void_ptr);
-	assert(GVariant::cast<void*>(gv) == nullptr);
+		//explicit type specification
+		gv = GVariant::create<void*>(void_ptr);
+		assert(GVariant::cast<void*>(gv) == nullptr);
 
-	gv = GVariant::create<nullptr_t*>(nullptr);
-	assert(GVariant::cast<nullptr_t*>(gv) == nullptr);
+		gv = GVariant::create<nullptr_t*>(nullptr);
+		assert(GVariant::cast<nullptr_t*>(gv) == nullptr);
 
-	CHECK_POINTER_TYPE(bool);
-	CHECK_POINTER_TYPE(char);
-	CHECK_POINTER_TYPE(signed char);
-	CHECK_POINTER_TYPE(unsigned char);
-	CHECK_POINTER_TYPE(wchar_t);
-	CHECK_POINTER_TYPE(char16_t);
-	CHECK_POINTER_TYPE(char32_t);
-	CHECK_POINTER_TYPE(short);
-	CHECK_POINTER_TYPE(unsigned short);
-	CHECK_POINTER_TYPE(int);
-	CHECK_POINTER_TYPE(unsigned int);
-	CHECK_POINTER_TYPE(long);
-	CHECK_POINTER_TYPE(unsigned long);
-	CHECK_POINTER_TYPE(long long);
-	CHECK_POINTER_TYPE(unsigned long long);
-	CHECK_POINTER_TYPE(float);
-	CHECK_POINTER_TYPE(float);
-	CHECK_POINTER_TYPE(float);
-	CHECK_POINTER_TYPE(float);
-	CHECK_POINTER_TYPE(double);
-	CHECK_POINTER_TYPE(double);
-	CHECK_POINTER_TYPE(double);
-	CHECK_POINTER_TYPE(double);
-	CHECK_POINTER_TYPE(long double);
-	CHECK_POINTER_TYPE(long double);
-	CHECK_POINTER_TYPE(long double);
-	CHECK_POINTER_TYPE(long double);
+		CHECK_POINTER_TYPE(bool);
+		CHECK_POINTER_TYPE(char);
+		CHECK_POINTER_TYPE(signed char);
+		CHECK_POINTER_TYPE(unsigned char);
+		CHECK_POINTER_TYPE(wchar_t);
+		CHECK_POINTER_TYPE(char16_t);
+		CHECK_POINTER_TYPE(char32_t);
+		CHECK_POINTER_TYPE(short);
+		CHECK_POINTER_TYPE(unsigned short);
+		CHECK_POINTER_TYPE(int);
+		CHECK_POINTER_TYPE(unsigned int);
+		CHECK_POINTER_TYPE(long);
+		CHECK_POINTER_TYPE(unsigned long);
+		CHECK_POINTER_TYPE(long long);
+		CHECK_POINTER_TYPE(unsigned long long);
+		CHECK_POINTER_TYPE(float);
+		CHECK_POINTER_TYPE(float);
+		CHECK_POINTER_TYPE(float);
+		CHECK_POINTER_TYPE(float);
+		CHECK_POINTER_TYPE(double);
+		CHECK_POINTER_TYPE(double);
+		CHECK_POINTER_TYPE(double);
+		CHECK_POINTER_TYPE(double);
+		CHECK_POINTER_TYPE(long double);
+		CHECK_POINTER_TYPE(long double);
+		CHECK_POINTER_TYPE(long double);
+		CHECK_POINTER_TYPE(long double);
 
-	CHECK_POINTER_TYPE(const bool);
-	CHECK_POINTER_TYPE(const char);
-	CHECK_POINTER_TYPE(const signed char);
-	CHECK_POINTER_TYPE(const unsigned char);
-	CHECK_POINTER_TYPE(const wchar_t);
-	CHECK_POINTER_TYPE(const char16_t);
-	CHECK_POINTER_TYPE(const char32_t);
-	CHECK_POINTER_TYPE(const short);
-	CHECK_POINTER_TYPE(const unsigned short);
-	CHECK_POINTER_TYPE(const int);
-	CHECK_POINTER_TYPE(const unsigned int);
-	CHECK_POINTER_TYPE(const long);
-	CHECK_POINTER_TYPE(const unsigned long);
-	CHECK_POINTER_TYPE(const long long);
-	CHECK_POINTER_TYPE(const unsigned long long);
-	CHECK_POINTER_TYPE(const float);
-	CHECK_POINTER_TYPE(const float);
-	CHECK_POINTER_TYPE(const float);
-	CHECK_POINTER_TYPE(const float);
-	CHECK_POINTER_TYPE(const double);
-	CHECK_POINTER_TYPE(const double);
-	CHECK_POINTER_TYPE(const double);
-	CHECK_POINTER_TYPE(const double);
-	CHECK_POINTER_TYPE(const long double);
-	CHECK_POINTER_TYPE(const long double);
-	CHECK_POINTER_TYPE(const long double);
-	CHECK_POINTER_TYPE(const long double);
+		CHECK_POINTER_TYPE(const bool);
+		CHECK_POINTER_TYPE(const char);
+		CHECK_POINTER_TYPE(const signed char);
+		CHECK_POINTER_TYPE(const unsigned char);
+		CHECK_POINTER_TYPE(const wchar_t);
+		CHECK_POINTER_TYPE(const char16_t);
+		CHECK_POINTER_TYPE(const char32_t);
+		CHECK_POINTER_TYPE(const short);
+		CHECK_POINTER_TYPE(const unsigned short);
+		CHECK_POINTER_TYPE(const int);
+		CHECK_POINTER_TYPE(const unsigned int);
+		CHECK_POINTER_TYPE(const long);
+		CHECK_POINTER_TYPE(const unsigned long);
+		CHECK_POINTER_TYPE(const long long);
+		CHECK_POINTER_TYPE(const unsigned long long);
+		CHECK_POINTER_TYPE(const float);
+		CHECK_POINTER_TYPE(const float);
+		CHECK_POINTER_TYPE(const float);
+		CHECK_POINTER_TYPE(const float);
+		CHECK_POINTER_TYPE(const double);
+		CHECK_POINTER_TYPE(const double);
+		CHECK_POINTER_TYPE(const double);
+		CHECK_POINTER_TYPE(const double);
+		CHECK_POINTER_TYPE(const long double);
+		CHECK_POINTER_TYPE(const long double);
+		CHECK_POINTER_TYPE(const long double);
+		CHECK_POINTER_TYPE(const long double);
 #endif
+		cout << "Ok" << endl;
 	}
 
-	//objects - value, reference and pointers
+	//objects - value and reference 
 	{
+		cout << "Testing GVariant for class types and references: ";
 		GVariant gv;
 		RGB brown = { 255, 128, 0 };
 
@@ -511,10 +537,12 @@ void run_variant_testcases()
 		assert(GVariant::cast<RGB&&>(gv).red == 255);
 		assert(GVariant::cast<RGB&&>(gv).green == 128);
 		assert(GVariant::cast<RGB&&>(gv).blue == 0);
+		cout << "Ok" << endl;
 	}
 
 	//pointers to objects
 	{
+		cout << "Testing GVariant for class type pointers: ";
 		GVariant gv;
 		RGB brown = { 255, 128, 0 };
 		RGB* brown_ptr = &brown;
@@ -533,10 +561,12 @@ void run_variant_testcases()
 		assert(GVariant::cast<const RGB*>(gv)->red == 255);
 		assert(GVariant::cast<const RGB*>(gv)->green == 128);
 		assert(GVariant::cast<const RGB*>(gv)->blue == 64);
+		cout << "Ok" << endl;
 	}
 
 	//pointers to functions
 	{
+		cout << "Testing GVariant for pointer to non-class functions: ";
 		GVariant gv;
 		typedef int(*func_ptr)(int, int);
 		func_ptr f = add;
@@ -550,10 +580,12 @@ void run_variant_testcases()
 		assert((*GVariant::cast<func_ptr*>(gv))(3, 2) == 5);
 		f = sub;
 		assert((*GVariant::cast<func_ptr*>(gv))(3, 2) == 1);
+		cout << "Ok" << endl;
 	}
 
 	//pointer to object public members
 	{
+		cout << "Testing GVariant for pointer to class members data: ";
 		GVariant gv;
 		RGB brown = { 255, 128, 0 };
 		RGB* brown_ptr = &brown;
@@ -563,10 +595,12 @@ void run_variant_testcases()
 		brown.*red_ptr = 20;
 		gv = GVariant::create<unsigned char RGB::*>(red_ptr);
 		assert(brown.*GVariant::cast<unsigned char RGB::*>(gv) == 20);
+		cout << "Ok" << endl;
 	}
 
 	//pointer to object public member functions
 	{
+		cout << "Testing GVariant for pointer to class member functions: ";
 		GVariant gv;
 		base_class bc;
 		derived_class dc;
@@ -613,20 +647,24 @@ void run_variant_testcases()
 		common_non_virtual_func_ptr common_non_virtual_func = &derived_class::common_non_virtual_func;
 		gv = GVariant::create<common_non_virtual_func_ptr>(common_non_virtual_func);
 		assert((dc.*GVariant::cast<common_non_virtual_func_ptr>(gv))() == 66);
+		cout << "Ok" << endl;
 	}
 
 	//array types
 	{
+		cout << "Testing GVariant for array types: ";
 		GVariant gv;
 
 		gv = GVariant::create<int[]>(int_array);
 		assert(GVariant::cast<int*>(gv)[0] == 1);
 		assert(GVariant::cast<int*>(gv)[1] == 2);
 		assert(GVariant::cast<int*>(gv)[2] == 3);
+		cout << "Ok" << endl;
 	}
 
 	//class types
 	{
+		cout << "Testing GVariant for pointer class objects: ";
 		GVariant gv;
 		non_copyable_class ncc;
 		non_moveable_class nmc;
@@ -680,6 +718,7 @@ void run_variant_testcases()
 		gv = GVariant::create<const non_moveable_class*>(&nmc);
 		nmc.set_number(42);
 		assert(GVariant::cast<const non_moveable_class*>(gv)->get_number() == 42);
+		cout << "Ok" << endl;
 	}
 
 #if 0

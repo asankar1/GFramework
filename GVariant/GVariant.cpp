@@ -1,10 +1,15 @@
 #include <sstream>
-#include "property.h"
+#include <GVariant/GVariant.h>
 
 using namespace std;
 
 namespace GFramework
 {
+	/*template<>
+	many many::create<void>() {
+		return many();
+	}*/
+#if 0	
 	static int index(lua_State *L)
 	{
 		size_t s = 0;
@@ -86,5 +91,5 @@ namespace GFramework
 
 		return 1;
 	}
-	
+#endif	
 }
