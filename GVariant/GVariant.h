@@ -3,9 +3,7 @@
 #include <glm/vec3.hpp>
 #include <boost/variant.hpp>
 #include <boost/any.hpp>
-#ifdef GFRAMEWORK_LUA_SUPPORT
-#include <GFrameworkLua.h>
-#endif
+#include <GScript/GFrameworkLua.h>
 
 
 /*! \file GVariant.h
@@ -15,14 +13,13 @@
 
 namespace GFramework
 {
-	class Object;
+	class GObject;
 	class Node;
-	typedef std::shared_ptr<Object> ObjectSharedPtr;
+	typedef std::shared_ptr<GObject> GObjectSharedPtr;
 	typedef std::shared_ptr<Node> NodeSharedPtr;
 
-#ifdef GFRAMEWORK_LUA_SUPPORT
 	int open_lua_variant_module(lua_State *L);
-#endif
+
 	template <typename... Types>
 	struct myv : public boost::variant<Types...>
 	{
@@ -175,6 +172,32 @@ namespace GFramework
 			return caster_type::cast_internal(m);
 		}
 
+		template<typename T>
+		static T cast(many&& m)
+		{
+			//typedef typename std::conditional<	std::is_reference<T>::value, cast_lvalue_reference_from_pointer<T>, cast_as_it_is<T> >::type caster_type;
+			typedef unknown_type type1;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional< \
+				std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
+				std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional < std::is_same<unknown_type, type3>::value, typename std::conditional < \
+				std::is_array<T>::value, cast_as_it_is <typename std::decay<T>::type>, type3 > ::type, type3 > ::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, cast_as_it_is<T>, type4 >::type caster_type;
+			//typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, cast_as_it_is<T>, type3 >::type caster_type;
+
+			return caster_type::cast_internal(m);
+		}
+
+		template<typename T>
+		static many ref(T& t)
+		{
+			auto a = any(static_cast<T*>(&t));
+			many m;
+			a.swap(m);
+			return m;
+		}
+
 	private:
 		template<typename T>
 		struct create_as_it_is {
@@ -232,7 +255,7 @@ namespace GFramework
 		/*template<typename T>
 		many(T t) : boost::any(t) { }*/
 
-#if 0
+#if	0
 		/*template<>
 		static GVariant& create<int>(int i) {
 			return any(i);

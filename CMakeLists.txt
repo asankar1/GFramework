@@ -51,9 +51,42 @@ set(THIRDPARTY_LUA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lua-5.3.4 CACHE 
 set(THIRDPARTY_GLM_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm_0_9_8_3 CACHE PATH "glm path")
 set(THIRDPARTY_BOOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/boost_1_63_0 CACHE PATH "Boost path")
 
-
-
 add_subdirectory(GVariant)
+add_subdirectory(GSerialization)
+add_subdirectory(GReflection)
+add_subdirectory(GScript)
 
+add_library(
+	gframework_static
+	STATIC
+	$<TARGET_OBJECTS:gvariant_static>
+	$<TARGET_OBJECTS:gserialization_static>
+	$<TARGET_OBJECTS:greflection_static>
+	$<TARGET_OBJECTS:gscript_static>
+)
+
+add_library(
+	gframework_shared
+	SHARED
+	$<TARGET_OBJECTS:gvariant_shared>
+	$<TARGET_OBJECTS:gserialization_shared>
+	$<TARGET_OBJECTS:greflection_shared>
+	$<TARGET_OBJECTS:gscript_shared>
+)
+
+		
+install	(	TARGETS gframework_static gframework_shared
+			CONFIGURATIONS Debug
+			RUNTIME DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
+			LIBRARY DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
+			ARCHIVE DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
+		)
+
+install	(	TARGETS gframework_static gframework_shared
+			CONFIGURATIONS Release
+			RUNTIME DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
+			LIBRARY DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
+			ARCHIVE DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
+		)
 #add_subdirectory(Test)
 

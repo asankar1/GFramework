@@ -63,19 +63,19 @@ add_executable(
 
 target_link_libraries (
 	gframework_static_test
-	gvariant_static
+	gframework_static
 )
 
 target_link_libraries (
 	gframework_shared_test
-	gvariant_shared
+	gframework_shared
 )
 
 target_compile_definitions(gframework_static_test PUBLIC GFRAMEWORK_API=)
 target_compile_definitions(gframework_shared_test PUBLIC GFRAMEWORK_API=${GFRAMEWORK_IMPORT_API})
 
-set_property(TARGET gframework_static_test PROPERTY CXX_STANDARD 11)
-set_property(TARGET gframework_shared_test PROPERTY CXX_STANDARD 11)
+set_property(TARGET gframework_static_test PROPERTY CXX_STANDARD 14)
+set_property(TARGET gframework_shared_test PROPERTY CXX_STANDARD 14)
 
 install	(	TARGETS gframework_static_test gframework_shared_test 
 			CONFIGURATIONS Debug

@@ -22,12 +22,10 @@ void run_property_testcases()
 		GInt32Property property1; \
 		GInt32Property property2; \
 		property1.set(gv); \
-		GVariant tt1 = property1.get();
-		assert(GVariant::cast<int32>(tt1) == std::numeric_limits<int>::min()); \
+		assert(GVariant::cast<int32>(property1.get()) == std::numeric_limits<int>::min()); \
 		assert(property1.getValue() == std::numeric_limits<int>::min()); \
 		property1.setValue(std::numeric_limits<int>::max()); \
-		tt1 = property1.get();
-		assert(GVariant::cast<int32>(tt1) == std::numeric_limits<int>::max()); \
+		assert(GVariant::cast<int32>(property1.get()) == std::numeric_limits<int>::max()); \
 		assert(property1.getValue() == std::numeric_limits<int>::max()); \
 	{ \
 		ostringstream os; \
@@ -46,7 +44,7 @@ void run_property_testcases()
 		assert(property1.getValue() == property2.getValue()); \
 	} \
 	}
-#if 0
+
 #define CHECK_ARITHMETIC_PROPERTY(RAW_TYPE, PROPERTY_TYPE) \
 	{ \
 		GVariant gv = GVariant::create<RAW_TYPE>(std::numeric_limits<RAW_TYPE>::min()); \
@@ -159,35 +157,6 @@ void run_property_testcases()
 		cout << "Ok" << endl;
 	}
 
-#define CHECK_STRING_PROPERTY(RAW_TYPE, PROPERTY_TYPE) \
-	{ \
-		GVariant gv = GVariant::create<RAW_TYPE>(RAW_TYPE(std::numeric_limits<float>::min())); \
-		PROPERTY_TYPE property1; \
-		PROPERTY_TYPE property2; \
-		property1.set(gv); \
-		assert(GVariant::cast<RAW_TYPE>(property1.get()) == RAW_TYPE(std::numeric_limits<float>::min())); \
-		assert(property1.getValue() == RAW_TYPE(std::numeric_limits<float>::min())); \
-		property1.setValue(RAW_TYPE(std::numeric_limits<float>::max())); \
-		assert(GVariant::cast<RAW_TYPE>(property1.get()) == RAW_TYPE(std::numeric_limits<float>::max())); \
-		assert(property1.getValue() == RAW_TYPE(std::numeric_limits<float>::max())); \
-		{ \
-			ostringstream os; \
-			istringstream is; \
-			property1.writeASCIIValue(os); \
-			is.str(os.str()); \
-			property2.readASCIIValue(is); \
-			assert(property1.getValue() == property2.getValue()); \
-		} \
-		{ \
-			ostringstream os; \
-			istringstream is; \
-			property1.writeBinaryValue(os); \
-			is.str(os.str()); \
-			property2.readBinaryValue(is); \
-			assert(property1.getValue() == property2.getValue()); \
-		} \
-	}
-
 	{
 		cout << "Testing GProperty for string types: ";
 
@@ -222,9 +191,9 @@ void run_property_testcases()
 	}
 
 	{
-		//cout << "Testing GProperty for glm propety types: ";
+		//cout << "Testing GProperty for Object Pointer type: ";
 
 		//cout << "Ok" << endl;
 	}
-#endif
+
 }

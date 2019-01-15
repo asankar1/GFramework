@@ -1,7 +1,7 @@
 #include <iostream>
-#include <Greflection.h>
-#include "GLuaScript.h"
-#include <sphere.h>
+#include <GReflection/GReflection.h>
+#include <GScript/GLuaScript.h>
+//#include <sphere.h>
 using namespace std;
 
 namespace GFramework

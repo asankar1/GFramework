@@ -1,19 +1,19 @@
 #include <iostream>
 #include <functional>
-#include <Object.h>
-#include <Node.h>
-#include "GSerializer.h"
+#include <GVariant/GObject.h>
+//#include <Sample/Node.h>
+#include <GSerialization/GSerializer.h>
 using namespace std;
 
 namespace GFramework
 {
-	std::map<unsigned int, std::vector<Object*>> GSerializer::reference_seekers;
-	std::map<unsigned int, std::vector<Object*>> GSerializer::reference_providers;
+	std::map<unsigned int, std::vector<GObject*>> GSerializer::reference_seekers;
+	std::map<unsigned int, std::vector<GObject*>> GSerializer::reference_providers;
 	std::mutex GSerializer::reference_seeker_mutex;
 	std::mutex GSerializer::reference_provider_mutex;
 
-	std::map<unsigned int, std::vector<NodeSharedPtr*>> GDeserializer::reference_seekers;
-	std::map<unsigned int, Object*> GDeserializer::reference_providers;
+	std::map<unsigned int, std::vector<GObject*>> GDeserializer::reference_seekers;
+	std::map<unsigned int, GObject*> GDeserializer::reference_providers;
 	std::mutex GDeserializer::reference_seeker_mutex;
 	std::mutex GDeserializer::reference_provider_mutex;
 
@@ -46,18 +46,18 @@ namespace GFramework
 		return true;
 	}
 
-	bool GBinarySerializer::writeMetaProperty(const Object* _obj, GMetaproperty* property)
+	bool GBinarySerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* property)
 	{
 		property->writeBinaryValue(stream, _obj);
 		return true;
 	}
 
-	GSerializer & GBinarySerializer::operator<<(Object &_obj)
+	GSerializer & GBinarySerializer::operator<<(GObject &_obj)
 	{
 		return (*this) << &_obj;
 	}
 
-	GSerializer & GBinarySerializer::operator<<(Object *_obj)
+	GSerializer & GBinarySerializer::operator<<(GObject *_obj)
 	{
 		if (!stream.is_open())
 			return *this;
@@ -90,19 +90,19 @@ namespace GFramework
 		close();
 	}
 
-	bool GTextSerializer::writeMetaProperty(const Object* _obj, GMetaproperty* property)
+	bool GTextSerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* property)
 	{
 		property->writeASCIIValue(stream, _obj);
 		stream << endl;
 		return true;
 	}
 
-	GSerializer & GTextSerializer::operator<<(Object &_obj)
+	GSerializer & GTextSerializer::operator<<(GObject &_obj)
 	{
 		return (*this) << &_obj;
 	}
 
-	GSerializer & GTextSerializer::operator<<(Object *_obj)
+	GSerializer & GTextSerializer::operator<<(GObject *_obj)
 	{
 		if (!stream.is_open())
 			return *this;
@@ -116,18 +116,20 @@ namespace GFramework
 
 	void GDeserializer::resolveDependencies()
 	{
+		//TODO
+#if 0
 		for (auto itr1 = reference_seekers.begin(); itr1 != reference_seekers.end(); ++itr1)
 		{
 			unsigned int object_id = itr1->first;
-			Object* provider = nullptr;
+			GObject* provider = nullptr;
 			provider = reference_providers[object_id];
 			if (provider != nullptr)
 			{
 				for (auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); ++itr2)
 				{
-					NodeSharedPtr* pointer = *itr2;
+					GObjectSharedPtr* pointer = *itr2;
 					//TODO avoid this dynamic cast
-					pointer->reset(dynamic_cast<Node*>(provider));
+					pointer->reset(dynamic_cast<GObject*>(provider));
 				}
 			}
 			else
@@ -137,16 +139,20 @@ namespace GFramework
 		}
 		reference_seekers.clear();
 		reference_providers.clear();
+#endif
 	}
 
-	void GDeserializer::addReferenceSeeker(unsigned int _object_id, NodeSharedPtr* _seeking_object)
+	void GDeserializer::addReferenceSeeker(unsigned int _object_id, GObjectSharedPtr* _seeking_object)
 	{
+		//TODO
+#if 0
 		std::lock_guard<std::mutex> lk(reference_seeker_mutex);
 
 		(reference_seekers[_object_id]).push_back(_seeking_object);
+#endif
 	}
 
-	void GDeserializer::addReferenceProviders(unsigned int _object_id, Object* _providing_object)
+	void GDeserializer::addReferenceProviders(unsigned int _object_id, GObject* _providing_object)
 	{
 		std::lock_guard<std::mutex> lk(reference_provider_mutex);
 
@@ -179,13 +185,13 @@ namespace GFramework
 		return true;
 	}
 
-	bool GBinaryDeSerializer::readMetaProperty(Object* _obj, GMetaproperty* property)
+	bool GBinaryDeSerializer::readMetaProperty(GObject* _obj, GMetaproperty* property)
 	{
 		property->readBinaryValue(stream, _obj);
 		return true;
 	}
 
-	GDeserializer & GBinaryDeSerializer::operator >> (Object **_obj)
+	GDeserializer & GBinaryDeSerializer::operator >> (GObject **_obj)
 	{
 		size_t len = 0;
 		stream.read((char*)&len, sizeof(len));
@@ -221,13 +227,13 @@ namespace GFramework
 		return true;
 	}
 
-	bool GTextDeSerializer::readMetaProperty(Object* _obj, GMetaproperty* property)
+	bool GTextDeSerializer::readMetaProperty(GObject* _obj, GMetaproperty* property)
 	{
 		property->readASCIIValue(stream, _obj);
 		return true;
 	}
 
-	GDeserializer & GTextDeSerializer::operator>>(Object **_obj)
+	GDeserializer & GTextDeSerializer::operator>>(GObject **_obj)
 	{
 		string class_name;
 		stream >> class_name;

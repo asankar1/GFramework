@@ -3,7 +3,7 @@
 #include <mutex>
 #include <vector>
 #include <fstream>
-#include <GReflection.h>
+//#include <GReflection/GReflection.h>
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
@@ -17,7 +17,8 @@
 
 namespace GFramework
 {
-	class Object;
+	class GObject;
+	class GMetaproperty;
 
 	class LIBRARY_API GSerializer
 	{
@@ -25,15 +26,15 @@ namespace GFramework
 		virtual ~GSerializer();
 		virtual bool open(const char* filename) = 0;
 		virtual void close();
-		virtual GSerializer& operator<<(Object& _obj) = 0;
-		virtual GSerializer& operator<<(Object* _obj) = 0;
-		virtual bool writeMetaProperty(const Object* _obj, GMetaproperty* property) = 0;
+		virtual GSerializer& operator<<(GObject& _obj) = 0;
+		virtual GSerializer& operator<<(GObject* _obj) = 0;
+		virtual bool writeMetaProperty(const GObject* _obj, GMetaproperty* property) = 0;
 
 	protected:
 		static std::mutex reference_seeker_mutex;
 		static std::mutex reference_provider_mutex;
-		static std::map<unsigned int, std::vector<Object*>> reference_seekers;
-		static std::map<unsigned int, std::vector<Object*>> reference_providers;
+		static std::map<unsigned int, std::vector<GObject*>> reference_seekers;
+		static std::map<unsigned int, std::vector<GObject*>> reference_providers;
 		std::ofstream stream;
 	};
 
@@ -43,9 +44,9 @@ namespace GFramework
 	public:
 		virtual ~GBinarySerializer();
 		virtual bool open(const char* filename) override;
-		virtual bool writeMetaProperty(const Object* _obj, GMetaproperty* property) override;
-		virtual GSerializer& operator<<(Object& _obj) override;
-		virtual GSerializer& operator<<(Object* _obj) override;
+		virtual bool writeMetaProperty(const GObject* _obj, GMetaproperty* property) override;
+		virtual GSerializer& operator<<(GObject& _obj) override;
+		virtual GSerializer& operator<<(GObject* _obj) override;
 };
 #endif
 	class LIBRARY_API GTextSerializer : public GSerializer
@@ -53,9 +54,9 @@ namespace GFramework
 	public:
 		virtual ~GTextSerializer();
 		virtual bool open(const char* filename) override;
-		virtual bool writeMetaProperty(const Object* _obj, GMetaproperty* property) override;
-		virtual GSerializer& operator<<(Object& _obj) override;
-		virtual GSerializer& operator<<(Object* _obj) override;
+		virtual bool writeMetaProperty(const GObject* _obj, GMetaproperty* property) override;
+		virtual GSerializer& operator<<(GObject& _obj) override;
+		virtual GSerializer& operator<<(GObject* _obj) override;
 	};
 
 	class LIBRARY_API GDeserializer
@@ -64,16 +65,16 @@ namespace GFramework
 		virtual ~GDeserializer();
 		virtual bool open(const char* filename) = 0;
 		virtual void close();
-		virtual GDeserializer& operator>>(Object** _obj) = 0;
-		virtual bool readMetaProperty(Object* _obj, GMetaproperty* property) = 0;
-		static void addReferenceSeeker(unsigned int _object_id, NodeSharedPtr* _seeking_object);
-		static void addReferenceProviders(unsigned int _object_id, Object* _providing_object);
+		virtual GDeserializer& operator>>(GObject** _obj) = 0;
+		virtual bool readMetaProperty(GObject* _obj, GMetaproperty* property) = 0;
+		static void addReferenceSeeker(unsigned int _object_id, GObjectSharedPtr* _seeking_object);
+		static void addReferenceProviders(unsigned int _object_id, GObject* _providing_object);
 		void resolveDependencies();
 	protected:
 		static std::mutex reference_seeker_mutex;
 		static std::mutex reference_provider_mutex;
-		static std::map<unsigned int, std::vector<NodeSharedPtr*>> reference_seekers;
-		static std::map<unsigned int, Object*> reference_providers;
+		static std::map<unsigned int, std::vector<GObject*>> reference_seekers;
+		static std::map<unsigned int, GObject*> reference_providers;
 		std::ifstream stream;
 	};
 
@@ -82,8 +83,8 @@ namespace GFramework
 	public:
 		virtual ~GBinaryDeSerializer();
 		virtual bool open(const char* filename) override;
-		virtual GDeserializer& operator >> (Object** _obj) override;
-		virtual bool readMetaProperty(Object* _obj, GMetaproperty* property) override;
+		virtual GDeserializer& operator >> (GObject** _obj) override;
+		virtual bool readMetaProperty(GObject* _obj, GMetaproperty* property) override;
 	};
 
 	class LIBRARY_API GTextDeSerializer : public GDeserializer
@@ -91,7 +92,7 @@ namespace GFramework
 	public:
 		virtual ~GTextDeSerializer();
 		virtual bool open(const char* filename) override;
-		virtual GDeserializer& operator >> (Object** _obj) override;
-		virtual bool readMetaProperty(Object* _obj, GMetaproperty* property) override;
+		virtual GDeserializer& operator >> (GObject** _obj) override;
+		virtual bool readMetaProperty(GObject* _obj, GMetaproperty* property) override;
 	};
 }

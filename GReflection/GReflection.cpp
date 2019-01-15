@@ -5,6 +5,11 @@ namespace GFramework
 {
 	std::map<std::string, GMetaclass*> Gmetatable;
 
+	template<>
+	void GMetafunction_Base::iterate_arg_type<void>(lua_State* L, std::vector<GVariant>& args, int offset) {
+
+	}
+
 	GMetaclassList::GMetaclassList()
 	{
 

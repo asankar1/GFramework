@@ -1,31 +1,32 @@
 #pragma once
+#include <iostream>
 #include <vector>
-#include <GVariant.h>
+#include <GVariant/GVariant.h>
 
 namespace GFramework
 {
 	template <typename T> struct is_shared_pointer {
 	private:
-		template <typename T> struct _is_shared_pointer { static constexpr bool value = false; };
-		template <typename T> struct _is_shared_pointer< std::shared_ptr<T> > { static constexpr bool value = true; };
+		template <typename C> struct _is_shared_pointer { static constexpr bool value = false; };
+		template <typename C> struct _is_shared_pointer< std::shared_ptr<C> > { static constexpr bool value = true; };
 	public:
-		static constexpr bool value = _is_shared_pointer< std::decay<T>::type>::value;
+		static constexpr bool value = _is_shared_pointer< typename std::decay<T>::type>::value;
 	};
 
 	template <typename T> struct is_unique_pointer {
 	private:
-		template <typename T> struct _is_unique_pointer { static constexpr bool value = false; };
-		template <typename T> struct _is_unique_pointer< std::unique_ptr<T> > { static constexpr bool value = true; };
+		template <typename C> struct _is_unique_pointer { static constexpr bool value = false; };
+		template <typename C> struct _is_unique_pointer< std::unique_ptr<C> > { static constexpr bool value = true; };
 	public:
-		static constexpr bool value = _is_unique_pointer< decay<T>::type>::value;
+		static constexpr bool value = _is_unique_pointer< typename std::decay<T>::type>::value;
 	};
 
 	template <typename T> struct is_weak_pointer {
 	private:
-		template <typename T> struct _is_weak_pointer { static constexpr bool value = false; };
-		template <typename T> struct _is_weak_pointer< std::weak_ptr<T> > { static constexpr bool value = true; };
+		template <typename C> struct _is_weak_pointer { static constexpr bool value = false; };
+		template <typename C> struct _is_weak_pointer< std::weak_ptr<C> > { static constexpr bool value = true; };
 	public:
-		static constexpr bool value = _is_weak_pointer< std::decay<T>::type>::value;
+		static constexpr bool value = _is_weak_pointer< typename std::decay<T>::type>::value;
 	};
 
 	template <typename T> struct is_smart_pointer {
@@ -76,7 +77,7 @@ namespace GFramework
 	struct smart_pointer {
 		static void lua_push(lua_State* L, T v)
 		{
-			typedef std::conditional<std::is_base_of<Object, std::decay<decltype(*v)>::type>::value, object_smart_pointer<T>, generic_smart_pointer<T> >::type selected_type;
+			typedef typename std::conditional<std::is_base_of<GObject, typename std::decay<decltype(*v)>::type>::value, object_smart_pointer<T>, generic_smart_pointer<T> >::type selected_type;
 			selected_type::lua_push(L, v);
 		}
 	};
@@ -92,24 +93,24 @@ namespace GFramework
 	template<typename T>
 	static void lua_pusher(lua_State* L, T v)
 	{
-		typedef std::conditional<is_smart_pointer<T>::value,smart_pointer<T>,generic_data<T>>::type selected_type;
+		typedef typename std::conditional<is_smart_pointer<T>::value,smart_pointer<T>,generic_data<T>>::type selected_type;
 		selected_type::lua_push(L, v);
 	}
 
 	template<>
-	static void lua_pusher(lua_State* L, unsigned int v)
+	void lua_pusher(lua_State* L, unsigned int v)
 	{
 		lua_pushinteger(L, v);
 	}
 
 	template<>
-	static void lua_pusher(lua_State* L, int v)
+	void lua_pusher(lua_State* L, int v)
 	{
 		lua_pushinteger(L, v);
 	}
 
 	template<>
-	static void lua_pusher(lua_State* L, const std::string v)
+	void lua_pusher(lua_State* L, const std::string v)
 	{
 		lua_pushstring(L, v.c_str());
 	}

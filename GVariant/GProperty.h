@@ -1,4 +1,4 @@
-#pragma once
+	#pragma once
 #include <fstream>
 #include <string>
 #include <vector>
@@ -12,9 +12,8 @@ namespace GFramework
 {
 	class Object;
 
-#ifdef GFRAMEWORK_LUA_SUPPORT
 	void register_lua_script_functions(lua_State *L, std::vector<luaL_Reg>& GPropertiesList);
-#endif
+
 	class GFRAMEWORK_API GPropertyInterface
 	{
 	public:
@@ -122,6 +121,15 @@ namespace GFramework
 			}
 		}
 
+		void setOwner(Object* _owner) {
+			assert(_owner);
+			if ( (owner != nullptr) && (value != nullptr) ){
+				value->removeObserver(owner);
+				owner = _owner;
+				value->addObserver(owner);
+			}
+		}
+
 		virtual void set(GVariant& _value) {
 			setValue(GVariant::cast<T*>(_value));
 		}
@@ -152,17 +160,17 @@ namespace GFramework
 			}
 			else
 			{
-				os << (unsigned int)0;
+				os << (uint32)0;
 			}
 			return os; 
 		}
 		
 		virtual std::istream& readBinaryValue(std::istream& is) {
-			unsigned int parent_obj_id = 0;
-			is >> parent_obj_id;
-			if (parent_obj_id)
+			uint32 pointer_obj_id = 0;
+			is >> pointer_obj_id;
+			if (pointer_obj_id)
 			{			
-				//TODO: Fix: GDeserializer::addReferenceSeeker(parent_obj_id, value);
+				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
 			return is; 
 		}
@@ -174,16 +182,16 @@ namespace GFramework
 			}
 			else
 			{
-				os << (unsigned int)0;
+				os << (uint32)0;
 			}
 			return os; 
 		}
 		virtual std::istream& readASCIIValue(std::istream& is) {
-			unsigned int parent_obj_id = 0;
-			is >> parent_obj_id;
-			if (parent_obj_id)
+			uint32 pointer_obj_id = 0;
+			is >> pointer_obj_id;
+			if (pointer_obj_id)
 			{
-				//TODO: Fix: GDeserializer::addReferenceSeeker(parent_obj_id, value);
+				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
 			return is; 
 		}
