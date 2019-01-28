@@ -5,10 +5,7 @@
 #include <cmath>
 #include <boost/core/typeinfo.hpp>
 #include <GVariant/GVariant.h>
-/*
-#include <Node.h>
-#include <Sphere.h>
-*/
+
 #include "gvariant_test.h"
 #include <boost/variant.hpp>
 #include <boost/function.hpp>
@@ -172,7 +169,8 @@ void run_variant_testcases()
 		GVariant gv;
 
 		gv = 2;
-		char c = (int)gv;
+		//char c = (int)gv;
+		char c = GVariant::cast<int>(gv);
 		gv = (int)3;
 		GVariant gv2(gv);
 		vector<GVariant> args;
@@ -180,6 +178,24 @@ void run_variant_testcases()
 		GVariant gv3(3U);
 		args.push_back((int)5);
 
+		/*string name = "ParentNode-Renamed";
+		vector<GVariant> args1;
+		const string& re = name;
+		GVariant g;
+		g = GVariant::create<const string&>(re);
+		args1.push_back(g);
+		const string& tt = GVariant::cast<const string&>(g);
+		const string& tt2 = (const string&)g;*/
+		{
+			int i = 23;
+			vector<GVariant> args1;
+			const int& re = i;
+			GVariant g;
+			g = GVariant::create<const int&>(re);
+			args1.push_back(g);
+			const int& tt = GVariant::cast<const int&>(g);
+			const int& tt2 = (const int&)g;
+		}
 #if 1
 		//explicit type specification
 		gv = GVariant::create<void>();

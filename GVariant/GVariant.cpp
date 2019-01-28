@@ -1,19 +1,14 @@
 #include <sstream>
 #include <GVariant/GVariant.h>
+#include <GVariant/GProperty.h>
 
 using namespace std;
 
 namespace GFramework
 {
-	/*template<>
-	many many::create<void>() {
-		return many();
-	}*/
-#if 0	
 	static int index(lua_State *L)
 	{
 		size_t s = 0;
-		//vector2d* userdata = (vector2d*)luaL_checkudata(L, 1, "vector2d_type");
 		const char* keyname = luaL_checklstring(L, 2, &s);
 		return 1;
 	}
@@ -91,5 +86,4 @@ namespace GFramework
 
 		return 1;
 	}
-#endif	
 }

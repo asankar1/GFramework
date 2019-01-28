@@ -1,12 +1,12 @@
 #include <cassert>
 #include <iostream>
-#include <GVariant.h>
-#include <GReflection.h>
+#include <GVariant/GVariant.h>
+#include <GReflection/GReflection.h>
 #include <Node.h>
 #include <Sphere.h>
-#include <boost\optional.hpp>
-#include <boost\bind.hpp>
-#include <boost\function.hpp>
+#include <boost/optional.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include "greflection_test.h"
 
 using namespace std;
@@ -23,46 +23,41 @@ using namespace GFramework;
 
 void run_reflection_testcases()
 {
-#if 1
 	cout << endl << "Starting test cases for 'Reflection'..." << endl << endl;
 
-	GMetaclass *objectmeta = GMetaclassList::instance().getMetaclass("Object");
+	GMetaclass *objectmeta = GMetaclassList::instance().getMetaclass("GObject");
 	GMetaclass *nodemeta = GMetaclassList::instance().getMetaclass("node");
 	GMetaclass *spheremeta = GMetaclassList::instance().getMetaclass("sphere");
 
 	NodeSharedPtr np(NULL);
-	NodeSharedPtr parent(new Node("GrandParentNode", np));
+	NodeSharedPtr parent = make_shared<Node>("GrandParentNode", np);
 	Node n("ParentNode", parent);
-	SphereSharedPtr sphere_parent(new sphere("SphereParentNode", np, 321));
+	SphereSharedPtr sphere_parent = make_shared<sphere>("SphereParentNode", np, 321);
 	sphere s("SphereNode", parent);
-
 	
 	std::vector<std::string> f_list;
-	//std::vector<std::string> sf_list;
-	//std::vector<std::string> p_list;
-	//spheremeta->getFunctionsList(f_list);
 
 	cout << "\nObject class static functions:" << endl;
 	{
-		GMetaclassList::instance().getMetaclassByType<Object>()->getStaticFunctionsList(f_list);
+		GMetaclassList::instance().getMetaclassByType<GObject>()->getStaticFunctionsList(f_list);
 		for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
-			cout << GMetaclassList::instance().getMetaclassByType<Object>()->getStaticFunction((*it).c_str())->getReturntype();
+			cout << GMetaclassList::instance().getMetaclassByType<GObject>()->getStaticFunction((*it).c_str())->getReturntype();
 			cout << " " << *it << " ";
-			cout << GMetaclassList::instance().getMetaclassByType<Object>()->getStaticFunction((*it).c_str())->getPrototype() << endl;
+			cout << GMetaclassList::instance().getMetaclassByType<GObject>()->getStaticFunction((*it).c_str())->getPrototype() << endl;
 		}
 		f_list.clear();
 	}
 
 	cout << "\nObject class member functions:" << endl;
-	GMetaclassList::instance().getMetaclassByType<Object>()->getFunctionsList(f_list);
+	GMetaclassList::instance().getMetaclassByType<GObject>()->getFunctionsList(f_list);
 	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
 		cout << *it << endl;
 	}
 	f_list.clear();
 
 	cout << "\nObject class properties:" << endl;
-	GMetaclassList::instance().getMetaclassByType<Object>()->getEditablePropertiesList(f_list);
-	GMetaclassList::instance().getMetaclassByType<Object>()->getPropertiesList(f_list);
+	GMetaclassList::instance().getMetaclassByType<GObject>()->getEditablePropertiesList(f_list);
+	GMetaclassList::instance().getMetaclassByType<GObject>()->getPropertiesList(f_list);
 	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
 		cout << *it << endl;
 	}
@@ -172,9 +167,6 @@ void run_reflection_testcases()
 
 		assert(GVariant::cast<const unsigned int&>(r) == 444);
 	}
-#endif
-
-#if 1
 
 	// set a property value which invokes the onupdate notification function
 	cout << "\nSet a property value which invokes the onupdate notification function:" << endl;
@@ -225,8 +217,8 @@ void run_reflection_testcases()
 		auto* m = spheremeta->getMemberFunction("getParent");
 		std::vector<GVariant> args;
 		GVariant rv = m->invoke(&s, args);
-		NodeSharedPtr r = GVariant::cast<NodeSharedPtr>(rv);
-		assert(r->getObjectId() == 4);
+		Node* r = GVariant::cast<Node*>(rv);
+		assert(r->getName() == "GrandParentNode");
 	}
 
 	// call function taking shared pointer arguments but return void
@@ -234,13 +226,14 @@ void run_reflection_testcases()
 	{
 		auto m1 = spheremeta->getMemberFunction("setParent");
 		std::vector<GVariant> args1;
-		args1.push_back(std::shared_ptr<Node>(sphere_parent.get()));
+		args1.push_back(static_pointer_cast<Node>(sphere_parent));
+//		args1.push_back(sphere_parent);
 		GVariant rv1 = m1->invoke(&s, args1);
 
-		auto* m2 = spheremeta->getMemberFunction("getParent");
+		auto m2 = spheremeta->getMemberFunction("getParent");
 		std::vector<GVariant> args2;
 		GVariant rv2 = m2->invoke(&s, args2);
-		NodeSharedPtr r2 = GVariant::cast<NodeSharedPtr>(rv2);
+		Node* r2 = GVariant::cast<Node*>(rv2);
 		assert(r2->getObjectId() == sphere_parent->getObjectId());
 	}
 	
@@ -275,7 +268,5 @@ void run_reflection_testcases()
 		assert(s.getRadius() == 12U);
 		cout << "modified the value of " << m->getName() << " to " << GVariant::cast<unsigned int>(v) << endl;
 	}
-
-#endif
 }
 

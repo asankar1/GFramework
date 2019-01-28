@@ -132,11 +132,7 @@ namespace GFramework
 
 			std::vector<std::string> static_functions_list;
 			metaclass->getStaticFunctionsList(static_functions_list);
-			if (static_functions_list.empty())
-			{
-				return;
-			}
-#if 1
+
 			for (auto it = static_functions_list.begin(); it != static_functions_list.end(); ++it)
 			{
 				auto m = metaclass->getStaticFunction(it->c_str());
@@ -145,35 +141,7 @@ namespace GFramework
 				lua_pushcclosure(L, static_member_function, 1);
 				lua_settable(L, -3);
 			}
-#else
-			luaL_requiref(L, metaclass->getName().c_str(), [](lua_State *L) {
-				const char* name = lua_tostring(L, -1);
-				GMetaclass* metaclass = GMetaclassList::instance().getMetaclass(name);
-				std::vector<std::string> static_functions_list;
-				metaclass->getStaticFunctionsList(static_functions_list);
-				if (static_functions_list.empty())
-				{
-					return 1;
-				}
-				std::vector<luaL_Reg> GPropertiesList;
-				for (auto it = static_functions_list.begin(); it != static_functions_list.end(); ++it)
-				{
-					GMetafunction* m = metaclass->getStaticFunction(it->c_str());
-					lua_pushstring(L, it->c_str());
-					lua_pushlightuserdata(L, m);
-					lua_pushcclosure(L, static_member_function, 1);
-					lua_settable(L, -3);
-				}
 
-
-				GPropertiesList.push_back({ NULL, NULL });
-				luaL_newlib(L, GPropertiesList.data());
-
-				return 1;
-			}
-
-			, 1);
-#endif
 			lua_settable(L, -3);
 		}
 
@@ -185,10 +153,6 @@ namespace GFramework
 
 		std::vector<std::string> static_functions_list;
 		metaclass->getStaticFunctionsList(static_functions_list);
-		if (static_functions_list.empty())
-		{
-			return;
-		}
 		for (auto it = static_functions_list.begin(); it != static_functions_list.end(); ++it)
 		{
 			auto m = metaclass->getStaticFunction(it->c_str());

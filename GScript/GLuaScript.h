@@ -2,9 +2,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <GFrameworkLua.h>
-#include <GLua_data_exchange.h>
-#include <GVariant.h>
+#include <GScript/GFrameworkLua.h>
+#include <GScript/GLua_data_exchange.h>
+#include <GVariant/GVariant.h>
 
 namespace GFramework
 {
@@ -31,8 +31,8 @@ namespace GFramework
 		lua_State* L;
 	};
 
-	void open_lua_classes_module(lua_State* L);
+	void GFRAMEWORK_API open_lua_classes_module(lua_State* L);
 
-	void register_script_for_metaclass(GMetaclass* metaclass);
+	void GFRAMEWORK_API register_script_for_metaclass(GMetaclass* metaclass);
 }
 

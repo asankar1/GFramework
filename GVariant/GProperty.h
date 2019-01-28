@@ -1,4 +1,4 @@
-	#pragma once
+#pragma once
 #include <fstream>
 #include <string>
 #include <vector>
@@ -10,7 +10,7 @@
 
 namespace GFramework
 {
-	class Object;
+	class GObject;
 
 	void register_lua_script_functions(lua_State *L, std::vector<luaL_Reg>& GPropertiesList);
 
@@ -32,7 +32,7 @@ namespace GFramework
 	{
 		static_assert(std::is_arithmetic<T>::value, "Template argument T to GArithmeticProperty must be an arithmetic type!");
 	public:
-		GArithmeticProperty(T v=std::numeric_limits<T>::min());
+		GArithmeticProperty(T v = std::numeric_limits<T>::min());
 
 		virtual void set(GVariant& _value);
 
@@ -83,7 +83,7 @@ namespace GFramework
 	class GFRAMEWORK_API GGlmProperty : public GPropertyInterface
 	{
 	public:
-		GGlmProperty(T v=T());
+		GGlmProperty(T v = T());
 
 		virtual void set(GVariant& _value);
 
@@ -105,28 +105,30 @@ namespace GFramework
 		T value;
 	};
 
+	class  GPointerPropertyInterface : public GPropertyInterface
+	{
+	public:
+		virtual void subjectDeleted() = 0;
+		
+	protected:
+		GPointerPropertyInterface() {}
+		GPointerPropertyInterface(const GPointerPropertyInterface&);
+		GPointerPropertyInterface& operator=(const GPointerPropertyInterface&);
+	};
+
 	template<typename T>
-	class GFRAMEWORK_API GPointerProperty : public GPropertyInterface
+	class  GPointerProperty : public GPointerPropertyInterface
 	{
 		//static_assert(std::is_pointer<T>::value, "Template argument to GPointerProperty must be a pointer!");
-		static_assert(std::is_base_of<Object, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
+		//TODO: fix //static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 	public:
-		GPointerProperty(T* v, Object* _owner=nullptr) : value(v), owner(_owner){
+		GPointerProperty(T* v = nullptr) : value(v){
 
 		}
 
-		virtual ~GPointerProperty(){
+		virtual ~GPointerProperty() {
 			if (value != nullptr) {
-				value->removeObserver(owner);
-			}
-		}
-
-		void setOwner(Object* _owner) {
-			assert(_owner);
-			if ( (owner != nullptr) && (value != nullptr) ){
-				value->removeObserver(owner);
-				owner = _owner;
-				value->addObserver(owner);
+				value->unSubscribeDeletionNotification(this);
 			}
 		}
 
@@ -135,22 +137,25 @@ namespace GFramework
 		}
 
 		void setValue(T* _value) {
-			assert(owner);
 			if (value != nullptr) {
-				value->removeObserver(owner);
+				value->unSubscribeDeletionNotification(this);
 			}
 			value = _value;
 			if (value != nullptr) {
-				value->addObserver(owner);
+				value->subscribeDeletionNotification(this);
 			}
 		}
 
 		virtual GVariant get() const {
-			return GVariant::create<T*>(value);
+			return GVariant::create <T*>(value);
 		}
 
-		const T* getValue() const {
+		T* getValue() const {
 			return value;
+		}
+
+		virtual void subjectDeleted() {
+			value = nullptr;
 		}
 
 		virtual std::ostream& writeBinaryValue(std::ostream& os) const {
@@ -162,17 +167,17 @@ namespace GFramework
 			{
 				os << (uint32)0;
 			}
-			return os; 
+			return os;
 		}
-		
+
 		virtual std::istream& readBinaryValue(std::istream& is) {
 			uint32 pointer_obj_id = 0;
 			is >> pointer_obj_id;
 			if (pointer_obj_id)
-			{			
+			{
 				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
-			return is; 
+			return is;
 		}
 
 		virtual std::ostream& writeASCIIValue(std::ostream& os) const {
@@ -184,7 +189,7 @@ namespace GFramework
 			{
 				os << (uint32)0;
 			}
-			return os; 
+			return os;
 		}
 		virtual std::istream& readASCIIValue(std::istream& is) {
 			uint32 pointer_obj_id = 0;
@@ -193,12 +198,11 @@ namespace GFramework
 			{
 				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
-			return is; 
+			return is;
 		}
 
 	private:
 		T* value;
-		Object* owner;
 	};
 
 	/*template<typename T>
@@ -206,29 +210,29 @@ namespace GFramework
 	{
 	public:
 
-		virtual void set(GVariant& _value) {
-			value = boost::any_cast<T>(_value);
-		}
+	virtual void set(GVariant& _value) {
+	value = boost::any_cast<T>(_value);
+	}
 
-		void setValue(T _value) {
-			value = _value;
-		}
+	void setValue(T _value) {
+	value = _value;
+	}
 
-		virtual GVariant get() {
-			return value;
-		}
+	virtual GVariant get() {
+	return value;
+	}
 
-		const T& getValue() const {
-			return value;
-		}
+	const T& getValue() const {
+	return value;
+	}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os) const { return os; }
-		virtual std::istream& readBinaryValue(std::istream& is) { return is; }
-		virtual std::ostream& writeASCIIValue(std::ostream& os) const { return os; }
-		virtual std::istream& readASCIIValue(std::istream& is) { return is; }
+	virtual std::ostream& writeBinaryValue(std::ostream& os) const { return os; }
+	virtual std::istream& readBinaryValue(std::istream& is) { return is; }
+	virtual std::ostream& writeASCIIValue(std::ostream& os) const { return os; }
+	virtual std::istream& readASCIIValue(std::istream& is) { return is; }
 
 	private:
-		T value;
+	T value;
 	};*/
 
 	typedef GGlmProperty<glm::vec2> GVec2Property;
@@ -249,6 +253,6 @@ namespace GFramework
 	typedef GArithmeticProperty<uint64> GUint64Property;
 	typedef GArithmeticProperty<float> GFloatProperty;
 	typedef GArithmeticProperty<double> GDoubleProperty;
-	typedef GPointerProperty<Object> GObjectPointerProperty;
+	typedef GPointerProperty<GObject> GObjectPointerProperty;
 	//typedef GPointerProperty<Node> GNodePointerProperty;
 }

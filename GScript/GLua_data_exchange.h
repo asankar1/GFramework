@@ -129,7 +129,7 @@ namespace GFramework
 	}
 
 	template<>
-	void Glua_pusher<void>(lua_State* L, GVariant& rv);
+	void GFRAMEWORK_API Glua_pusher<void>(lua_State* L, GVariant& rv);
 
 	//TODO: Try to avoid the offset parameter and handle member function and non member fumction arguments efficiently
 	template<typename T>
@@ -140,16 +140,16 @@ namespace GFramework
 	}
 
 	template<>
-	int Glua_puller<unsigned int>(lua_State* L, std::vector<GVariant>& args, int offset);
+	int GFRAMEWORK_API Glua_puller<unsigned int>(lua_State* L, std::vector<GVariant>& args, int offset);
 
 	template<>
-	int Glua_puller<int>(lua_State* L, std::vector<GVariant>& args, int offset);
+	int GFRAMEWORK_API Glua_puller<int>(lua_State* L, std::vector<GVariant>& args, int offset);
 
 	template<>
-	int Glua_puller<float>(lua_State* L, std::vector<GVariant>& args, int offset);
+	int GFRAMEWORK_API Glua_puller<float>(lua_State* L, std::vector<GVariant>& args, int offset);
 
 	template<>
-	int Glua_puller<std::string>(lua_State* L, std::vector<GVariant>& args, int offset);
+	int GFRAMEWORK_API Glua_puller<std::string>(lua_State* L, std::vector<GVariant>& args, int offset);
 
 
 }

@@ -4,14 +4,11 @@ local test = require("test")
 
 print("script test")
 print("-----------")
-print(Object)
+print(GObject)
 
 s = test.new_sphere()
---s:about()
---s:setRadius(27)
---s:setPosition(11,22,33)
---s:rename("renamed_sphere")
---s:about()
+
+print(s)
 
 function print_metatable(o)
 	if(getmetatable(o) == nil) then
@@ -27,46 +24,9 @@ function print_metatable(o)
 	  print(k ,"::", v)
 	end
 end
-s:setRadius(29)
-print("-----------")
-print("get vec3 from C++")
---s:setRadius(5)
---sphere.overview()
-print(s.getName)
+
 --print_metatable(s)
-
-print("-- object--")
-
---print_metatable(Object)
-
-print(".....")
-Object.overview(34)
-
-
-
-
-print("overview return ")
-print(v1)
-p1=s:getPosition()
-print("-----------")
-
-
-print("get userdata from C++")
-p = s:getParent()
-if p == nil then 
-	print("parent is nil") 
-	else
-	print(p:getName())
-end
-p:setPosition(41,42,43)
-n = test.new_node()
-n:about()
-p:about()
-s:about()
---s:setRadius(14, 23, 45)
---test.about(j)
---print(j:getName())
---print(j:getRadius())
-
-
+--r = s:getRadius()
+print("r:" , s:getRadius())
+--print(s:getRadius())
 

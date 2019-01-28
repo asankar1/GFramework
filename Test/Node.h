@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
-#include <glm\vec3.hpp>
-#include <boost\shared_ptr.hpp>
-#include <Object.h>
-#include <GReflection.h>
+#include <glm/vec3.hpp>
+#include <boost/shared_ptr.hpp>
+#include <GVariant/GObject.h>
+#include <GReflection/GReflection.h>
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
@@ -23,7 +23,9 @@ namespace GFramework
 {
 	/*! \brief This the base class for all the types of nodes.
 	*/
-	class LIBRARY_API Node : public Object
+	class Node;
+	typedef std::shared_ptr<Node> NodeSharedPtr;
+	class Node : public GObject
 	{
 	public:
 		/**
@@ -50,7 +52,7 @@ namespace GFramework
 		* \param pos is position of the node
 		* \return void
 		*/
-		void setPosition_(glm::vec3 &pos);
+		void setPosition_(glm::vec3 &&pos);
 
 		/**
 		* Gets the position of the node.
@@ -75,7 +77,7 @@ namespace GFramework
 		* get the parent of the node object		
 		* \return parent node
 		*/
-		std::shared_ptr<Node> getParent();
+		Node* getParent();
 
 		/**
 		* Add a child node to the node object
@@ -99,11 +101,12 @@ namespace GFramework
 
 		virtual const char* metaclassName();
 
-	protected:
-		Node() {}
+
+	//protected://TODO: Fix
+		Node():GObject() {}
 	private:
 		GVec3Property position; /*!< Position of the node*/
-		GNodePointerProperty<NodeSharedPtr> parent; /*!< Pointer to the parent of the node object*/
+		GPointerProperty<Node> parent; /*!< Pointer to the parent of the node object*/
 		std::vector<NodeSharedPtr> children;
 
 		META_FRIEND(Node);

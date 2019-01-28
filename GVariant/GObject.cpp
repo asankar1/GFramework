@@ -9,7 +9,7 @@ namespace GFramework
 {
 	//object id starts from 1. 0 is reservedfor null object
 	std::atomic<unsigned int> GObject::atomic_count(1);
-#if 1
+
 	BEGIN_DEFINE_META(GObject)
 		GMetaclassList::instance().define<GObject>("GObject")
 			.version(1)
@@ -25,18 +25,17 @@ namespace GFramework
 			.editableProperty("name", &GObject::name)
 			.property("object_id", &GObject::object_id);
 	END_DEFINE_META(GObject)
-#endif
+
 	GObject::GObject(const char *_name)
 	{
 		object_id.setValue(atomic_count.load());
 		atomic_count++;
 		name.setValue(string(_name));
-		cout << "GObject '" << name.getValue() << "' constructed." << endl;
 	}
 
 	GObject::~GObject()
 	{
-		cout << "GObject '" << name.getValue() << "' destroyed." << endl;
+		for_each(deletion_subscribers.begin(), deletion_subscribers.end(), [](GPointerPropertyInterface* p) {p->subjectDeleted(); });
 	}
 
 	void GObject::rename(const std::string& _name)
@@ -86,6 +85,16 @@ namespace GFramework
 				cout << "GObject: " << getName() << " removes the observer: " << _object->getName() << endl;
 			}
 		}
+	}
+
+	void GObject::subscribeDeletionNotification(GPointerPropertyInterface* _subscriber)
+	{
+		deletion_subscribers.insert(_subscriber);
+	}
+
+	void GObject::unSubscribeDeletionNotification(GPointerPropertyInterface* _subscriber)
+	{
+		deletion_subscribers.erase(_subscriber);
 	}
 
 	bool GObject::serialize(GSerializer& serializer)

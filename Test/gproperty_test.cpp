@@ -4,12 +4,32 @@
 #include <cassert>
 #include <limits>
 #include <array>
+#include <GVariant/GObject.h>
 #include <GVariant/GVariant.h>
 #include <GVariant/GProperty.h>
 #include "gproperty_test.h"
 
 using namespace std;
 using namespace GFramework;
+
+namespace property_test {
+	class Node : public GObject {
+	public:
+		Node(int i) :id(i) {}
+		virtual void initialize() {
+		}
+		~Node() {
+			int i = 0;
+		}
+
+		virtual const char* metaclassName() {
+			return "Node";
+		}
+
+		GPointerProperty<Node> interested_object;
+		int id;
+	};
+}
 
 void run_property_testcases()
 {
@@ -191,9 +211,16 @@ void run_property_testcases()
 	}
 
 	{
-		//cout << "Testing GProperty for Object Pointer type: ";
+		cout << "Testing GProperty for Object Pointer type: ";
+		shared_ptr<property_test::Node> n1 = make_shared<property_test::Node>(23);
+		{
+			shared_ptr<property_test::Node> n2 = make_shared<property_test::Node>(47);
+			n1->interested_object.setValue(n2.get());
+			assert(n1->interested_object.getValue()->id == 47);
+		}
+		assert(n1->interested_object.getValue() == nullptr);
 
-		//cout << "Ok" << endl;
+		cout << "Ok" << endl;
 	}
 
 }

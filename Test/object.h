@@ -3,8 +3,9 @@
 #include <atomic>
 #include <string>
 #include <memory>
-#include <GProperty.h>
-#include <GReflection.h>
+#include <GVariant/GProperty.h>
+#include <GSerialization/GSerializer.h>
+#include <GReflection/GReflection.h>
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
 #define LIBRARY_API __declspec( dllexport )
@@ -142,7 +143,7 @@ namespace GFramework
 
 	private:
 		GStringProperty name; /*!< Name of the object*/
-		GUintProperty object_id;
+		GUint32Property object_id;
 		static std::atomic<unsigned int> atomic_count;
 		std::map<Object*,  unsigned int> observers;
 		META_FRIEND(Object);

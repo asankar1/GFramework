@@ -22,7 +22,7 @@ namespace GFramework
 
 	/*! \brief This the sphere class
 	*/
-	class LIBRARY_API sphere : public Node
+	class sphere : public Node
 	{
 	public:
 		/**
@@ -61,7 +61,7 @@ namespace GFramework
 		void reconstruct();
 
 	private:
-		GUintProperty radius; /*!< Radius of the sphere*/
+		GUint32Property radius; /*!< Radius of the sphere*/
 
 		META_FRIEND(sphere);
 	};

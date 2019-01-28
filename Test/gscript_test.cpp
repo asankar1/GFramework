@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-#include <GVariant.h>
+#include <GVariant/GVariant.h>
 #include <sphere.h>
 #include "gscript_test.h"
 using namespace std;
@@ -54,7 +54,7 @@ void open_lua_test_module(lua_State *L)
 	luaL_requiref(L, "test", register_lua_test_module, 1);
 }
 
-void tmain()
+void run_script_testcases()
 {
 	lua_State* L = GLuaState::getState();
 	//luaL_requiref(L, "vector2d", luaopen_vector2d, 1);
@@ -63,7 +63,7 @@ void tmain()
 	open_lua_test_module(L);
 	luaL_openlibs(L);
 
-	int error = luaL_loadfile(L, "../GScript/script.lua");
+	int error = luaL_loadfile(L, "../../../GScript/script.lua");
 	if (error) // if non-0, then an error
 	{
 		// the top of the stack should be the error string
@@ -88,11 +88,4 @@ void tmain()
 			break;
 		}
 	}
-}
-
-void run_script_testcases()
-{
-	tmain();
-
-	cin.get();
 }

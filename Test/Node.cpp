@@ -4,10 +4,9 @@ using namespace std;
 
 namespace GFramework
 {
-#if 1
 	BEGIN_DEFINE_META(Node)
 		GMetaclassList::instance().define<Node>("node")
-			.baseMetaclass("Object")
+			.baseMetaclass("GObject")
 			.version(1)
 			.function("about", &Node::about)
 			.function("getPosition", &Node::getPosition)
@@ -19,10 +18,10 @@ namespace GFramework
 			.editableProperty("position", &Node::position)
 			.property("parent", &Node::parent);
 	END_DEFINE_META(Node)
-#endif
-	Node::Node(const char *_name, NodeSharedPtr& _parent) : Object(_name), parent(this)
+
+	Node::Node(const char *_name, NodeSharedPtr& _parent) : GObject(_name)
 	{	
-		parent.setValue(_parent);
+		parent.setValue(_parent.get());
 		cout << "Node '" << getName() << "' constructed." << endl;
 	}
 
@@ -37,7 +36,7 @@ namespace GFramework
 		setPosition_(glm::vec3(x, y, z));
 	}
 
-	void Node::setPosition_(glm::vec3 & pos)
+	void Node::setPosition_(glm::vec3 && pos)
 	{
 		position.setValue(pos);
 	}
@@ -73,10 +72,10 @@ namespace GFramework
 
 	void Node::setParent(NodeSharedPtr _parent)
 	{
-		parent.setValue(_parent);
+		parent.setValue(_parent.get());
 	}
 
-	NodeSharedPtr Node::getParent()
+	Node* Node::getParent()
 	{
 		return parent.getValue();
 	}

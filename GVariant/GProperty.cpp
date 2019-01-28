@@ -5,7 +5,6 @@ using namespace std;
 
 namespace GFramework
 {
-#ifdef GFRAMEWORK_LUA_SUPPORT
 	static int tostring(lua_State *L)
 	{
 		lua_getmetatable(L, 1);
@@ -61,7 +60,6 @@ namespace GFramework
 	{
 		GPropertiesList.push_back({ "newVec2", new_vec2_data });
 	}	
-#endif
 
 	template <typename T>
 	GArithmeticProperty<T>::GArithmeticProperty(T v):value(v) {
@@ -190,8 +188,6 @@ namespace GFramework
 		delete[] str;
 		return is;
 	}
-
-
 
 	template <typename T>
 	GGlmProperty<T>::GGlmProperty(T v):value(v) {}

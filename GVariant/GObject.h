@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <set>
 #include <GVariant/GProperty.h>
 #include <GReflection/GReflection.h>
 //#include <GSerialization/GSerializer.h>
@@ -27,6 +28,7 @@ namespace GFramework
 	class GObject;
 	class GSerializer;
 	class GDeserializer;
+	class GPointerPropertyInterface;
 
 	/** \var typedef std::shared_ptr<GObject> GObjectSharedPtr;
 	*	\brief shared pointer type for the Node class
@@ -35,10 +37,10 @@ namespace GFramework
 
 	/*! \brief This the base class for all the other classes.
 	*/
-	class LIBRARY_API GObject
+	class GFRAMEWORK_API GObject
 	{
 	public:
-		~GObject();
+		virtual ~GObject();
 
 		/**
 		* Change the name of the existing object
@@ -105,6 +107,10 @@ namespace GFramework
 		*/
 		virtual bool deserialize(GDeserializer& deserializer, unsigned int version);
 
+		void subscribeDeletionNotification(GPointerPropertyInterface* _observer);
+
+		void unSubscribeDeletionNotification(GPointerPropertyInterface* _observer);
+
 		void name_modified() {
 			std::cout << "someone modified my name" << std::endl;
 		}
@@ -127,15 +133,13 @@ namespace GFramework
 			i = x;
 		}
 
-
-
-	protected:
 		/**
 		* Get the name of the object
 		* \return name as const string reference
 		*/
 		const std::string & getName() const;
 
+	protected:
 		/**
 		* Constructs the GObject class.
 		* \param _name is a string reference.
@@ -150,6 +154,7 @@ namespace GFramework
 		GUint32Property object_id;
 		static std::atomic<unsigned int> atomic_count;
 		std::map<GObject*,  unsigned int> observers;
+		std::set<GPointerPropertyInterface*> deletion_subscribers;
 		META_FRIEND(GObject);
 	};
 }

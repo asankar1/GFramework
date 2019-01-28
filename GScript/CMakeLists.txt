@@ -60,7 +60,8 @@ add_library(
   ${source_files}
 )
 set_property(TARGET gscript_static PROPERTY CXX_STANDARD 14)
-
+target_compile_definitions(gscript_shared PUBLIC -DLUA_BUILD_AS_DLL)
+target_compile_definitions(gscript_shared PUBLIC -DLUA_LIB)
 set_output_paths(gscript)
 
 
