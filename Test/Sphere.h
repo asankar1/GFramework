@@ -25,6 +25,7 @@ namespace GFramework
 	class sphere : public Node
 	{
 	public:
+		sphere();
 		/**
 		* Constructs the sphere object.
 		* \param _name is a string reference.
@@ -57,7 +58,7 @@ namespace GFramework
 
 		virtual const char* metaclassName();
 	protected:
-		sphere() {}
+		//sphere() {}
 		void reconstruct();
 
 	private:

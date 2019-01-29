@@ -9,12 +9,19 @@ namespace GFramework
 	BEGIN_DEFINE_META(sphere)
 		GMetaclassList::instance().define<sphere>("sphere")
 			.baseMetaclass("node")
+			.constructor<void*()>("DefaultCons")
 			.version(1)
 			.function("setRadius", &sphere::setRadius)
 			.function("getRadius", &sphere::getRadius)
 			.editableProperty("radius", &sphere::radius);
 	END_DEFINE_META(sphere)
 #endif
+
+	sphere::sphere()
+	{
+		cout << "Sphere constructed with default constructor" << endl;
+	}
+
 	sphere::sphere(const char *_name, NodeSharedPtr& _parent, unsigned int _radius) : Node(_name, _parent)
 	{
 		radius.setValue(_radius);

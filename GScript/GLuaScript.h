@@ -10,7 +10,7 @@ namespace GFramework
 {
 	class GMetaclass;
 
-	class GLuaState
+	class GFRAMEWORK_API GLuaState
 	{
 	public:
 		static lua_State* getState();
@@ -20,7 +20,7 @@ namespace GFramework
 		static lua_State* L;
 	};
 	
-	class GLuaScript
+	class GFRAMEWORK_API GLuaScript
 	{
 	public:
 		GLuaScript(const std::string& script);

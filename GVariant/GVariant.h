@@ -16,7 +16,7 @@ namespace GFramework
 	class GObject;
 	typedef std::shared_ptr<GObject> GObjectSharedPtr;
 
-	int open_lua_variant_module(lua_State *L);
+	int GFRAMEWORK_API open_lua_variant_module(lua_State *L);
 
 	template <typename... Types>
 	struct myv : public boost::variant<Types...>

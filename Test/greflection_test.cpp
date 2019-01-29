@@ -23,7 +23,10 @@ using namespace GFramework;
 
 void run_reflection_testcases()
 {
-	cout << endl << "Starting test cases for 'Reflection'..." << endl << endl;
+	cout << "=============================" << endl;
+	cout << "Startig GReflection testcases" << endl;
+	cout << "=============================" << endl;
+
 
 	GMetaclass *objectmeta = GMetaclassList::instance().getMetaclass("GObject");
 	GMetaclass *nodemeta = GMetaclassList::instance().getMetaclass("node");
@@ -36,6 +39,23 @@ void run_reflection_testcases()
 	sphere s("SphereNode", parent);
 	
 	std::vector<std::string> f_list;
+
+	cout << "\nSphere class constructors:" << endl;
+	{
+		GMetaclassList::instance().getMetaclassByType<sphere>()->getConstructorsList(f_list);
+		for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+			cout << *it << ": " << GMetaclassList::instance().getMetaclassByType<sphere>()->getConstructor((*it).c_str())->getPrototype() << endl;
+		}
+		f_list.clear();
+	}
+
+	cout << "\nSphere class default constructors invoke:" << endl;
+	{
+		GMetaconstructor* cons1 = GMetaclassList::instance().getMetaclassByType<sphere>()->getConstructor("DefaultCons");
+		std::vector<GVariant> args;
+		GObject* sphere1 = cons1->invoke(args);
+		sphere1->about();
+	}
 
 	cout << "\nObject class static functions:" << endl;
 	{

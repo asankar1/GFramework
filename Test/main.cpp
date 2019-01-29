@@ -14,9 +14,9 @@ using namespace std;
 
 int main()
 {
-	//run_variant_testcases();
-	//run_property_testcases();
-	//run_reflection_testcases();
+	run_variant_testcases();
+	run_property_testcases();
+	run_reflection_testcases();
 	//run_serialization_testcases();
 	run_script_testcases();
 	//cout << "\nPress any key to exit...";
