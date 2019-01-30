@@ -35,10 +35,14 @@
 *.VC.*db
 *.VC.db
 
+# Zip files
+*.7z
+
 # Project specific folders
 third_party/
 Build/
 Documentation/Output
+_Sample/
 
 # Project specific files
 Documentation/DUMP

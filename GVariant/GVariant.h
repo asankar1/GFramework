@@ -1,20 +1,10 @@
 #pragma once
 #include <string>
-#include <glm\vec3.hpp>
-#include <boost\variant.hpp>
-#include <boost\any.hpp>
+#include <glm/vec3.hpp>
+#include <boost/variant.hpp>
+#include <boost/any.hpp>
+#include <GScript/GFrameworkLua.h>
 
-
-
-#ifdef VARIANT_DYNAMIC_LIBRARY
-	#ifdef DLL_EXPORT
-		#define LIBRARY_API __declspec( dllexport )
-	#else
-		#define LIBRARY_API __declspec( dllimport )
-	#endif
-#else
-	#define LIBRARY_API
-#endif
 
 /*! \file GVariant.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to GVariant class.
@@ -23,10 +13,10 @@
 
 namespace GFramework
 {
-	class Object;
-	class Node;
-	typedef std::shared_ptr<Object> ObjectSharedPtr;
-	typedef std::shared_ptr<Node> NodeSharedPtr;
+	class GObject;
+	typedef std::shared_ptr<GObject> GObjectSharedPtr;
+
+	int GFRAMEWORK_API open_lua_variant_module(lua_State *L);
 
 	template <typename... Types>
 	struct myv : public boost::variant<Types...>
@@ -92,83 +82,137 @@ namespace GFramework
 		}
 	};
 
-	struct many : public boost::any
+	class many : public boost::any
 	{
-		many() : boost::any() {
+	private:
+		typedef struct {} unknown_type;
 
+	public:
+		many() : boost::any() { }
+
+		many(many&& other) = default;
+
+		many(const many& other) = default;
+
+		template<typename T>
+		many(T t) : boost::any(t) {
 		}
 
 		template<typename T>
-		static T cast(many& m )
-		{
-			return boost::any_cast<T>(m);
+		void operator=(T&& rhs) {
+			*this = create<T>(rhs);
+			return;
 		}
 
-		template <class ValueType>
-		many(ValueType v) : boost::any(v) {
-
-		}
-
-		template <class ValueType>
-		many & operator=(ValueType&& rhs)
-		{
-			any(static_cast<ValueType&&>(rhs)).swap(*this);
-			return *this;
+		void operator=(many&& rhs) {
+			rhs.swap(*this);
+			return;
 		}
 
 		template<typename T>
-		operator T&()
-		{
-			return cast<T&>(*this);
+		static many create(T t) {
+			typedef unknown_type type1;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional<\
+								std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<typename std::remove_reference<T>::type>, type1>::type, type1>::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
+								std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, typename std::conditional< \
+								std::is_array<T>::value, create_as_it_is<typename std::decay<T>::type>, type3 >::type, type3 >::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, create_as_it_is<T>, type4 >::type creater_type;
+
+			return creater_type::create_internal(t);
 		}
 
 		template<typename T>
-		operator const T&()
-		{
-			return cast<const T&>(*this);
+		static many create() {
+			static_assert(std::is_void<T>::value, "Only void type can be used to call create without arguments!");
+			return many();
 		}
 
 		template<typename T>
-		operator T*()
+		static T cast(many& m)
 		{
-			return cast<T*>(*this);
+			typedef unknown_type type1;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional< \
+								std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
+								std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional < std::is_same<unknown_type, type3>::value, typename std::conditional < \
+								std::is_array<T>::value, cast_as_it_is <typename std::decay<T>::type> , type3 > ::type, type3 > ::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, cast_as_it_is<T>, type4 >::type caster_type;
+
+			return caster_type::cast_internal(m);
 		}
 
 		template<typename T>
-		operator const T*()
+		static T cast(many&& m)
 		{
-			return cast<const T*>(*this);
+			typedef unknown_type type1;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional< \
+				std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
+				std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional < std::is_same<unknown_type, type3>::value, typename std::conditional < \
+				std::is_array<T>::value, cast_as_it_is <typename std::decay<T>::type>, type3 > ::type, type3 > ::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, cast_as_it_is<T>, type4 >::type caster_type;
+
+			return caster_type::cast_internal(m);
 		}
 
 		template<typename T>
-		operator T() const
+		static many ref(T& t)
 		{
-			return cast<T>(*this);
+			auto a = any(static_cast<T*>(&t));
+			many m;
+			a.swap(m);
+			return m;
 		}
+
+	private:
+		template<typename T>
+		struct create_as_it_is {
+			typedef T TYPE;
+			static many create_internal(T& t) {
+				return many(static_cast<TYPE>(t));
+			}
+		};
+
+		template<typename T>
+		struct create_pointer_from_lvalue_reference {
+			static many create_internal(T& t) {
+				return many(static_cast<T*>(&t));
+			}
+		};
+
+		template<typename T>
+		struct create_pointer_from_rvalue_reference {
+			static many create_internal(T& t) {
+				return many(static_cast<T*>(&t));
+			}
+		};
+
+		template<typename T>
+		struct cast_as_it_is {
+			typedef T TYPE;
+			static TYPE cast_internal(many& m) {
+				return boost::any_cast<TYPE>(m);
+			}
+		};
+
+		template<typename T>
+		struct cast_lvalue_reference_from_pointer {
+			static T& cast_internal(many& m) {
+				return *boost::any_cast<T*>(m);
+			}
+		};
+
+		template<typename T>
+		struct cast_rvalue_reference_from_pointer {
+			static T&& cast_internal(many& m) {
+				return std::move(*boost::any_cast<T*>(m));
+			}
+		};
 	};
 
-	/** \var typedef boost::variant<> GVariant;
-	*	\brief variant designed to handle all data in the GFramework
-	*/
-
-	/*template <typename... Types>
-	struct myv : public boost::variant<Types...>
-	{
-		using boost::variant<Types...>::variant;
-		template<typename T>
-		operator T() const
-		{
-			return boost::get<T>(*this);
-		}
-		
-
-	
-	};*/
-
-
-
-	//typedef GVariant_internal<boost::blank, bool, char, unsigned char, short, unsigned short, int, unsigned int, long, unsigned long, float, double, std::string, glm::vec3, ObjectSharedPtr, NodeSharedPtr> GVariant;
-	//typedef myv< boost::blank, bool, char, unsigned char, short, unsigned short, int, unsigned int, long, unsigned long, float, double, std::string, ObjectSharedPtr, NodeSharedPtr, double*> TVariant;
-	//typedef myv<int, float, double*> GVariant;
 	typedef many GVariant;
 }

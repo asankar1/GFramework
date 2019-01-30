@@ -1,11 +1,12 @@
+#include <cassert>
 #include <iostream>
-#include <GVariant.h>
-#include <GReflection.h>
+#include <GVariant/GVariant.h>
+#include <GReflection/GReflection.h>
 #include <Node.h>
 #include <Sphere.h>
-#include <boost\optional.hpp>
-#include <boost\bind.hpp>
-#include <boost\function.hpp>
+#include <boost/optional.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include "greflection_test.h"
 
 using namespace std;
@@ -20,199 +21,272 @@ using namespace GFramework;
 > 
 */
 
-static void print(bool i, int j, float k)
-{
-	cout << "Print_data:  " << i << "," << j << "," << k << endl;
-}
-
-GVariant hi() {
-	GVariant v;
-	return v;
-}
-
-void add2(int &v)
-{
-	v += 2;
-}
-
-template <typename F>
-class C
-{
-public:
-	void doOperation(F f)
-	{
-		int temp = 0;
-		//f(temp);
-		std::cout << "Result is " << temp << std::endl;
-	}
-};
-
-template <typename F>
-void doOperation(F f)
-{
-	int temp = 0;
-	//f(temp);
-
-	std::cout << typeid(F).name() << "Result is " << f << std::endl;
-}
-
-template <typename F>
-void invoke(F f)
-{
-	int temp = 0;	
-	boost::function<typename std::remove_reference<std::remove_const<decltype(*f)>::type>::type> _f = f;
-	_f(true, 4, 6.8f);
-	std::cout << "Result is " << temp << std::endl;
-}
-
-struct int_div {
-	float operator()(int x, int y) const { return ((float)x) / y; };
-};
-
-class H
-{
-public:
-	void hi(float f1, float f2, float f3) {
-		cout << "Hello!" << f1 << endl;
-	}
-};
-
-template <typename F>
-void func(F _f)
-{
-	NodeSharedPtr np(NULL);
-	Node n("noood", np);
-	typename std::remove_reference<std::remove_const<decltype(_f)>::type>::type f = _f;
-	auto nab = boost::bind(f, &n);
-	nab();
-}
-
 void run_reflection_testcases()
 {
-	cout << endl << "Starting test cases for 'Reflection'..." << endl << endl;
+	cout << "=============================" << endl;
+	cout << "Startig GReflection testcases" << endl;
+	cout << "=============================" << endl;
 
+
+	GMetaclass *objectmeta = GMetaclassList::instance().getMetaclass("GObject");
 	GMetaclass *nodemeta = GMetaclassList::instance().getMetaclass("node");
 	GMetaclass *spheremeta = GMetaclassList::instance().getMetaclass("sphere");
 
-	cout << "Sphere class functions" << endl;
+	NodeSharedPtr np(NULL);
+	NodeSharedPtr parent = make_shared<Node>("GrandParentNode", np);
+	Node n("ParentNode", parent);
+	SphereSharedPtr sphere_parent = make_shared<sphere>("SphereParentNode", np, 321);
+	sphere s("SphereNode", parent);
+	
 	std::vector<std::string> f_list;
-	std::vector<std::string> p_list;
-	//spheremeta->getFunctionsList(f_list);
 
-	GMetaclassList::instance().getMetaclassByType<sphere>().getFunctionsList(f_list);
+	cout << "\nSphere class constructors:" << endl;
+	{
+		GMetaclassList::instance().getMetaclassByType<sphere>()->getConstructorsList(f_list);
+		for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+			cout << *it << ": " << GMetaclassList::instance().getMetaclassByType<sphere>()->getConstructor((*it).c_str())->getPrototype() << endl;
+		}
+		f_list.clear();
+	}
 
+	cout << "\nSphere class default constructors invoke:" << endl;
+	{
+		GMetaconstructor* cons1 = GMetaclassList::instance().getMetaclassByType<sphere>()->getConstructor("DefaultCons");
+		std::vector<GVariant> args;
+		GObject* sphere1 = cons1->invoke(args);
+		sphere1->about();
+	}
+
+	cout << "\nObject class static functions:" << endl;
+	{
+		GMetaclassList::instance().getMetaclassByType<GObject>()->getStaticFunctionsList(f_list);
+		for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+			cout << GMetaclassList::instance().getMetaclassByType<GObject>()->getStaticFunction((*it).c_str())->getReturntype();
+			cout << " " << *it << " ";
+			cout << GMetaclassList::instance().getMetaclassByType<GObject>()->getStaticFunction((*it).c_str())->getPrototype() << endl;
+		}
+		f_list.clear();
+	}
+
+	cout << "\nObject class member functions:" << endl;
+	GMetaclassList::instance().getMetaclassByType<GObject>()->getFunctionsList(f_list);
 	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
 		cout << *it << endl;
 	}
+	f_list.clear();
 
-	GMetaclassList::instance().getMetaclassByType<sphere>().getEditablePropertiesList(p_list);
-	GMetaclassList::instance().getMetaclassByType<sphere>().getPropertiesList(p_list);
-
-	for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
+	cout << "\nObject class properties:" << endl;
+	GMetaclassList::instance().getMetaclassByType<GObject>()->getEditablePropertiesList(f_list);
+	GMetaclassList::instance().getMetaclassByType<GObject>()->getPropertiesList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
 		cout << *it << endl;
 	}
+	f_list.clear();
 
-	cout << nodemeta->getName() << endl;
+	cout << "\nNode class static member functions:" << endl;
+	GMetaclassList::instance().getMetaclassByType<Node>()->getStaticFunctionsList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << *it << endl;
+	}
+	f_list.clear();
 
-	NodeSharedPtr np(NULL);
-	NodeSharedPtr parent(new Node("parent",np));
-	Node n("noood", parent);
-	sphere s("sphere1", parent);
+	cout << "\nNode class member functions:" << endl;
+	GMetaclassList::instance().getMetaclassByType<Node>()->getFunctionsList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << *it << endl;
+	}
+	f_list.clear();
 
-#if 1
-	// call function taking void arguments and return void 
+	cout << "\nNode class properties:" << endl;
+	GMetaclassList::instance().getMetaclassByType<Node>()->getEditablePropertiesList(f_list);
+	GMetaclassList::instance().getMetaclassByType<Node>()->getPropertiesList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << *it << endl;
+	}
+	f_list.clear();
+
+	cout << "\nSphere class static member functions:" << endl;
+	GMetaclassList::instance().getMetaclassByType<sphere>()->getStaticFunctionsList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << *it << endl;
+	}
+	f_list.clear();
+
+	cout << "\nSphere class member functions:" << endl;
+	GMetaclassList::instance().getMetaclassByType<sphere>()->getFunctionsList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << *it << endl;
+	}
+	f_list.clear();
+
+	cout << "\nSphere class properties:" << endl;
+	GMetaclassList::instance().getMetaclassByType<sphere>()->getEditablePropertiesList(f_list);
+	GMetaclassList::instance().getMetaclassByType<sphere>()->getPropertiesList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << *it << endl;
+	}
+	f_list.clear();
+
+
+	cout << "\nInvoke static function returning void and taking void arguments:" << endl;
 	{
-		GMetafunction* m = nodemeta->getFunction("about");
-		std::vector<GVariant> args;
-		m->invoke(&n, args);
+		auto sf = objectmeta->getStaticFunction("about");
+		vector<GVariant> args;
+		GVariant r = sf->invoke(args);
+		assert(r.empty());
+	}
+
+	cout << "\nInvoke static function returning non-void and taking void arguments:" << endl;
+	{
+		auto sf = objectmeta->getStaticFunction("count");
+		vector<GVariant> args;
+		GVariant r = sf->invoke(args);
+		assert(GVariant::cast<unsigned int>(r)==112233);
+	}
+
+	cout << "\nInvoke static function returning non-void and taking non-void arguments:" << endl;
+	{
+		auto sf = objectmeta->getStaticFunction("add");
+		vector<GVariant> args;
+		args.push_back((int)23);
+		args.push_back((int)27);
+		GVariant r = sf->invoke(args);
+		assert(GVariant::cast<int>(r) == 50);
+	}
+
+	cout << "\nInvoke static function returning void and taking non-void arguments:" << endl;
+	{
+		auto sf = objectmeta->getStaticFunction("updateMagicNumber");
+		vector<GVariant> args;
+		args.push_back(23);
+		GVariant r = sf->invoke(args);
+	}
+
+	cout << "\nInvoke member function returning void and taking constant reference arguments:" << endl;
+	{
+		auto f = objectmeta->getMemberFunction("rename");
+		vector<GVariant> args;
+		string name = "ParentNode-Renamed";
+		const string& re = name;
+		GVariant g;
+		g = GVariant::create<const string&>(re);
+		args.push_back(g);
+		GVariant r = f->invoke(&n, args);
+	}
+
+	cout << "\nInvoke member function returning constant reference and taking void arguments:" << endl;
+	{
+		auto f1 = objectmeta->getMemberFunction("getObjectId");
+		vector<GVariant> args_f1;
+		GVariant r = f1->invoke(&n, args_f1);
+
+		auto f2 = objectmeta->getMemberFunction("setObjectId");
+		vector<GVariant> args_f2;
+		args_f2.push_back(444U);
+		f2->invoke(&n, args_f2);
+
+		assert(GVariant::cast<const unsigned int&>(r) == 444);
+	}
+
+	// set a property value which invokes the onupdate notification function
+	cout << "\nSet a property value which invokes the onupdate notification function:" << endl;
+	{
+		GMetaproperty *m = spheremeta->getProperty("name");
+		GVariant v = m->get(&s);
+		cout << "value of " << m->getName() << " is " << GVariant::cast<string>(v) << endl;
+		v = string("new_sphere1");
+		m->set(&s, v);
+		cout << "value of " << m->getName() << " is " << GVariant::cast<string>(v) << endl;
 	}
 
 	// call function taking void arguments and return void 
+	cout << "\nCall member function taking void arguments and return void :" << endl;
 	{
-		GMetafunction* m = spheremeta->getFunction("about");
+		auto m = nodemeta->getMemberFunction("about");
 		std::vector<GVariant> args;
-		m->invoke(&s, args);		
-		cout << m->getPrototype() << endl;
-	}
-
-	// call function taking non-void arguments and return void
-	{
-		GMetafunction* m = spheremeta->getFunction("setRadius");
-		std::vector<GVariant> args;
-		args.push_back(7u);
-		m->invoke(&s, args);
-		cout << m->getPrototype() << endl;
+		GVariant v = m->invoke(&n, args);
 	}
 
 	// call function taking void arguments but return a value
+	cout << "\nCall member function taking void arguments but return a value:" << endl;
 	{
-		GMetafunction* m = spheremeta->getFunction("getRadius");
+		auto m = spheremeta->getMemberFunction("getRadius");
 		std::vector<GVariant> args;
 		GVariant rv = m->invoke(&s, args);
-		unsigned int r = boost::any_cast<unsigned int>(rv);
-		cout << "Radius of sphere: " << s.getName() << " is " << r << endl;
-		cout << m->getPrototype() << endl;
+		unsigned int r = GVariant::cast<unsigned int>(rv);
+		assert(r == 1);
+	}
+
+	// call function taking non-void arguments and return void
+	cout << "\nCall member function taking non-void arguments and return void:" << endl;
+	{
+		auto m1 = spheremeta->getMemberFunction("setRadius");
+		std::vector<GVariant> args1;
+		args1.push_back(7u);
+		GVariant r = m1->invoke(&s, args1);
+
+		auto m2 = spheremeta->getMemberFunction("getRadius");
+		std::vector<GVariant> args2;
+		GVariant rv = m2->invoke(&s, args2);
+		assert(GVariant::cast<unsigned int>(rv) == 7u);
+	}
+
+	// call function taking void arguments but return a shared pointer
+	cout << "\nCall function taking void arguments but return a shared pointer:" << endl;
+	{
+		auto* m = spheremeta->getMemberFunction("getParent");
+		std::vector<GVariant> args;
+		GVariant rv = m->invoke(&s, args);
+		Node* r = GVariant::cast<Node*>(rv);
+		assert(r->getName() == "GrandParentNode");
 	}
 
 	// call function taking shared pointer arguments but return void
+	cout << "\nCall member function taking shared pointer arguments but return void:" << endl;
 	{
-		GMetafunction* m = spheremeta->getFunction("setParent");
-		std::vector<GVariant> args;
-		args.push_back(parent);
-		m->invoke(&s, args);
-		cout << m->getPrototype() << endl;
+		auto m1 = spheremeta->getMemberFunction("setParent");
+		std::vector<GVariant> args1;
+		args1.push_back(static_pointer_cast<Node>(sphere_parent));
+//		args1.push_back(sphere_parent);
+		GVariant rv1 = m1->invoke(&s, args1);
+
+		auto m2 = spheremeta->getMemberFunction("getParent");
+		std::vector<GVariant> args2;
+		GVariant rv2 = m2->invoke(&s, args2);
+		Node* r2 = GVariant::cast<Node*>(rv2);
+		assert(r2->getObjectId() == sphere_parent->getObjectId());
 	}
 	
-	// call function taking void arguments but return a shared pointer
-	{
-		GMetafunction* m = spheremeta->getFunction("getParent");
-		std::vector<GVariant> args;
-		GVariant rv = m->invoke(&s, args);
-		NodeSharedPtr r = boost::any_cast<NodeSharedPtr>(rv);
-		cout << "parent of sphere: " << s.getName() << " is " << r->getName() << endl;
-		cout << m->getPrototype() << endl;
-	}
-
 	//call a function of base class
+	cout << "\nCall a non-virtual member function of base class:" << endl;
 	{
-		GMetafunction* m = spheremeta->getFunction("setPosition");
+		auto m = spheremeta->getMemberFunction("setPosition");
 		std::vector<GVariant> args;
 		args.push_back(1.0f);
 		args.push_back(2.0f);
 		args.push_back(3.0f);
-		m->invoke(&s, args);
-		cout << m->getPrototype() << endl;
+		GVariant r = m->invoke(&s, args);
+		glm::vec3 p = s.getPosition();
+		assert(p.x == 1.0f);
+		assert(p.y == 2.0f);
+		assert(p.z == 3.0f);
 	}
 
-	// call function taking void arguments and return void 
-	{
-		GMetafunction* m = spheremeta->getFunction("about");
-		std::vector<GVariant> args;
-		m->invoke(&s, args);
-		cout << m->getPrototype() << endl;
-	}
-
-	//read member property of type unsigned int
+	cout << "\nRead member property of type unsigned int:" << endl;
 	{
 		GMetaproperty *m = spheremeta->getProperty("radius");
 		GVariant v = m->get(&s);
-		cout << "value of " << m->getName() << " is " << boost::any_cast<unsigned int>(v) << endl;
+		assert(GVariant::cast<unsigned int>(v) == 7);
+		cout << "value of " << m->getName() << " is " << GVariant::cast<unsigned int>(v) << endl;
 	}
 
-	//modify member property of type unsigned int
+	cout << "\nModify member property of type unsigned int:" << endl;
 	{
 		GMetaproperty *m = spheremeta->getProperty("radius");
 		GVariant v = 12U;
 		m->set(&s, v);
-		cout << "modified the value of " << m->getName() << " to " << boost::any_cast<unsigned int>(v) << endl;
+		assert(s.getRadius() == 12U);
+		cout << "modified the value of " << m->getName() << " to " << GVariant::cast<unsigned int>(v) << endl;
 	}
-
-	//read member property of type unsigned int
-	{
-		GMetaproperty *m = spheremeta->getProperty("radius");
-		GVariant v = m->get(&s);
-		cout << "value of " << m->getName() << " is " << boost::any_cast<unsigned int>(v) << endl;
-	}
-#endif
 }
 
