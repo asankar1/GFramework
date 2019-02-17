@@ -1,5 +1,7 @@
 #include <iostream>
-//#include <conio.h>
+#ifdef _WINDOWS
+#include <conio.h>
+#endif
 #include <typeindex>
 #include <vector>
 #include <map>
@@ -14,13 +16,14 @@ using namespace std;
 
 int main()
 {
-	run_variant_testcases();
-	run_property_testcases();
+	//run_variant_testcases();
+	//run_property_testcases();
 	run_reflection_testcases();
 	//run_serialization_testcases();
-	run_script_testcases();
+	//run_script_testcases();
 	//cout << "\nPress any key to exit...";
-	//_getch();
-
+#ifdef _WINDOWS
+	_getch();
+#endif
 	return 0;
 }	

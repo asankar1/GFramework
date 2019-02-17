@@ -3,23 +3,52 @@
 
 using namespace std;
 
-namespace GFramework
+namespace GFrameworkTest
 {
-#if 1
-	BEGIN_DEFINE_META(sphere)
+
+	/*BEGIN_DEFINE_META(sphere)
 		GMetaclassList::instance().define<sphere>("sphere")
 			.baseMetaclass("node")
-			.constructor<void*()>("DefaultCons")
 			.version(1)
+			.constructor<void*()>("DefaultCons")
+			.constructor<void*(unsigned int)>("Cons1")
 			.function("setRadius", &sphere::setRadius)
 			.function("getRadius", &sphere::getRadius)
 			.editableProperty("radius", &sphere::radius);
+	END_DEFINE_META(sphere)*/
+
+
+	BEGIN_DEFINE_META(sphere)
+		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
+			.define<sphere>("sphere")
+				.baseMetaclass("node", {"GFrameworkTest"})
+				.version(1)
+				.constructor<void*()>("DefaultCons")
+				.constructor<void*(unsigned int)>("Cons1")
+				.functionPublic("setRadius", &sphere::setRadius)
+				.functionPublic("getRadius", &sphere::getRadius)
+				/*.editableProperty("radius", &sphere::radius)*/;
+
+		GMetaNamespaceList::_global()._namespace("GFrameworkTest")._namespace("sphere_func")
+			.function("getSphereVolume", sphere_func::getSphereVolume);
 	END_DEFINE_META(sphere)
-#endif
+	
+	namespace sphere_func
+	{
+		float getSphereVolume(sphere& s)
+		{
+			return 4.0f / 3.0f*3.14f*s.getRadius()*s.getRadius()*s.getRadius();
+		}
+	}
 
 	sphere::sphere()
 	{
 		cout << "Sphere constructed with default constructor" << endl;
+	}
+
+	sphere::sphere(unsigned int rad)
+	{
+		radius.setValue(rad);
 	}
 
 	sphere::sphere(const char *_name, NodeSharedPtr& _parent, unsigned int _radius) : Node(_name, _parent)
@@ -55,9 +84,9 @@ namespace GFramework
 		cout << "Radius: " << radius.getValue() << endl;
 	}
 
-	const char * sphere::metaclassName()
+	GMetaclass* sphere::metaclassName()
 	{
-		return GMetaclassList::instance().getMetaclassByType<sphere>()->getName().c_str();
+		return GMetaNamespace::getMetaclassByType<sphere>();
 	}
 
 	void sphere::reconstruct()

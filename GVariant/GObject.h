@@ -86,7 +86,7 @@ namespace GFramework
 		* Typically this should return the metaclass name of the class.
 		* \return constant pointer to the string
 		*/
-		virtual const char* metaclassName() = 0;
+		virtual GMetaclass* metaclassName() = 0;
 
 		/**
 		* This is a virtual function, all the inheritors may override to have its own implementation.
@@ -155,6 +155,6 @@ namespace GFramework
 		static std::atomic<unsigned int> atomic_count;
 		std::map<GObject*,  unsigned int> observers;
 		std::set<GPointerPropertyInterface*> deletion_subscribers;
-		META_FRIEND(GObject);
+		//META_FRIEND(GObject);
 	};
 }

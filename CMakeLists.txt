@@ -60,7 +60,7 @@ add_library(
 	gframework_static
 	STATIC
 	$<TARGET_OBJECTS:gvariant_static>
-	$<TARGET_OBJECTS:gserialization_static>
+	#$<TARGET_OBJECTS:gserialization_static>
 	$<TARGET_OBJECTS:greflection_static>
 	$<TARGET_OBJECTS:gscript_static>
 )
@@ -69,11 +69,16 @@ add_library(
 	gframework_shared
 	SHARED
 	$<TARGET_OBJECTS:gvariant_shared>
-	$<TARGET_OBJECTS:gserialization_shared>
+	#$<TARGET_OBJECTS:gserialization_shared>
 	$<TARGET_OBJECTS:greflection_shared>
 	$<TARGET_OBJECTS:gscript_shared>
 )
 
+set(GFRAMEWORK_BUILD_TEST ON CACHE BOOL "Select to build the test for Gframework" FORCE)
+		
+if(${GFRAMEWORK_BUILD_TEST} MATCHES ON)
+	add_subdirectory(Test)
+endif(${GFRAMEWORK_BUILD_TEST} MATCHES ON)
 		
 install	(	TARGETS gframework_static gframework_shared
 			CONFIGURATIONS Debug

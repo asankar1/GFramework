@@ -1,10 +1,11 @@
 #include <iostream>
 #include "Node.h"
 using namespace std;
+using namespace GFramework;
 
-namespace GFramework
+namespace GFrameworkTest
 {
-	BEGIN_DEFINE_META(Node)
+	/*BEGIN_DEFINE_META(Node)
 		GMetaclassList::instance().define<Node>("node")
 			.baseMetaclass("GObject")
 			.version(1)
@@ -17,8 +18,31 @@ namespace GFramework
 			.function("getChild", &Node::getChild)
 			.editableProperty("position", &Node::position)
 			.property("parent", &Node::parent);
+	END_DEFINE_META(Node)*/
+
+	BEGIN_DEFINE_META(Node)
+		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
+		.function("NodeFileInfo", NodeFileInfo)
+		.define<Node>("node")
+		.baseMetaclass("GObject", { "GFramework" })
+		.version(1)
+		.functionPublic("about", &Node::about)
+		.functionPublic("getPosition", &Node::getPosition)
+		.functionPublic("setPosition", &Node::setPosition)
+		.functionPublic("setParent", &Node::setParent)
+		.functionPublic("getParent", &Node::getParent)
+		.functionPublic("addChild", &Node::addChild)
+		.functionPublic("getChild", &Node::getChild)
+		.property("visibility", &Node::visibility)
+		.property("Position", &Node::getPosition, &Node::setPosition)
+		/*.editableProperty("position", &Node::position)
+		.property("parent", &Node::parent)*/;
 	END_DEFINE_META(Node)
 
+	void NodeFileInfo()
+	{
+		std::cout << "NodeFileInfo\n";
+	}
 	Node::Node(const char *_name, NodeSharedPtr& _parent) : GObject(_name)
 	{	
 		parent.setValue(_parent.get());
@@ -30,15 +54,9 @@ namespace GFramework
 		cout << "Node '" << getName() << "' destroyed." << endl;
 	}
 
-	void Node::setPosition(float x, float y, float z)
+	void Node::setPosition(const glm::vec3& _pos)
 	{
-		cout << "Node '" << getName() << "' position set to " << x << "," << y << "," << z << endl;
-		setPosition_(glm::vec3(x, y, z));
-	}
-
-	void Node::setPosition_(glm::vec3 && pos)
-	{
-		position.setValue(pos);
+		position.setValue(_pos);
 	}
 
 	const glm::vec3 & Node::getPosition() const
@@ -65,9 +83,9 @@ namespace GFramework
 		cout << "Node '" << getName() << "' initialized." << endl;
 	}
 
-	const char * Node::metaclassName()
+	GMetaclass* Node::metaclassName()
 	{
-		return GMetaclassList::instance().getMetaclassByType<Node>()->getName().c_str();
+		return GMetaNamespace::getMetaclassByType<Node>();
 	}
 
 	void Node::setParent(NodeSharedPtr _parent)
@@ -85,4 +103,8 @@ namespace GFramework
 		children.push_back(_child);
 	}
 
+	const char* Node::getMagicString()
+	{
+		return "Mpfr";
+	}
 }

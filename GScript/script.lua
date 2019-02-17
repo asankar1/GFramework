@@ -1,14 +1,14 @@
 --local GVariant = require("GVariant")
---local Classes = require("Classes")
-local test = require("test")
+--local Classes = require("Classes1")
+--local test = require("test2")
 
-print("script test")
-print("-----------")
-print(GObject)
+print("LUA SCRIPT")
+print("----------")
 
-s = test.new_sphere()
 
-print(s)
+
+--Classes.new_class("dummy");	
+
 
 function print_metatable(o)
 	if(getmetatable(o) == nil) then
@@ -25,8 +25,20 @@ function print_metatable(o)
 	end
 end
 
+print("new=",new);
+print("sphere=",sphere);
+
+print_metatable(new)
+print_metatable(sphereasds)
+
+
 --print_metatable(s)
 --r = s:getRadius()
-print("r:" , s:getRadius())
+--print("r:" , s:getRadius())
+
+--print("count:" , new.count)
+
+
+
 --print(s:getRadius())
 

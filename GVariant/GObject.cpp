@@ -10,7 +10,7 @@ namespace GFramework
 	//object id starts from 1. 0 is reservedfor null object
 	std::atomic<unsigned int> GObject::atomic_count(1);
 
-	BEGIN_DEFINE_META(GObject)
+	/*BEGIN_DEFINE_META(GObject)
 		GMetaclassList::instance().define<GObject>("GObject")
 			.version(1)
 			.function("getName", &GObject::getName)
@@ -24,6 +24,23 @@ namespace GFramework
 			.staticFunction("updateMagicNumber", GObject::updateMagicNumber)
 			.editableProperty("name", &GObject::name)
 			.property("object_id", &GObject::object_id);
+	END_DEFINE_META(GObject)*/
+
+	BEGIN_DEFINE_META(GObject)
+		GMetaNamespaceList::_global()._namespace("GFramework")
+		.define<GObject>("GObject")
+		.version(1)
+		.functionPublic("getName", &GObject::getName)
+		.functionPublic("rename", &GObject::rename)
+		.functionPublic("getObjectId", &GObject::getObjectId)
+		.functionPublic("setObjectId", &GObject::setObjectId)
+		.staticFunction("about", GObject::about)
+		.functionPublic("rename", &GObject::rename)
+		.staticFunction("count", GObject::count)
+		.staticFunction("add", GObject::add)
+		.staticFunction("updateMagicNumber", GObject::updateMagicNumber)
+		/*.editableProperty("name", &GObject::name)
+		.property("object_id", &GObject::object_id)*/;
 	END_DEFINE_META(GObject)
 
 	GObject::GObject(const char *_name)
@@ -100,8 +117,8 @@ namespace GFramework
 	bool GObject::serialize(GSerializer& serializer)
 	{
 #if 1
-		const char* metaclassname = metaclassName();
-		GMetaclass* m = GMetaclassList::instance().getMetaclass(metaclassname);
+		//const char* metaclassname = metaclassName();
+		GMetaclass* m = GMetaNamespace::getMetaclassByType<GObject>();
 
 		std::vector<std::string> p_list;
 		m->getEditablePropertiesList(p_list);
@@ -120,8 +137,8 @@ namespace GFramework
 	bool GObject::deserialize(GDeserializer& deserializer, unsigned int version)
 	{
 #if 1
-		const char* metaclassname = metaclassName();
-		GMetaclass* m = GMetaclassList::instance().getMetaclass(metaclassname);
+		//const char* metaclassname = metaclassName();
+		GMetaclass* m = GMetaNamespace::getMetaclassByType<GObject>();
 
 		std::vector<std::string> p_list;
 		m->getEditablePropertiesList(p_list);

@@ -19,10 +19,14 @@
 *	\brief class, functions, enums, typedefs, macros and other definitions related to Node class.
 */
 
-namespace GFramework
+namespace GFrameworkTest
 {
+	using namespace GFramework;
 	/*! \brief This the base class for all the types of nodes.
 	*/
+
+	void NodeFileInfo();
+
 	class Node;
 	typedef std::shared_ptr<Node> NodeSharedPtr;
 	class Node : public GObject
@@ -40,19 +44,10 @@ namespace GFramework
 
 		/**
 		* Sets the position of the node.
-		* \param x is x position of the node
-		* \param y is y position of the node
-		* \param z is z position of the node
+		* \param _pos is position of the node
 		* \return void
 		*/
-		void setPosition(float x, float y, float z);
-
-		/**
-		* Sets the position of the node.
-		* \param pos is position of the node
-		* \return void
-		*/
-		void setPosition_(glm::vec3 &&pos);
+		void setPosition(const glm::vec3& _pos);
 
 		/**
 		* Gets the position of the node.
@@ -99,17 +94,21 @@ namespace GFramework
 		*/
 		virtual void initialize();
 
-		virtual const char* metaclassName();
+		virtual GMetaclass* metaclassName();
 
-
-	//protected://TODO: Fix
+		//protected://TODO: Fix
 		Node():GObject() {}
+
+		GBoolProperty visibility;
+	protected:
+		const char* getMagicString();
+
 	private:
 		GVec3Property position; /*!< Position of the node*/
 		GPointerProperty<Node> parent; /*!< Pointer to the parent of the node object*/
 		std::vector<NodeSharedPtr> children;
 
-		META_FRIEND(Node);
+		//META_FRIEND(Node);
 	};
 }
 

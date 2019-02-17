@@ -80,10 +80,10 @@ namespace GFramework
 		return 1;
 	}
 
-	int open_lua_variant_module(lua_State *L)
+	/*int open_lua_variant_module(lua_State *L)
 	{
 		luaL_requiref(L, "GVariant", register_lua_variant_module, 1);
 
 		return 1;
-	}
+	}*/
 }

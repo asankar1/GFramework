@@ -11,8 +11,9 @@
 #define LIBRARY_API
 #endif
 
-namespace GFramework
+namespace GFrameworkTest
 {
+	using namespace GFramework;
 	class sphere;
 
 	/** \var typedef std::shared_ptr<sphere> SphereSharedPtr;
@@ -26,6 +27,8 @@ namespace GFramework
 	{
 	public:
 		sphere();
+
+		sphere(unsigned int rad);
 		/**
 		* Constructs the sphere object.
 		* \param _name is a string reference.
@@ -56,7 +59,7 @@ namespace GFramework
 		*/
 		virtual void about();
 
-		virtual const char* metaclassName();
+		virtual GMetaclass* metaclassName();
 	protected:
 		//sphere() {}
 		void reconstruct();
@@ -64,7 +67,12 @@ namespace GFramework
 	private:
 		GUint32Property radius; /*!< Radius of the sphere*/
 
-		META_FRIEND(sphere);
+		//META_FRIEND(sphere);
 	};
-}
 
+	namespace sphere_func
+	{
+		float getSphereVolume(sphere& s);
+	}
+
+}

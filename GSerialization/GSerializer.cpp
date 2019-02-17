@@ -2,6 +2,7 @@
 #include <functional>
 #include <GVariant/GObject.h>
 //#include <Sample/Node.h>
+#include <GReflection/GReflection.h>
 #include <GSerialization/GSerializer.h>
 using namespace std;
 
@@ -62,8 +63,9 @@ namespace GFramework
 		if (!stream.is_open())
 			return *this;
 
-		GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
-		const char* classname = _obj->metaclassName();
+		GMetaclass* m = _obj->metaclassName();
+		//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
+		const char* classname = m->getName().c_str();
 		size_t len = strlen(classname) + 1;
 		unsigned int version = m->getVersion();
 		stream.write((const char*)&len, sizeof(len));
@@ -107,8 +109,10 @@ namespace GFramework
 		if (!stream.is_open())
 			return *this;
 
-		GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
-		stream << string(_obj->metaclassName()) << endl;
+		GMetaclass* m = _obj->metaclassName();
+		//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
+		const char* classname = m->getName().c_str();
+		stream << string(classname) << endl;
 		stream << m->getVersion() << endl;
 		_obj->serialize(*this);
 		return *this;
@@ -202,7 +206,9 @@ namespace GFramework
 		unsigned int version = 0;				
 		stream.read((char*)&version, sizeof(version));
 
-		GMetaclass* m = GMetaclassList::instance().getMetaclass(classname);
+		//GMetaclass* m = GMetaclassList::instance().getMetaclass(classname);
+		//TODO: store and load the namespace of the meta class
+		GMetaclass* m = GMetaNamespaceList::_global().getMetaclass(classname);
 		*_obj = m->createInstance();
 		(*_obj)->deserialize(*this, version);
 		
@@ -241,7 +247,9 @@ namespace GFramework
 		unsigned int version = 0;
 		stream >> version;
 
-		GMetaclass* m = GMetaclassList::instance().getMetaclass(class_name.c_str());
+		//GMetaclass* m = GMetaclassList::instance().getMetaclass(class_name.c_str());
+		//TODO: store and load the namespace of the meta class
+		GMetaclass* m = GMetaNamespaceList::_global().getMetaclass(class_name.c_str());
 		*_obj = m->createInstance();
 		(*_obj)->deserialize(*this, version);
 

@@ -15,6 +15,7 @@ using namespace GFramework;
 namespace property_test {
 	class Node : public GObject {
 	public:
+		Node() {}
 		Node(int i) :id(i) {}
 		virtual void initialize() {
 		}
@@ -22,8 +23,8 @@ namespace property_test {
 			int i = 0;
 		}
 
-		virtual const char* metaclassName() {
-			return "Node";
+		virtual GMetaclass* metaclassName() {
+			return GMetaNamespace::getMetaclassByType<property_test::Node>();
 		}
 
 		GPointerProperty<Node> interested_object;

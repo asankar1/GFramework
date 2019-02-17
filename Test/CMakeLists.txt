@@ -4,7 +4,6 @@ message(STATUS "----------------------------------------")
 message(STATUS "Main CMakeLists file for GFramework Test")
 message(STATUS "----------------------------------------")
 
-set(GFRAMEWORK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../Build/output CACHE PATH "GFramework path")
 set(TEST_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_MODULE_PATH ${TEST_ROOT}/../cmake ${CMAKE_MODULE_PATH})
 set(THIRDPARTY_LUA_PATH ${TEST_ROOT}/../third_party/lua-5.3.4 CACHE PATH "Lua path")
@@ -37,8 +36,9 @@ file(
 	${TEST_ROOT}/main.cpp
 )
 
-include_directories(${GFRAMEWORK_PATH}/include)
+
 include_directories(${TEST_ROOT})
+include_directories(${TEST_ROOT}/..)
 include_directories(${THIRDPARTY_LUA_PATH}/src)
 include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
@@ -51,7 +51,6 @@ else()
 endif("${CMAKE_BUILD_TYPE} " STREQUAL " ")
 message(STATUS "CMAKE_BUILD_TYPE:${CMAKE_BUILD_TYPE}")
 message(STATUS "GFRAMEWORK_BUILD_TYPE:${GFRAMEWORK_BUILD_TYPE}")
-link_directories("${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_${GFRAMEWORK_BUILD_TYPE}")
 
 add_executable(
 	gframework_static_test

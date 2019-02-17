@@ -1,0 +1,5 @@
+For the reflection use case "Invoke member function returning constant reference and taking void arguments", boost::any_cast<const unsigned int&>(GVariant) fails. Because, GVariant inaternally converts the reference to pointer. So using boost::any_cast<const unsigned int&> on GVariant that contains 'unsigned int*' creates Bad Cast exception. To fix, implement a customized cast for GVariant or use c-style cast (unsigned int&)(GVariant).
+
+Updated the variant library to explicitly create a reference type to assign into a variant. Use GVariant::Ref<T> to assign a reference.
+
+In reflection, facing bad cast issue when using derived shared pointer in place of base shared pointer. This has to be fixed.
