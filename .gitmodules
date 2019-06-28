@@ -1,0 +1,3 @@
+[submodule "GEditor"]
+	path = GEditor
+	url = https://github.com/asankar1/GEditor.git
