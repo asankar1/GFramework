@@ -3,13 +3,16 @@
 #include <cassert>
 #include <limits>
 #include <cmath>
-#include <boost/core/typeinfo.hpp>
-#include <GVariant/GVariant.h>
+#include <array>
 
+#include <GVariant/GVariant.h>
 #include "gvariant_test.h"
+#ifndef Q_MOC_RUN
+#include <boost/core/typeinfo.hpp>
 #include <boost/variant.hpp>
 #include <boost/function.hpp>
-#include <array>
+#endif
+
 using namespace std;
 using namespace GFramework;
 

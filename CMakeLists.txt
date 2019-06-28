@@ -27,7 +27,7 @@ project(GFramework)
 
 include(toolchain_utilities)
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/Build/output CACHE PATH "Select the install path for GFramework" FORCE)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/output/GFramework CACHE PATH "Select the install path for GFramework" FORCE)
 
 # Host PC configuration
 set(HOST_SCRIPT_EXT bat)
@@ -74,7 +74,7 @@ add_library(
 	$<TARGET_OBJECTS:gscript_shared>
 )
 
-set(GFRAMEWORK_BUILD_TEST ON CACHE BOOL "Select to build the test for Gframework" FORCE)
+set(GFRAMEWORK_BUILD_TEST OFF CACHE BOOL "Select to build the test for Gframework" FORCE)
 		
 if(${GFRAMEWORK_BUILD_TEST} MATCHES ON)
 	add_subdirectory(Test)

@@ -11,6 +11,7 @@
 #include <tuple>
 #include <utility>
 
+#ifndef Q_MOC_RUN
 #include <boost/variant.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
@@ -19,6 +20,7 @@
 #include <boost/function_types/parameter_types.hpp>
 #include <boost/function_types/result_type.hpp>
 #include <boost/function_types/function_arity.hpp>
+#endif
 #include <GVariant/GVariant.h>
 #include <GReflection/GReflectionHelpers.h>
 #include <GScript/GLua_data_exchange.h>

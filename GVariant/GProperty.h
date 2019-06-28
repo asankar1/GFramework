@@ -109,11 +109,11 @@ namespace GFramework
 	{
 	public:
 		virtual void subjectDeleted() = 0;
-		
+                GPointerPropertyInterface(const GPointerPropertyInterface&) = delete;
+                GPointerPropertyInterface& operator=(const GPointerPropertyInterface&) = delete;
+
 	protected:
 		GPointerPropertyInterface() {}
-		GPointerPropertyInterface(const GPointerPropertyInterface&);
-		GPointerPropertyInterface& operator=(const GPointerPropertyInterface&);
 	};
 
 	template<typename T>

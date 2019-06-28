@@ -4,9 +4,11 @@
 #include <GReflection/GReflection.h>
 #include <Node.h>
 #include <Sphere.h>
+#ifndef Q_MOC_RUN
 #include <boost/optional.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#endif
 #include "greflection_test.h"
 
 using namespace std;

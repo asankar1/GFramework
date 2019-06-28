@@ -14,7 +14,7 @@ project(GFramework_Test)
 
 include(toolchain_utilities)
 #include(utilities)
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../Build/output CACHE PATH "Select the install path for GFramework" FORCE)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/output/GFramework CACHE PATH "Select the install path for GFramework" FORCE)
 
 file(
 	GLOB
