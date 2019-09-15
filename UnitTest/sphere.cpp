@@ -2,9 +2,7 @@
 #include "sphere.h"
 
 using namespace std;
-
-namespace GFrameworkTest
-{
+using namespace GFrameworkTest;
 
 	/*BEGIN_DEFINE_META(sphere)
 		GMetaclassList::instance().define<sphere>("sphere")
@@ -32,7 +30,9 @@ namespace GFrameworkTest
 		GMetaNamespaceList::_global()._namespace("GFrameworkTest")._namespace("sphere_func")
 			.function("getSphereVolume", sphere_func::getSphereVolume);
 	END_DEFINE_META(sphere)
-	
+namespace GFrameworkTest
+{
+
 	namespace sphere_func
 	{
 		float getSphereVolume(sphere& s)
@@ -84,9 +84,9 @@ namespace GFrameworkTest
 		cout << "Radius: " << radius.getValue() << endl;
 	}
 
-	GMetaclass* sphere::metaclassName()
+	GMetaclass* sphere::getMetaclass()
 	{
-		return GMetaNamespace::getMetaclassByType<sphere>();
+		return GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere");
 	}
 
 	void sphere::reconstruct()

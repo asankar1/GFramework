@@ -15,17 +15,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += GFRAMEWORK_API=__declspec(dllimport)
 DEFINES += GFRAMEWORKTEST_API=__declspec(dllimport)
 DEFINES += ENGINESHARED_API=__declspec(dllimport)
+DEFINES += GFRAMEWORK_TEMPLATE_API=__declspec(dllimport)
 
 CONFIG += c++11
 
-INCLUDEPATH += ..
-INCLUDEPATH += ../..
-INCLUDEPATH += ../../third_party/boost_1_63_0
-INCLUDEPATH += ../../third_party/glm_0_9_8_3
-INCLUDEPATH += ../../third_party/lua-5.3.4/src
+INCLUDEPATH += $$_PRO_FILE_PWD_/..
+INCLUDEPATH += $$_PRO_FILE_PWD_/src
+INCLUDEPATH += $$_PRO_FILE_PWD_/../..
+INCLUDEPATH += $$_PRO_FILE_PWD_/../../third_party/boost_1_63_0
+INCLUDEPATH += $$_PRO_FILE_PWD_/../../third_party/glm_0_9_8_3
+INCLUDEPATH += $$_PRO_FILE_PWD_/../../third_party/lua-5.3.4/src
 
 SOURCES += \
-        src/main.cpp
+        src/main.cpp \
+        src/testapplication.cpp \
+        src/testproject.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -52,3 +56,7 @@ DEPENDPATH += $$_PRO_FILE_PWD_/../Engine
 
 Debug:DESTDIR = $$_PRO_FILE_PWD_/../../output/GFramework/bin/win_64_vs_2015_Debug
 Release:DESTDIR = $$_PRO_FILE_PWD_/../../output/GFramework/bin/win_64_vs_2015_Release
+
+HEADERS += \
+    src/testapplication.h \
+    src/testproject.h

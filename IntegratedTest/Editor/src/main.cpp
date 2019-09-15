@@ -1,32 +1,45 @@
-
+#include <functional>
 #include <QAction>
 #include <QApplication>
 #include <QTreeView>
-#include <GEditor/core/application.h>
-#include <GEditor/core/project.h>
-#include <GEditor/ui/menus/contextmenu.h>
-#include <GEditor/ui/windows/projectwindow.h>
+#include <testapplication.h>
+#include <testproject.h>
+#include <GEditor/utilities/logger.h>
 #include <Engine/Node.h>
 
 using namespace GFrameworkTest;
 using namespace GFramework::Editor;
+void addSphere();
+void addNode();
+class test
+{
+public:
+    void callback()
+    {
+         Logger::debug() << "Cube addded";
+    }
+};
 
 int main(int argc, char *argv[])
 {
-    Application::Configuration config;
-    config.applicationName = "GFrameworkTestApp";
-    Application app(argc, argv, &config);
-    app.initialize();
-
-    QAction newAction("New");
-    QAction createAction("Create");
-    QAction copyAction("Copy");
-    QAction pasteAction("paste");
-    auto prj_window = app.mainWindow->getDefaultProjectWindow();
-    ContextMenu* mnu = prj_window->getContextMenu();
-    mnu->add("Create/Sphere");
-    mnu->add("Create/Cube");
-    mnu->add("Copy");
-    mnu->add("Paste");
+    TestApplication app(argc, argv);
+	app.initialize();
     return app.exec();
+}
+
+void addNode()
+{
+	Logger::debug() << "Node addded";
+	NodeSharedPtr np;
+	GObjectSharedPtr object(new Node("Node1", np));
+	Application::instance()->getProject()->addObject(object, nullptr);
+}
+
+
+void addSphere()
+{
+    Logger::debug() << "Sphere addded";
+    NodeSharedPtr np;
+    GObjectSharedPtr object(new Node("Sphere1", np));
+    Application::instance()->getProject()->addObject(object, nullptr);
 }

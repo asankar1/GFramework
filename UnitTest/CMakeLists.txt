@@ -33,7 +33,6 @@ file(
 	${TEST_ROOT}/gscript_test.cpp
 	${TEST_ROOT}/Node.cpp
 	${TEST_ROOT}/Sphere.cpp
-	${TEST_ROOT}/main.cpp
 )
 
 
@@ -52,35 +51,62 @@ endif("${CMAKE_BUILD_TYPE} " STREQUAL " ")
 message(STATUS "CMAKE_BUILD_TYPE:${CMAKE_BUILD_TYPE}")
 message(STATUS "GFRAMEWORK_BUILD_TYPE:${GFRAMEWORK_BUILD_TYPE}")
 
-add_executable(
-	gframework_static_test
+add_library(
+	gframework_test_shared_lib
+	SHARED
+	${header_files}
+	${source_files}
+)
+
+add_library(
+	gframework_test_static_lib
+	STATIC
 	${header_files}
 	${source_files}
 )
 
 add_executable(
 	gframework_shared_test
-	${header_files}
-	${source_files}
+	${TEST_ROOT}/main.cpp
+)
+
+add_executable(
+	gframework_static_test
+	${TEST_ROOT}/main.cpp
 )
 
 target_link_libraries (
 	gframework_static_test
+	gframework_test_static_lib
 	gframework_static
 )
 
 target_link_libraries (
 	gframework_shared_test
+	gframework_test_shared_lib
+	gframework_shared
+)
+
+target_link_libraries (
+	gframework_test_shared_lib
 	gframework_shared
 )
 
 target_compile_definitions(gframework_static_test PUBLIC GFRAMEWORK_API=)
 target_compile_definitions(gframework_shared_test PUBLIC GFRAMEWORK_API=${GFRAMEWORK_IMPORT_API})
+target_compile_definitions(gframework_test_static_lib PUBLIC GFRAMEWORK_API=)
+target_compile_definitions(gframework_test_shared_lib PUBLIC GFRAMEWORK_API=${GFRAMEWORK_IMPORT_API})
+
+target_compile_definitions(gframework_static_test PUBLIC GFRAMEWORK_TEST_API=)
+target_compile_definitions(gframework_shared_test PUBLIC GFRAMEWORK_TEST_API=${GFRAMEWORK_IMPORT_API})
+target_compile_definitions(gframework_test_static_lib PUBLIC GFRAMEWORK_TEST_API=)
+target_compile_definitions(gframework_test_shared_lib PUBLIC GFRAMEWORK_TEST_API=${GFRAMEWORK_EXPORT_API})
+
 
 set_property(TARGET gframework_static_test PROPERTY CXX_STANDARD 14)
 set_property(TARGET gframework_shared_test PROPERTY CXX_STANDARD 14)
 
-install	(	TARGETS gframework_static_test gframework_shared_test 
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib
 			CONFIGURATIONS Debug
 			RUNTIME DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
 		)
@@ -91,7 +117,7 @@ install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMP
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
 		)
 		
-install	(	TARGETS gframework_static_test gframework_shared_test 
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib
 			CONFIGURATIONS Release
 			RUNTIME DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 		)

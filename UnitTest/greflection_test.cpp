@@ -23,7 +23,7 @@ using namespace GFrameworkTest;
 > 
 */
 
-void run_reflection_testcases()
+void GFRAMEWORK_TEST_API run_reflection_testcases()
 {
 	cout << "=============================" << endl;
 	cout << "Startig GReflection testcases" << endl;
@@ -71,16 +71,17 @@ void run_reflection_testcases()
 
 	cout << "\nList constructors:" << endl;
 	{
-		GMetaNamespace::getMetaclassByType<sphere>()->getConstructorsList(f_list);
+		//GMetaNamespace::getMetaclassByType<sphere>()->getConstructorsList(f_list);
+		GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructorsList(f_list);
 		for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
-			cout << *it << ": " << GMetaNamespace::getMetaclassByType<sphere>()->getConstructor((*it).c_str())->getPrototype() << endl;
+			cout << *it << ": " << GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructor((*it).c_str())->getPrototype() << endl;
 		}
 		f_list.clear();
 	}
 
 	cout << "\nCall class default constructor:" << endl;
 	{
-		GMetaconstructor* cons1 = GMetaNamespace::getMetaclassByType<sphere>()->getConstructor("DefaultCons");
+		GMetaconstructor* cons1 = GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructor("DefaultCons");
 		std::vector<GVariant> args;
 		sphere* sphere1 = cons1->invoke<sphere>(args);
 		sphere1->about();
@@ -88,7 +89,7 @@ void run_reflection_testcases()
 
 	cout << "\nClass non-default constructor:" << endl;
 	{
-		GMetaconstructor* cons1 = GMetaNamespace::getMetaclassByType<sphere>()->getConstructor("Cons1");
+		GMetaconstructor* cons1 = GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructor("Cons1");
 		std::vector<GVariant> args;
 		args.push_back(GVariant::create<unsigned int>(73));
 		sphere* sphere1 = cons1->invoke<sphere>(args);
@@ -98,18 +99,18 @@ void run_reflection_testcases()
 
 	cout << "\nList class static functions:" << endl;
 	{
-		GFramework.getMetaclassByType<GObject>()->getStaticFunctionsList(f_list);
+		GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getStaticFunctionsList(f_list);
 		for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
-			cout << GFramework.getMetaclassByType<GObject>()->getStaticFunction((*it).c_str())->getReturntype();
+			cout << GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getStaticFunction((*it).c_str())->getReturntype();
 			cout << " " << *it << " ";
-			cout << GFramework.getMetaclassByType<GObject>()->getStaticFunction((*it).c_str())->getPrototype() << endl;
+			cout << GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getStaticFunction((*it).c_str())->getPrototype() << endl;
 		}
 		f_list.clear();
 	}
 
 	cout << "\nList base class public member functions:" << endl;
 	{
-		GFramework.getMetaclassByType<GObject>()->getFunctionsList(f_list);
+		GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getFunctionsList(f_list);
 		for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
 			cout << *it << endl;
 		}

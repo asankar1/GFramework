@@ -1,3 +1,3 @@
 #pragma once
 
-void run_property_testcases();
+void GFRAMEWORK_TEST_API run_property_testcases();

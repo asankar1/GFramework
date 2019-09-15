@@ -58,7 +58,7 @@ namespace GFramework
 		{
 			if (v)
 			{
-				const char* metaclass_name = v->metaclassName()->getName().c_str();
+				const char* metaclass_name = v->getMetaclass()->getName().c_str();
 				size_t nbytes = sizeof(Glua_abstract_ptr);
 				Glua_abstract_ptr* userdata = (Glua_abstract_ptr*)lua_newuserdata(L, nbytes);
 				userdata->object = v.get();

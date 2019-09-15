@@ -43,6 +43,10 @@ namespace GFrameworkTest
 	{
 		std::cout << "NodeFileInfo\n";
 	}
+	GFrameworkTest::Node::Node(const char * _name) : GObject(_name)
+	{
+		cout << "Node '" << getName() << "' constructed." << endl;
+	}
 	Node::Node(const char *_name, NodeSharedPtr& _parent) : GObject(_name)
 	{	
 		parent.setValue(_parent.get());
@@ -83,9 +87,10 @@ namespace GFrameworkTest
 		cout << "Node '" << getName() << "' initialized." << endl;
 	}
 
-	GMetaclass* Node::metaclassName()
+    GMetaclass* Node::getMetaclass()
 	{
-		return GMetaNamespace::getMetaclassByType<Node>();
+        //return GMetaNamespace::getMetaclassByType<Node>();
+        return GET_METACLASS_INTERNAL(Node);
 	}
 
 	void Node::setParent(NodeSharedPtr _parent)

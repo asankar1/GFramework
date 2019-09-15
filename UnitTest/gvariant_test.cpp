@@ -153,7 +153,7 @@ typedef int(base_class::*virtual_member_func_ptr(void));
 
 typedef int(derived_class::*nonvirtual_member_func_ptr(void));
 
-void run_variant_testcases()
+void GFRAMEWORK_TEST_API run_variant_testcases()
 {
 	/*
 	std::cout << endl << "Starting test cases for 'Variant'..." << endl << endl;

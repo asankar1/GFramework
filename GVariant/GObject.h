@@ -83,10 +83,10 @@ namespace GFramework
 
 		/**
 		* This is a pure virtual function, all the inheritors should implement this.
-		* Typically this should return the metaclass name of the class.
+		* Typically this should return the metaclass of the class.
 		* \return constant pointer to the string
 		*/
-		virtual GMetaclass* metaclassName() = 0;
+		virtual GMetaclass* getMetaclass() = 0;
 
 		/**
 		* This is a virtual function, all the inheritors may override to have its own implementation.

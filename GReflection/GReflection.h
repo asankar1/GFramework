@@ -27,8 +27,9 @@
 #include <GScript/GLuaScript.h>
 
 //#define META_FRIEND(c) friend struct c##_metacreator; /*friend GMetaNonAbstractclass<c>;*/
-#define BEGIN_DEFINE_META(c) struct c##_metacreator	{ c##_metacreator() {
+#define BEGIN_DEFINE_META(c) struct c##_metacreator	{ GMetaclass* m; c##_metacreator() { m =&
 #define END_DEFINE_META(c) } }; static const c##_metacreator c##_metacreator_;
+#define GET_METACLASS_INTERNAL(c) c##_metacreator_.m
 //#define END_DEFINE_META(c) GLuaState::register_script_for_metaclass(GMetaclassList::instance().getMetaclassByType<c>());} }; static c##_metacreator _c##_metacreator;
 
 /*! \file GReflection.h
@@ -556,13 +557,15 @@ namespace GFramework
 			return *m;
 		}
 
+		//TODO: This could give more troubles than the benefits. Check if this can be implemented better
+		/*
 		template<typename T>
 		static auto getMetaclassByType()
 		{
 			auto m = std::conditional<std::is_abstract<T>::value, GMetaAbstractclass<T>, GMetaNonAbstractclass<T>>::type::getInstance();
 			return m;
 		}
-
+		*/
 		GMetaclass* getMetaclass(const char* _name)
 		{
 			auto itr = metaclasslist.find(std::string(_name));

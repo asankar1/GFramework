@@ -1,3 +1,3 @@
 #pragma once
 
-void run_reflection_testcases();
+void GFRAMEWORK_TEST_API run_reflection_testcases();

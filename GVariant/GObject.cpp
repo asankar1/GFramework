@@ -118,7 +118,7 @@ namespace GFramework
 	{
 #if 1
 		//const char* metaclassname = metaclassName();
-		GMetaclass* m = GMetaNamespace::getMetaclassByType<GObject>();
+		GMetaclass* m = getMetaclass();
 
 		std::vector<std::string> p_list;
 		m->getEditablePropertiesList(p_list);
@@ -138,7 +138,7 @@ namespace GFramework
 	{
 #if 1
 		//const char* metaclassname = metaclassName();
-		GMetaclass* m = GMetaNamespace::getMetaclassByType<GObject>();
+		GMetaclass* m = getMetaclass();
 
 		std::vector<std::string> p_list;
 		m->getEditablePropertiesList(p_list);

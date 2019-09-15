@@ -29,7 +29,7 @@ namespace GFrameworkTest
 
 	class Node;
 	typedef std::shared_ptr<Node> NodeSharedPtr;
-	class Node : public GObject
+	class GFRAMEWORK_TEST_API Node : public GObject
 	{
 	public:
 		/**
@@ -94,7 +94,7 @@ namespace GFrameworkTest
 		*/
 		virtual void initialize();
 
-		virtual GMetaclass* metaclassName();
+		virtual GMetaclass* getMetaclass();
 
 		//protected://TODO: Fix
 		Node():GObject() {}

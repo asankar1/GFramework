@@ -2,9 +2,11 @@
 #include "Node.h"
 using namespace std;
 using namespace GFramework;
+using namespace GFrameworkTest;
 
-namespace GFrameworkTest
-{
+//template class __declspec(dllexport) GMetaNonAbstractclass<GFrameworkTest::Node>;
+
+
 	/*BEGIN_DEFINE_META(Node)
 		GMetaclassList::instance().define<Node>("node")
 			.baseMetaclass("GObject")
@@ -38,7 +40,8 @@ namespace GFrameworkTest
 		/*.editableProperty("position", &Node::position)
 		.property("parent", &Node::parent)*/;
 	END_DEFINE_META(Node)
-
+namespace GFrameworkTest
+{
 	void NodeFileInfo()
 	{
 		std::cout << "NodeFileInfo\n";
@@ -83,9 +86,9 @@ namespace GFrameworkTest
 		cout << "Node '" << getName() << "' initialized." << endl;
 	}
 
-	GMetaclass* Node::metaclassName()
+	GMetaclass* Node::getMetaclass()
 	{
-		return GMetaNamespace::getMetaclassByType<Node>();
+		return GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node");
 	}
 
 	void Node::setParent(NodeSharedPtr _parent)

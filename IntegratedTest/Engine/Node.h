@@ -35,6 +35,13 @@ namespace GFrameworkTest
 		/**
 		* Constructs the node class.
 		* \param _name is the name of the object.
+		* \return Nil
+		*/
+		Node(const char *_name);
+
+		/**
+		* Constructs the node class as a child to a parent node.
+		* \param _name is the name of the object.
 		* \param _parent is the parent object to the sphere onject
 		* \return Nil
 		*/
@@ -94,7 +101,9 @@ namespace GFrameworkTest
 		*/
 		virtual void initialize();
 
-		virtual GMetaclass* metaclassName();
+        //virtual GMetaclass* metaclassName();
+
+        virtual GMetaclass* getMetaclass() override;
 
 		//protected://TODO: Fix
 		Node():GObject() {}

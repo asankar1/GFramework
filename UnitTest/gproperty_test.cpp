@@ -23,8 +23,8 @@ namespace property_test {
 			int i = 0;
 		}
 
-		virtual GMetaclass* metaclassName() {
-			return GMetaNamespace::getMetaclassByType<property_test::Node>();
+		virtual GMetaclass* getMetaclass() override {
+			return nullptr;
 		}
 
 		GPointerProperty<Node> interested_object;
@@ -32,7 +32,7 @@ namespace property_test {
 	};
 }
 
-void run_property_testcases()
+void GFRAMEWORK_TEST_API run_property_testcases()
 {
 	cout << "===========================" << endl;
 	cout << "Startig GProperty testcases" << endl;

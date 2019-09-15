@@ -63,7 +63,7 @@ namespace GFramework
 		if (!stream.is_open())
 			return *this;
 
-		GMetaclass* m = _obj->metaclassName();
+		GMetaclass* m = _obj->getMetaclass();
 		//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
 		const char* classname = m->getName().c_str();
 		size_t len = strlen(classname) + 1;
@@ -109,7 +109,7 @@ namespace GFramework
 		if (!stream.is_open())
 			return *this;
 
-		GMetaclass* m = _obj->metaclassName();
+		GMetaclass* m = _obj->getMetaclass();
 		//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
 		const char* classname = m->getName().c_str();
 		stream << string(classname) << endl;

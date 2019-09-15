@@ -74,7 +74,7 @@ add_library(
 	$<TARGET_OBJECTS:gscript_shared>
 )
 
-set(GFRAMEWORK_BUILD_TEST OFF CACHE BOOL "Select to build the test for Gframework" FORCE)
+set(GFRAMEWORK_BUILD_TEST OFF CACHE BOOL "Select to build the test for Gframework")
 		
 if(${GFRAMEWORK_BUILD_TEST} MATCHES ON)
 	add_subdirectory(UnitTest)
