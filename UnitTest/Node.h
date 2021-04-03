@@ -2,8 +2,8 @@
 #include <vector>
 #include <glm/vec3.hpp>
 #include <boost/shared_ptr.hpp>
-#include <GVariant/GObject.h>
-#include <GReflection/GReflection.h>
+#include <GFramework/GVariant/GObject.h>
+#include <GFramework/GReflection/GReflection.h>
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
@@ -18,6 +18,8 @@
 /*! \file Node.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to Node class.
 */
+
+DECLARE_META_CLASS(Node);
 
 namespace GFrameworkTest
 {
@@ -108,7 +110,7 @@ namespace GFrameworkTest
 		GPointerProperty<Node> parent; /*!< Pointer to the parent of the node object*/
 		std::vector<NodeSharedPtr> children;
 
-		//META_FRIEND(Node);
+		DECLARE_META_FRIEND(Node);
 	};
 }
 

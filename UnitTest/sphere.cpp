@@ -25,7 +25,7 @@ using namespace GFrameworkTest;
 				.constructor<void*(unsigned int)>("Cons1")
 				.functionPublic("setRadius", &sphere::setRadius)
 				.functionPublic("getRadius", &sphere::getRadius)
-				/*.editableProperty("radius", &sphere::radius)*/;
+				.editableProperty("radius", &sphere::radius);
 
 		GMetaNamespaceList::_global()._namespace("GFrameworkTest")._namespace("sphere_func")
 			.function("getSphereVolume", sphere_func::getSphereVolume);

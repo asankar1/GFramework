@@ -3,7 +3,7 @@
 #include <glm/vec3.hpp>
 #include <boost/variant.hpp>
 #include <boost/any.hpp>
-#include <GScript/GFrameworkLua.h>
+#include <GFramework/GScript/GFrameworkLua.h>
 
 
 /*! \file GVariant.h

@@ -5,19 +5,9 @@
 #include <memory>
 #include <map>
 #include <set>
-#include <GVariant/GProperty.h>
-#include <GReflection/GReflection.h>
-//#include <GSerialization/GSerializer.h>
-
-#ifdef VARIANT_DYNAMIC_LIBRARY
-#ifdef DLL_EXPORT
-#define LIBRARY_API __declspec( dllexport )
-#else
-#define LIBRARY_API __declspec( dllimport )
-#endif
-#else
-#define LIBRARY_API
-#endif
+#include <GFramework/GVariant/GProperty.h>
+#include <GFramework/GReflection/GReflection.h>
+//#include <GFramework/GSerialization/GSerializer.h>
 
 /*! \file GObject.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to GObject class.
@@ -54,13 +44,6 @@ namespace GFramework
 		* \return object_id as const unsigned int
 		*/
 		const unsigned int& getObjectId() const;
-
-		/**
-		* set the id of the object
-		* \param _newid is an unsigned int as the new object_id
-		* \return void
-		*/
-		void setObjectId(unsigned int _newid);
 
 		/**
 		* Add a new object to the observers list
@@ -140,6 +123,7 @@ namespace GFramework
 		const std::string & getName() const;
 
 	protected:
+
 		/**
 		* Constructs the GObject class.
 		* \param _name is a string reference.
@@ -150,11 +134,19 @@ namespace GFramework
 		GObject() {}
 
 	private:
+		/**
+		* set the id of the object
+		* \param _newid is an unsigned int as the new object_id
+		* \return void
+		*/
+		void setObjectId(uint32 _newid);
+
 		GStringProperty name; /*!< Name of the object*/
 		GUint32Property object_id;
 		static std::atomic<unsigned int> atomic_count;
 		std::map<GObject*,  unsigned int> observers;
 		std::set<GPointerPropertyInterface*> deletion_subscribers;
+		friend GDeserializer;
 		//META_FRIEND(GObject);
 	};
 }

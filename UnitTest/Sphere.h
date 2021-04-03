@@ -11,6 +11,8 @@
 #define LIBRARY_API
 #endif
 
+DECLARE_META_CLASS(sphere);
+
 namespace GFrameworkTest
 {
 	using namespace GFramework;
@@ -67,7 +69,7 @@ namespace GFrameworkTest
 	private:
 		GUint32Property radius; /*!< Radius of the sphere*/
 
-		//META_FRIEND(sphere);
+		DECLARE_META_FRIEND(sphere);
 	};
 
 	namespace sphere_func

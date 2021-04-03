@@ -5,7 +5,7 @@
 #include <cmath>
 #include <array>
 
-#include <GVariant/GVariant.h>
+#include <GFramework/GVariant/GVariant.h>
 #include "gvariant_test.h"
 #ifndef Q_MOC_RUN
 #include <boost/core/typeinfo.hpp>

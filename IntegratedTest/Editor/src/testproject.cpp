@@ -10,9 +10,14 @@ using namespace GFrameworkTest;
 TestProject::TestProject(QFile* proj_file)
 	: Project(proj_file)
 {
+    sceneGraphSection = nullptr;
 	jsonDocument = QJsonDocument::fromJson(file->readAll());
-	rootJsonObject = jsonDocument.object();
-	isModified = false;
+    //rootJsonObject = jsonDocument.object();
+    if(addSection("SceneGraph"))
+    {
+        sceneGraphSection = getSection("SceneGraph");
+    }
+    isModified = true;
 }
 
 TestProject::~TestProject()
@@ -22,8 +27,8 @@ TestProject::~TestProject()
 
 void TestProject::initialize()
 {
-	root = make_shared<Node>("RootNode");
-	addRootObject(root);
+    sceneGraphRoot = make_shared<Node>("RootNode");
+    sceneGraphSection->addObject(sceneGraphRoot);
 }
 
 Project * TestProject::openProject(QString proj_path)

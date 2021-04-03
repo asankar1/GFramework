@@ -32,7 +32,7 @@ void addNode()
 	Logger::debug() << "Node addded";
 	NodeSharedPtr np;
 	GObjectSharedPtr object(new Node("Node1", np));
-	Application::instance()->getProject()->addObject(object, nullptr);
+    //Application::instance()->getProject()->addObject(object, nullptr);
 }
 
 
@@ -41,5 +41,5 @@ void addSphere()
     Logger::debug() << "Sphere addded";
     NodeSharedPtr np;
     GObjectSharedPtr object(new Node("Sphere1", np));
-    Application::instance()->getProject()->addObject(object, nullptr);
+    //Application::instance()->getProject()->addObject(object, nullptr);
 }

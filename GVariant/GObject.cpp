@@ -1,7 +1,7 @@
 #include <iostream>
-#include <GVariant/GObject.h>
-#include <GSerialization/GSerializer.h>
-#include <GReflection/GReflection.h>
+#include <GFramework/GVariant/GObject.h>
+#include <GFramework/GSerialization/GSerializer.h>
+#include <GFramework/GReflection/GReflection.h>
 //#include <Node.h>
 using namespace std;
 
@@ -33,7 +33,7 @@ namespace GFramework
 		.functionPublic("getName", &GObject::getName)
 		.functionPublic("rename", &GObject::rename)
 		.functionPublic("getObjectId", &GObject::getObjectId)
-		.functionPublic("setObjectId", &GObject::setObjectId)
+		/*.functionPublic("setObjectId", &GObject::setObjectId)*/
 		.staticFunction("about", GObject::about)
 		.functionPublic("rename", &GObject::rename)
 		.staticFunction("count", GObject::count)
@@ -116,7 +116,6 @@ namespace GFramework
 
 	bool GObject::serialize(GSerializer& serializer)
 	{
-#if 1
 		//const char* metaclassname = metaclassName();
 		GMetaclass* m = getMetaclass();
 
@@ -130,13 +129,11 @@ namespace GFramework
 			auto p = m->getProperty(property_name.c_str());
 			serializer.writeMetaProperty(this, p);
 		}
-#endif
 		return true;
 	}
 
 	bool GObject::deserialize(GDeserializer& deserializer, unsigned int version)
 	{
-#if 1
 		//const char* metaclassname = metaclassName();
 		GMetaclass* m = getMetaclass();
 
@@ -150,7 +147,6 @@ namespace GFramework
 			auto p = m->getProperty(property_name.c_str());
 			deserializer.readMetaProperty(this, p);
 		}
-#endif
 		return true;
 	}
 

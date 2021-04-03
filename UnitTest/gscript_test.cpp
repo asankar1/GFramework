@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-#include <GVariant/GVariant.h>
+#include <GFramework/GVariant/GVariant.h>
 #include <sphere.h>
 #include "gscript_test.h"
 using namespace std;

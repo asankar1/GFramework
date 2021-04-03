@@ -1,6 +1,6 @@
 #include <iostream>
-#include <GReflection/GReflection.h>
-#include <GScript/GLuaScript.h>
+#include <GFramework/GReflection/GReflection.h>
+#include <GFramework/GScript/GLuaScript.h>
 //#include <sphere.h>
 using namespace std;
 

@@ -34,7 +34,7 @@ add_library(
 set_property(TARGET greflection_shared PROPERTY CXX_STANDARD 14)
 
 
-include_directories(${GFRAMEWORK_ROOT})
+include_directories(${GFRAMEWORK_ROOT}/../)
 include_directories(${include_paths})
 
 add_library(
@@ -49,7 +49,7 @@ set_output_paths(greflection)
 
 
 install	(	DIRECTORY ${GREFLECTION_ROOT}
-			DESTINATION ./include
+			DESTINATION ./include/GFramework
 			FILES_MATCHING PATTERN "*.h"
 		)
 

@@ -20,9 +20,9 @@
 #include <boost/function_types/result_type.hpp>
 #include <boost/function_types/function_arity.hpp>
 #endif
-#include <GVariant/GVariant.h>
-#include <GScript/GLua_data_exchange.h>
-#include <GScript/GLuaScript.h>
+#include <GFramework/GVariant/GVariant.h>
+#include <GFramework/GScript/GLua_data_exchange.h>
+#include <GFramework/GScript/GLuaScript.h>
 
 
 /*! \file GReflectionHelpers.h

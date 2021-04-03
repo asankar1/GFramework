@@ -28,12 +28,16 @@ void TestApplication::initialize()
 
 	Application::initialize();
 
+    //create additional windows
+    //nodeBrowserWindow = new ProjectWindow("Node Browser", mainWindow);
+    //mainWindow->addDockWidget(Qt::LeftDockWidgetArea, nodeBrowserWindow);
+
 	//register types
 	auto m = GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node");
     std::shared_ptr<GObjectEditorInfo> node_info = std::make_shared<GObjectEditorInfo>();
 	node_info->contextMenu = std::make_shared<ContextMenu>();
     node_info->contextMenu->add("ResetNode", []() {
-		for each (auto var in Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection())
+        for(auto var : Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection())
 		{
 			Logger::debug() << "Node " << var->getName().c_str() << " reset";
 		}
@@ -46,9 +50,14 @@ void TestApplication::initialize()
 	auto prj_window = mainWindow->getDefaultProjectWindow();
 	ContextMenu* mnu = prj_window->getContextMenu();
 	mnu->add("Create/node", [] {	Logger::debug() << "Node addded";
+    auto selection = Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection();
 	NodeSharedPtr np;
+    if(selection.size() > 0)
+    {
+        //np = selection.back();
+    }
 	GObjectSharedPtr object(new Node("Node1", np));
-	Application::instance()->getProject()->addObject(object); });
+    /*Application::instance()->getProject()->addObject(object);*/ });
 
 	/*test t1;
 	mnu->addActionHandler("Create/Cube", std::bind(&test::callback, &t1));

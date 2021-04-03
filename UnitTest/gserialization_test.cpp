@@ -1,19 +1,21 @@
-#include <GReflection.h>
-#include <GSerializer.h>
+#include <GFramework/GReflection/GReflection.h>
+#include <GFramework/GSerialization/GSerializer.h>
 #include "gserialization_test.h""
-#include <sphere.h>
+#include <Node.h>
+#include <Sphere.h>
 
 using namespace std;
 using namespace GFramework;
+using namespace GFrameworkTest;
 
 void run_serialization_testcases()
 {
 	cout << endl << "Starting test cases for 'Serialization'..." << endl << endl;
 	
 	NodeSharedPtr np(NULL);
-	auto os1 = new sphere("s1", np, 1);
+	auto os1 = new sphere("s1", np, 25);
 	NodeSharedPtr s1p(os1);
-	sphere os2("s2", s1p, 2);
+	sphere os2("s2", s1p, 15);
 
 	{
 		//Text serialization
@@ -25,8 +27,8 @@ void run_serialization_testcases()
 		//Text serialization
 		GTextDeSerializer tds;
 		tds.open("test.txt");
-		Object* is1 = nullptr;
-		Object* is2 = nullptr;
+		GObject* is1 = nullptr;
+		GObject* is2 = nullptr;
 		(tds >> &is1) >> &is2;
 		tds.close();
 		tds.resolveDependencies();
@@ -42,8 +44,8 @@ void run_serialization_testcases()
 		//Binary serialization
 		GBinaryDeSerializer bds;
 		bds.open("test.bin");
-		Object* is1 = nullptr;
-		Object* is2 = nullptr;
+		GObject* is1 = nullptr;
+		GObject* is2 = nullptr;
 		(bds >> &is1) >> &is2;
 		bds.close();
 		bds.resolveDependencies();

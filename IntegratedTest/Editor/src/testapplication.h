@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GEditor/core/application.h>
+//#include <GEditor/ui/windows/projectwindow.h>
 
 using namespace GFramework::Editor;
 
@@ -16,5 +17,5 @@ public:
 	virtual void openProject(QString path) override;
 
 private:
-
+   //ProjectWindow* nodeBrowserWindow;
 };

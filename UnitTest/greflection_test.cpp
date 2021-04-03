@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
-#include <GVariant/GVariant.h>
-#include <GReflection/GReflection.h>
+#include <GFramework/GVariant/GVariant.h>
+#include <GFramework/GReflection/GReflection.h>
 #include <Node.h>
 #include <Sphere.h>
 #ifndef Q_MOC_RUN

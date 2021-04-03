@@ -37,8 +37,8 @@ using namespace GFrameworkTest;
 		.functionPublic("getChild", &Node::getChild)
 		.property("visibility", &Node::visibility)
 		.property("Position", &Node::getPosition, &Node::setPosition)
-		/*.editableProperty("position", &Node::position)
-		.property("parent", &Node::parent)*/;
+		/*.editableProperty("position", &Node::position)*/
+		.property("parent", &Node::parent);
 	END_DEFINE_META(Node)
 namespace GFrameworkTest
 {

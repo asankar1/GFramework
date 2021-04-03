@@ -1,6 +1,7 @@
 #include <sstream>
 #include <iomanip>
-#include <GVariant/GProperty.h>
+#include <GFramework/GVariant/GProperty.h>
+#include <GFramework/GVariant/GObject.h>
 using namespace std;
 
 namespace GFramework
@@ -88,7 +89,7 @@ namespace GFramework
 
 	template <typename T>
 	std::ostream& GArithmeticProperty<T>::writeASCIIValue(std::ostream& os) const {
-		os << value << " ";
+		os << std::dec << value << " ";
 		return os;
 	}
 
@@ -252,6 +253,16 @@ namespace GFramework
 		return is;
 	}
 
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<GObject>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(GObject* value)
+		{
+			return std::make_unique< GPointerProperty<GObject> >(value);
+		}
+	};
+
 	template class GArithmeticProperty<bool>;
 	template class GArithmeticProperty<int8>;
 	template class GArithmeticProperty<uint8>;
@@ -269,4 +280,5 @@ namespace GFramework
 	template class GGlmProperty<glm::mat2>;
 	template class GGlmProperty<glm::mat3>;
 	template class GGlmProperty<glm::mat4>;
+	template class GPropertyConverter<GObject>;
 }

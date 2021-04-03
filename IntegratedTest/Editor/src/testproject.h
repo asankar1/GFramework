@@ -2,6 +2,7 @@
 #include <testapplication.h>
 #include <GEditor/core/project.h>
 
+using namespace GFramework;
 using namespace GFramework::Editor;
 
 
@@ -14,6 +15,7 @@ public:
 
 private:
 	TestProject(QFile* proj_file);
-
+    ProjectSection* sceneGraphSection;
+    GObjectSharedPtr sceneGraphRoot;
 	friend TestApplication;
 };

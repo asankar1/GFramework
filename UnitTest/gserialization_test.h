@@ -1,3 +1,3 @@
 #pragma once
 
-void run_serialization_testcases();
+void GFRAMEWORK_TEST_API run_serialization_testcases();

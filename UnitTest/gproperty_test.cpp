@@ -4,9 +4,9 @@
 #include <cassert>
 #include <limits>
 #include <array>
-#include <GVariant/GObject.h>
-#include <GVariant/GVariant.h>
-#include <GVariant/GProperty.h>
+#include <GFramework/GVariant/GObject.h>
+#include <GFramework/GVariant/GVariant.h>
+#include <GFramework/GVariant/GProperty.h>
 #include "gproperty_test.h"
 
 using namespace std;

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8)
 
 message(STATUS "----------------------------------------")
 message(STATUS "Main CMakeLists file for GFramework Test")
@@ -30,6 +30,7 @@ file(
 	${TEST_ROOT}/gvariant_test.cpp
 	${TEST_ROOT}/gproperty_test.cpp
 	${TEST_ROOT}/greflection_test.cpp
+	${TEST_ROOT}/gserialization_test.cpp
 	${TEST_ROOT}/gscript_test.cpp
 	${TEST_ROOT}/Node.cpp
 	${TEST_ROOT}/Sphere.cpp
@@ -37,7 +38,7 @@ file(
 
 
 include_directories(${TEST_ROOT})
-include_directories(${TEST_ROOT}/..)
+include_directories(${TEST_ROOT}/../..)
 include_directories(${THIRDPARTY_LUA_PATH}/src)
 include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
@@ -84,7 +85,6 @@ target_link_libraries (
 target_link_libraries (
 	gframework_shared_test
 	gframework_test_shared_lib
-	gframework_shared
 )
 
 target_link_libraries (
@@ -94,7 +94,7 @@ target_link_libraries (
 
 target_compile_definitions(gframework_static_test PUBLIC GFRAMEWORK_API=)
 target_compile_definitions(gframework_shared_test PUBLIC GFRAMEWORK_API=${GFRAMEWORK_IMPORT_API})
-target_compile_definitions(gframework_test_static_lib PUBLIC GFRAMEWORK_API=)
+target_compile_definitions(gframework_test_static_lib PUBLIC GFRAMEWORK_API=)	
 target_compile_definitions(gframework_test_shared_lib PUBLIC GFRAMEWORK_API=${GFRAMEWORK_IMPORT_API})
 
 target_compile_definitions(gframework_static_test PUBLIC GFRAMEWORK_TEST_API=)
@@ -106,7 +106,10 @@ target_compile_definitions(gframework_test_shared_lib PUBLIC GFRAMEWORK_TEST_API
 set_property(TARGET gframework_static_test PROPERTY CXX_STANDARD 14)
 set_property(TARGET gframework_shared_test PROPERTY CXX_STANDARD 14)
 
-install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib
+set_property(TARGET gframework_static_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
+set_property(TARGET gframework_shared_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
+
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib gframework_shared
 			CONFIGURATIONS Debug
 			RUNTIME DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
 		)
@@ -117,7 +120,7 @@ install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMP
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
 		)
 		
-install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib gframework_shared
 			CONFIGURATIONS Release
 			RUNTIME DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 		)

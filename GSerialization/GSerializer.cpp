@@ -1,9 +1,11 @@
 #include <iostream>
+#include <string>
+#include <sstream>
 #include <functional>
-#include <GVariant/GObject.h>
+#include <GFramework/GVariant/GObject.h>
 //#include <Sample/Node.h>
-#include <GReflection/GReflection.h>
-#include <GSerialization/GSerializer.h>
+#include <GFramework/GReflection/GReflection.h>
+#include <GFramework/GSerialization/GSerializer.h>
 using namespace std;
 
 namespace GFramework
@@ -64,8 +66,9 @@ namespace GFramework
 			return *this;
 
 		GMetaclass* m = _obj->getMetaclass();
+		string nmstr = m->getFullNamespace();
 		//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
-		const char* classname = m->getName().c_str();
+		const char* classname = nmstr.c_str();
 		size_t len = strlen(classname) + 1;
 		unsigned int version = m->getVersion();
 		stream.write((const char*)&len, sizeof(len));
@@ -74,6 +77,11 @@ namespace GFramework
 
 		_obj->serialize(*this);
 		return *this;
+	}
+
+	GTextSerializer::GTextSerializer() : objectDelimiter("#---------------#")
+	{
+
 	}
 
 	bool GTextSerializer::open(const char* filename)
@@ -94,6 +102,7 @@ namespace GFramework
 
 	bool GTextSerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* property)
 	{
+		stream << property->getName() << ":";
 		property->writeASCIIValue(stream, _obj);
 		stream << endl;
 		return true;
@@ -110,12 +119,32 @@ namespace GFramework
 			return *this;
 
 		GMetaclass* m = _obj->getMetaclass();
+		string nmstr = m->getFullNamespace();
 		//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
-		const char* classname = m->getName().c_str();
-		stream << string(classname) << endl;
-		stream << m->getVersion() << endl;
-		_obj->serialize(*this);
+		//const char* classname = m->getName().c_str();
+		stream << "class name:" << nmstr << endl;
+		stream << "ObjectId:" << _obj->getObjectId() << endl;
+		stream << "class version:" << m->getVersion() << endl;
+		//_obj->serialize(*this);
+
+		std::vector<std::string> p_list;
+		m->getEditablePropertiesList(p_list);
+		m->getPropertiesList(p_list);
+
+		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
+			string property_name = *it;
+			auto p = m->getProperty(property_name.c_str());
+
+			writeMetaProperty(_obj, p);
+		}
+		stream << objectDelimiter << endl;
 		return *this;
+	}
+
+	void GDeserializer::setObject_id(GObject* _obj, uint32 id)
+	{
+		_obj->setObjectId(id);
+		addReferenceProviders(id, _obj);
 	}
 
 	void GDeserializer::resolveDependencies()
@@ -206,9 +235,23 @@ namespace GFramework
 		unsigned int version = 0;				
 		stream.read((char*)&version, sizeof(version));
 
+		std::vector < std::string > namespaces_class;
+		GMetaNamespace* nm = &GMetaNamespaceList::_global();
+		istringstream str_stream(classname);
+		for (std::string nmstr; std::getline(str_stream, nmstr, ':');)
+		{
+			namespaces_class.push_back(nmstr);
+		}
+
+		for (int i = 0; i < namespaces_class.size() - 1; i++)
+		{
+			nm = nm->getMetaNamespace(namespaces_class[i].c_str());
+		}
+
 		//GMetaclass* m = GMetaclassList::instance().getMetaclass(classname);
 		//TODO: store and load the namespace of the meta class
-		GMetaclass* m = GMetaNamespaceList::_global().getMetaclass(classname);
+		//GMetaclass* m = GMetaNamespaceList::_global().getMetaclass(classname);
+		GMetaclass* m = nm->getMetaclass(namespaces_class.back().c_str());
 		*_obj = m->createInstance();
 		(*_obj)->deserialize(*this, version);
 		
@@ -220,6 +263,11 @@ namespace GFramework
 	GBinaryDeSerializer::~GBinaryDeSerializer()
 	{
 		close();
+	}
+
+	GTextDeSerializer::GTextDeSerializer() : objectDelimiter("#---------------#")
+	{
+
 	}
 
 	bool GTextDeSerializer::open(const char* filename)
@@ -239,19 +287,114 @@ namespace GFramework
 		return true;
 	}
 
+	std::pair<string, string> GTextDeSerializer::parseProperty(string line)
+	{
+		auto pos = line.find(":");
+		string key = line.substr(0, pos);
+		string value = line.substr(pos + 1);
+		return std::make_pair(key, value);
+	}
+
 	GDeserializer & GTextDeSerializer::operator>>(GObject **_obj)
 	{
+		string line;
 		string class_name;
-		stream >> class_name;
+		do
+		{
+			std::getline(stream , line);
+			auto pos = line.find("class name:");
+			if (pos != string::npos)
+			{
+				class_name = line.substr(pos + strlen("class name:"));
+				break;
+			}
+		} while (!stream.eof());
+
+		if (class_name.empty())
+		{
+			return *this;
+		}
+
+		uint32 unique_id= 0;
+		do
+		{
+			std::getline(stream, line);
+			auto pos = line.find("ObjectId:");
+			if (pos != string::npos)
+			{
+				line = line.substr(pos + strlen("ObjectId:"));
+				std::istringstream(line) >> unique_id;
+				break;
+			}
+		} while (!stream.eof());
+
+		if (line.empty())
+		{
+			return *this;
+		}
 
 		unsigned int version = 0;
-		stream >> version;
+		do
+		{
+			std::getline(stream, line);
+			auto pos = line.find("class version:");
+			if (pos != string::npos)
+			{
+				line = line.substr(pos + strlen("class version:"));
+				std::istringstream(line) >> version;
+				break;
+			}
+		} while (!stream.eof());
 
-		//GMetaclass* m = GMetaclassList::instance().getMetaclass(class_name.c_str());
-		//TODO: store and load the namespace of the meta class
-		GMetaclass* m = GMetaNamespaceList::_global().getMetaclass(class_name.c_str());
-		*_obj = m->createInstance();
-		(*_obj)->deserialize(*this, version);
+		if (line.empty())
+		{
+			return *this;
+		}
+
+		if(!stream.eof())
+		{
+			std::vector < std::string > namespaces_class;
+			GMetaNamespace* nm = &GMetaNamespaceList::_global();
+			istringstream str_stream(class_name);
+			for (std::string nmstr; std::getline(str_stream, nmstr, ':');)
+			{
+				namespaces_class.push_back(nmstr);
+			}
+
+			for (int i = 0; i < namespaces_class.size() - 1; i++)
+			{
+				nm = nm->getMetaNamespace(namespaces_class[i].c_str());
+			}
+
+			GMetaclass* metaclass = nm->getMetaclass(namespaces_class.back().c_str());
+			*_obj = metaclass->createInstance();
+			
+			setObject_id(*_obj, unique_id);
+
+			while (!stream.eof())
+			{
+				std::getline(stream, line);
+				auto pos = line.find(objectDelimiter);
+				if (pos != string::npos)
+				{
+					break;
+				}
+				else
+				{
+					std::pair<string, string> prop = parseProperty(line);
+					if (!prop.first.empty())
+					{
+						auto metaprop = metaclass->getProperty(prop.first.c_str());
+						if (metaprop != nullptr)
+						{
+							metaprop->readASCIIValue(std::istringstream(prop.second), *_obj);
+						}
+					}
+				}
+			}
+		}
+
+		//(*_obj)->deserialize(*this, version);
 
 		addReferenceProviders((*_obj)->getObjectId(), (*_obj));
 

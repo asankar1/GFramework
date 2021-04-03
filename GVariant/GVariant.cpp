@@ -1,6 +1,6 @@
 #include <sstream>
-#include <GVariant/GVariant.h>
-#include <GVariant/GProperty.h>
+#include <GFramework/GVariant/GVariant.h>
+#include <GFramework/GVariant/GProperty.h>
 
 using namespace std;
 

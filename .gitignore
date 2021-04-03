@@ -40,10 +40,11 @@
 
 # Project specific folders
 third_party/
-Build/
+Build*/
 output/
 Documentation/Output
 _Sample/
+Exec*
 
 # Project specific files
 Documentation/DUMP

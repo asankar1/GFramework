@@ -1,4 +1,4 @@
-#include <GReflection/GReflection.h>
+#include <GFramework/GReflection/GReflection.h>
 
 
 namespace GFramework
@@ -133,6 +133,22 @@ namespace GFramework
 		return mc;
 	}
 
+	std::string GMetaclass::getFullNamespace()
+	{
+		std::string nmstr = name;
+		GMetaNamespace* nm = parentNamespace;
+		while (nm != nullptr)
+		{
+			if(std::string(nm->getName()) != "")
+			{
+				nmstr.insert(0, ":");
+				nmstr.insert(0, nm->getName());
+			}
+			nm = nm->getParentNamespace();
+		}
+		return nmstr;
+	}
+
 	void GMetaclass::addConstructor(const char* _name, GMetaconstructor* _c)
 	{
 		assert(_name && "GMetaclass::addConstructor name must not be null");
@@ -184,6 +200,7 @@ namespace GFramework
 	GMetaclass::GMetaclass():name("")
 	{
 		properties_version = 0;
+		parentNamespace = nullptr;
 	}
 
 	GMetaNamespaceList::GMetaNamespaceList() {
@@ -218,6 +235,7 @@ namespace GFramework
 	GMetaNamespace::GMetaNamespace(const char* namespace_name) {
 		assert(namespace_name);
 		name = namespace_name;
+		parentNamespace = nullptr;
 		//metaclassList = new GMetaclassList();
 	}
 
@@ -236,7 +254,10 @@ namespace GFramework
 
 	GMetaNamespace& GMetaNamespace::_namespace(const char* namespace_name)
 	{
-		return namespaceList._namespace(namespace_name);
+		GMetaNamespace* childNamespace = &(namespaceList._namespace(namespace_name));
+		childNamespace->parentNamespace = this;
+		childMetanamespacelist[std::string(namespace_name) ] = childNamespace;
+		return *childNamespace;
 	}
 
 	void GMetaNamespace::print(std::string indent)
@@ -262,5 +283,19 @@ namespace GFramework
 			return nullptr;
 		}
 		return itr->second;
+	}
+	GMetaNamespace * GMetaNamespace::getMetaNamespace(const char * namespace_name)
+	{
+		GMetaNamespace * nm = nullptr;
+		auto itr = childMetanamespacelist.find(std::string(namespace_name));
+		if (itr != childMetanamespacelist.end())
+		{
+			nm = itr->second;
+		}
+		return nm;
+	}
+	GMetaNamespace * GMetaNamespace::getParentNamespace()
+	{
+		return parentNamespace;
 	}
 }

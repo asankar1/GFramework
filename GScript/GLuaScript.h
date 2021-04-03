@@ -4,9 +4,9 @@
 #include <vector>
 #include <set>
 #include <mutex>
-#include <GScript/GFrameworkLua.h>
-#include <GScript/GLua_data_exchange.h>
-#include <GVariant/GVariant.h>
+#include <GFramework/GScript/GFrameworkLua.h>
+#include <GFramework/GScript/GLua_data_exchange.h>
+#include <GFramework/GVariant/GVariant.h>
 
 namespace GFramework
 {

@@ -1,28 +1,53 @@
 #pragma once
+#include <typeinfo>
+#include <typeindex>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <limits>
 #include <glm/gtc/type_ptr.hpp>
-#include <GVariant/GTypes.h>
+#include <GFramework/GVariant/GTypes.h>
 //#include <GSerializer.h>
-#include <GVariant/GVariant.h>
+#include <GFramework/GVariant/GVariant.h>
 
 namespace GFramework
 {
 	class GObject;
+	class GPropertyInterface;
+	typedef std::shared_ptr<GPropertyInterface> GPropertyInterfaceSharedPtr;
+	typedef std::unique_ptr<GPropertyInterface> GPropertyInterfaceUniquePtr;
 
 	void register_lua_script_functions(lua_State *L, std::vector<luaL_Reg>& GPropertiesList);
+
+	template <typename T>
+	class GFRAMEWORK_API GPropertyConverter
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(T t);
+	};
 
 	class GFRAMEWORK_API GPropertyInterface
 	{
 	public:
+		template<typename T>
+		static public GPropertyInterfaceUniquePtr ToProperty(T value)
+		{
+			return GPropertyConverter<T>::convertToProperty(value);
+		}
 		virtual void set(GVariant& _value) = 0;
 		virtual GVariant get() const = 0;
 		virtual std::ostream& writeBinaryValue(std::ostream& os) const = 0;
 		virtual std::istream& readBinaryValue(std::istream& is) = 0;
 		virtual std::ostream& writeASCIIValue(std::ostream& os) const = 0;
 		virtual std::istream& readASCIIValue(std::istream& is) = 0;
+		virtual bool isGObjectPointer() {
+			return false;
+		}
+
+		virtual std::type_index getPointedGObjectTypeIndex() {
+			assert(false && "getPointedGObjectTypeIndex cannot be called on a property that is not GPointerProperty<>");
+			return typeid(void);
+		}
 	protected:
 		GPropertyInterface() {}
 	};
@@ -132,6 +157,14 @@ namespace GFramework
 			}
 		}
 
+		virtual bool isGObjectPointer() {
+			return true;
+		}
+
+		virtual std::type_index getPointedGObjectTypeIndex() {
+			return typeid(T);
+		}
+
 		virtual void set(GVariant& _value) {
 			setValue(GVariant::cast<T*>(_value));
 		}
@@ -203,6 +236,176 @@ namespace GFramework
 
 	private:
 		T* value;
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<glm::vec2>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec2 value)
+		{
+			return std::make_unique< GGlmProperty<glm::vec2> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<glm::vec3>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec3 value)
+		{
+			return std::make_unique< GGlmProperty<glm::vec3> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<glm::vec4>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec4 value)
+		{
+			return std::make_unique< GGlmProperty<glm::vec4> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<glm::mat2>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat2 value)
+		{
+			return std::make_unique< GGlmProperty<glm::mat2> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<glm::mat3>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat3 value)
+		{
+			return std::make_unique< GGlmProperty<glm::mat3> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<glm::mat4>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat4 value)
+		{
+			return std::make_unique< GGlmProperty<glm::mat4> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<bool>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(bool value)
+		{
+			return std::make_unique< GArithmeticProperty<bool> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<int8>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(int8 value)
+		{
+			return std::make_unique< GArithmeticProperty<int8> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<uint8>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(uint8 value)
+		{
+			return std::make_unique< GArithmeticProperty<uint8> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<int16>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(int16 value)
+		{
+			return std::make_unique< GArithmeticProperty<int16> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<uint16>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(uint16 value)
+		{
+			return std::make_unique< GArithmeticProperty<uint16> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<int32>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(int32 value)
+		{
+			return std::make_unique< GArithmeticProperty<int32> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<uint32>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(uint32 value)
+		{
+			return std::make_unique< GArithmeticProperty<uint32> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<int64>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(int64 value)
+		{
+			return std::make_unique< GArithmeticProperty<int64> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<uint64>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(uint64 value)
+		{
+			return std::make_unique< GArithmeticProperty<uint64> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<float>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(float value)
+		{
+			return std::make_unique< GArithmeticProperty<float> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<double>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertToProperty(double value)
+		{
+			return std::make_unique< GArithmeticProperty<double> >(value);
+		}
 	};
 
 	/*template<typename T>

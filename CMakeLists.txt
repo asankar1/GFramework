@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
 
 message(STATUS "-----------------------------------")
 message(STATUS "Main CMakeLists file for GFramework")
@@ -60,7 +60,7 @@ add_library(
 	gframework_static
 	STATIC
 	$<TARGET_OBJECTS:gvariant_static>
-	#$<TARGET_OBJECTS:gserialization_static>
+	$<TARGET_OBJECTS:gserialization_static>
 	$<TARGET_OBJECTS:greflection_static>
 	$<TARGET_OBJECTS:gscript_static>
 )
@@ -69,7 +69,7 @@ add_library(
 	gframework_shared
 	SHARED
 	$<TARGET_OBJECTS:gvariant_shared>
-	#$<TARGET_OBJECTS:gserialization_shared>
+	$<TARGET_OBJECTS:gserialization_shared>
 	$<TARGET_OBJECTS:greflection_shared>
 	$<TARGET_OBJECTS:gscript_shared>
 )

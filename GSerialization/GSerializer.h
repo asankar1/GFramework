@@ -3,24 +3,14 @@
 #include <mutex>
 #include <vector>
 #include <fstream>
-//#include <GReflection/GReflection.h>
-
-#ifdef VARIANT_DYNAMIC_LIBRARY
-#ifdef DLL_EXPORT
-#define LIBRARY_API __declspec( dllexport )
-#else
-#define LIBRARY_API __declspec( dllimport )
-#endif
-#else
-#define LIBRARY_API
-#endif
+//#include <GFramework/GReflection/GReflection.h>
 
 namespace GFramework
 {
 	class GObject;
 	class GMetaproperty;
 
-	class LIBRARY_API GSerializer
+	class GFRAMEWORK_API GSerializer
 	{
 	public:
 		virtual ~GSerializer();
@@ -39,7 +29,7 @@ namespace GFramework
 	};
 
 #if 1
-	class LIBRARY_API GBinarySerializer : public GSerializer
+	class GFRAMEWORK_API GBinarySerializer : public GSerializer
 	{
 	public:
 		virtual ~GBinarySerializer();
@@ -49,17 +39,20 @@ namespace GFramework
 		virtual GSerializer& operator<<(GObject* _obj) override;
 };
 #endif
-	class LIBRARY_API GTextSerializer : public GSerializer
+	class GFRAMEWORK_API GTextSerializer : public GSerializer
 	{
 	public:
+		GTextSerializer();
 		virtual ~GTextSerializer();
 		virtual bool open(const char* filename) override;
 		virtual bool writeMetaProperty(const GObject* _obj, GMetaproperty* property) override;
 		virtual GSerializer& operator<<(GObject& _obj) override;
 		virtual GSerializer& operator<<(GObject* _obj) override;
+	protected:
+		const char* objectDelimiter;
 	};
 
-	class LIBRARY_API GDeserializer
+	class GFRAMEWORK_API GDeserializer
 	{
 	public:
 		virtual ~GDeserializer();
@@ -70,6 +63,7 @@ namespace GFramework
 		static void addReferenceSeeker(unsigned int _object_id, GObjectSharedPtr* _seeking_object);
 		static void addReferenceProviders(unsigned int _object_id, GObject* _providing_object);
 		void resolveDependencies();
+		void setObject_id(GObject* _obj, uint32 id);
 	protected:
 		static std::mutex reference_seeker_mutex;
 		static std::mutex reference_provider_mutex;
@@ -78,7 +72,7 @@ namespace GFramework
 		std::ifstream stream;
 	};
 
-	class LIBRARY_API GBinaryDeSerializer : public GDeserializer
+	class GFRAMEWORK_API GBinaryDeSerializer : public GDeserializer
 	{
 	public:
 		virtual ~GBinaryDeSerializer();
@@ -87,12 +81,16 @@ namespace GFramework
 		virtual bool readMetaProperty(GObject* _obj, GMetaproperty* property) override;
 	};
 
-	class LIBRARY_API GTextDeSerializer : public GDeserializer
+	class GFRAMEWORK_API GTextDeSerializer : public GDeserializer
 	{
 	public:
+		GTextDeSerializer();
 		virtual ~GTextDeSerializer();
 		virtual bool open(const char* filename) override;
 		virtual GDeserializer& operator >> (GObject** _obj) override;
 		virtual bool readMetaProperty(GObject* _obj, GMetaproperty* property) override;
+	protected:
+		const char* objectDelimiter;
+		virtual std::pair<std::string, std::string> parseProperty(std::string line);
 	};
 }
