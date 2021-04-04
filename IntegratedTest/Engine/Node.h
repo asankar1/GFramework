@@ -2,8 +2,8 @@
 #include <vector>
 #include <glm/vec3.hpp>
 #include <boost/shared_ptr.hpp>
-#include <GVariant/GObject.h>
-#include <GReflection/GReflection.h>
+#include <GFramework/GVariant/GObject.h>
+#include <GFramework/GReflection/GReflection.h>
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT

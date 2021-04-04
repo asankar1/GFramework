@@ -1,4 +1,4 @@
-#include <GReflection/GReflection.h>
+#include <GFramework/GReflection/GReflection.h>
 #include <GEditor/utilities/logger.h>
 #include <GEditor/ui/menus/contextmenu.h>
 #include <GEditor/ui/windows/projectwindow.h>

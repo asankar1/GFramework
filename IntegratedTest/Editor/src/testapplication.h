@@ -7,8 +7,6 @@ using namespace GFramework::Editor;
 
 class TestApplication : public Application
 {
-	Q_OBJECT
-
 public:
 	TestApplication(int &argc, char **argv);
 	~TestApplication();
