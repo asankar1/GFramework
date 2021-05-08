@@ -5,6 +5,7 @@ message(STATUS "Main CMakeLists file for GFramework Test")
 message(STATUS "----------------------------------------")
 
 set(TEST_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(GFRAMEWORK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../output/GFramework)
 set(CMAKE_MODULE_PATH ${TEST_ROOT}/../cmake ${CMAKE_MODULE_PATH})
 set(THIRDPARTY_LUA_PATH ${TEST_ROOT}/../third_party/lua-5.3.4 CACHE PATH "Lua path")
 set(THIRDPARTY_GLM_PATH ${TEST_ROOT}/../third_party/glm_0_9_8_3 CACHE PATH "glm path")
@@ -42,7 +43,7 @@ include_directories(${TEST_ROOT}/../..)
 include_directories(${THIRDPARTY_LUA_PATH}/src)
 include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
-
+link_directories(${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
 
 if("${CMAKE_BUILD_TYPE} " STREQUAL " ")
 	set(GFRAMEWORK_BUILD_TYPE "$(Configuration)")
@@ -109,7 +110,7 @@ set_property(TARGET gframework_shared_test PROPERTY CXX_STANDARD 14)
 set_property(TARGET gframework_static_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
 set_property(TARGET gframework_shared_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
 
-install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib gframework_shared
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib
 			CONFIGURATIONS Debug
 			RUNTIME DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
 		)
@@ -120,7 +121,7 @@ install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMP
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
 		)
 		
-install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib gframework_shared
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_shared_lib
 			CONFIGURATIONS Release
 			RUNTIME DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 		)

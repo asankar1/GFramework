@@ -1,9 +1,11 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    ./Editor \
-    Engine \
-    ../GEditor
+            Engine \
+            ../GEditor \
+            ./Editor
+
+
 
  #Editor.depends = Engine
 
