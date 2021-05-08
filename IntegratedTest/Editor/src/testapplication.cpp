@@ -14,7 +14,7 @@ using namespace GFrameworkTest;
 TestApplication::TestApplication(int &argc, char **argv)
 	: Application(argc, argv)
 {
-	//config.applicationName = "GFrameworkTestApp";
+    //config.applicationName = "GFrameworkTestApp";
 }
 
 TestApplication::~TestApplication()

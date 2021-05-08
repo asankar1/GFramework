@@ -15,7 +15,7 @@ public:
 
 private:
 	TestProject(QFile* proj_file);
-    ProjectSection* sceneGraphSection;
-    GObjectSharedPtr sceneGraphRoot;
+        ProjectSection* sceneGraphSection;
+        GObjectSharedPtr sceneGraphRoot;
 	friend TestApplication;
 };
