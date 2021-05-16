@@ -457,7 +457,9 @@ namespace GFramework
 		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
 			const C* o = static_cast<const C*>(obj);
-			GPropertyInterface::ToProperty((o->*getter)())->writeASCIIValue(*os.getStream());
+			using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
+			auto prop = GPropertyUtility<arg_type>::create((o->*getter)());
+			prop->writeASCIIValue(*os.getStream());
 			return os;
 			//return (o->*getter)().writeASCIIValue(os);
 			//return (o->*ptr).writeASCIIValue(os);
@@ -468,8 +470,7 @@ namespace GFramework
 			//TODO: Write a Text/Binary deser for non GProperty
 			C* o = static_cast<C*>(obj);
 			using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-			arg_type value = arg_type();
-			auto prop = GPropertyInterface::ToProperty(value);
+			auto prop = GPropertyUtility<arg_type>::create();
 			is >> (*prop);
 			//prop.readASCIIValue(is);
 			(o->*setter)(GVariant::cast<arg_type>(prop->get()));

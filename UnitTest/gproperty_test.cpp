@@ -216,7 +216,7 @@ void GFRAMEWORK_TEST_API run_property_testcases()
 		shared_ptr<property_test::Node> n1 = make_shared<property_test::Node>(23);
 		{
 			shared_ptr<property_test::Node> n2 = make_shared<property_test::Node>(47);
-			n1->interested_object.setValue(n2.get());
+			n1->interested_object.setValue(n2);
 			assert(n1->interested_object.getValue()->id == 47);
 		}
 		assert(n1->interested_object.getValue() == nullptr);
