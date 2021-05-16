@@ -25,12 +25,28 @@ namespace GFramework
 		close();
 	}
 
+	bool GSerializer::open(OStreamSharedPtr _stream)
+	{
+		if (!_stream->good())
+		{
+			return false;
+		}
+		stream = _stream;
+		return true;
+	}
+
 	void GSerializer::close()
 	{
-		if (stream.is_open())
+		/*if (stream->is_open())
 		{
 			stream.close();
-		}
+		}*/
+		stream->flush();
+	}
+
+	OStreamSharedPtr GSerializer::getStream()
+	{
+		return stream;
 	}
 	
 	GBinarySerializer::~GBinarySerializer()
@@ -38,23 +54,22 @@ namespace GFramework
 		close();
 	}
 
-	bool GBinarySerializer::open(const char* filename)
+	bool GBinarySerializer::open(OStreamSharedPtr _stream)
 	{
-		stream.open(filename, ios_base::out | ios_base::binary);
-		if (!stream.is_open())
+		if (!_stream->good())
 		{
 			return false;
 		}
-
+		stream = _stream;
 		return true;
 	}
 
 	bool GBinarySerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* property)
 	{
-		property->writeBinaryValue(stream, _obj);
+		property->writeBinaryValue(*this, _obj);
 		return true;
 	}
-
+	/*
 	GSerializer & GBinarySerializer::operator<<(GObject &_obj)
 	{
 		return (*this) << &_obj;
@@ -62,7 +77,7 @@ namespace GFramework
 
 	GSerializer & GBinarySerializer::operator<<(GObject *_obj)
 	{
-		if (!stream.is_open())
+		if (!stream->good())
 			return *this;
 
 		GMetaclass* m = _obj->getMetaclass();
@@ -71,27 +86,26 @@ namespace GFramework
 		const char* classname = nmstr.c_str();
 		size_t len = strlen(classname) + 1;
 		unsigned int version = m->getVersion();
-		stream.write((const char*)&len, sizeof(len));
-		stream.write(classname, len);
-		stream.write((const char*)&version, sizeof(version));
+		stream->write((const char*)&len, sizeof(len));
+		stream->write(classname, len);
+		stream->write((const char*)&version, sizeof(version));
 
 		_obj->serialize(*this);
 		return *this;
 	}
-
+	*/
 	GTextSerializer::GTextSerializer() : objectDelimiter("#---------------#")
 	{
 
 	}
 
-	bool GTextSerializer::open(const char* filename)
+	bool GTextSerializer::open(OStreamSharedPtr _stream)
 	{
-		stream.open(filename, ios_base::out);
-		if (!stream.is_open())
+		if (!_stream->good())
 		{
 			return false;
 		}
-
+		stream = _stream;
 		return true;
 	}
 
@@ -102,29 +116,29 @@ namespace GFramework
 
 	bool GTextSerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* property)
 	{
-		stream << property->getName() << ":";
-		property->writeASCIIValue(stream, _obj);
-		stream << endl;
+		*stream << property->getName() << ":";
+		property->writeASCIIValue(*this, _obj);
+		*stream << endl;
 		return true;
 	}
 
-	GSerializer & GTextSerializer::operator<<(GObject &_obj)
+	/*GSerializer & GTextSerializer::operator<<(GObject &_obj)
 	{
 		return (*this) << &_obj;
 	}
 
 	GSerializer & GTextSerializer::operator<<(GObject *_obj)
 	{
-		if (!stream.is_open())
+		if (!stream->good())
 			return *this;
 
 		GMetaclass* m = _obj->getMetaclass();
 		string nmstr = m->getFullNamespace();
 		//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
 		//const char* classname = m->getName().c_str();
-		stream << "class name:" << nmstr << endl;
-		stream << "ObjectId:" << _obj->getObjectId() << endl;
-		stream << "class version:" << m->getVersion() << endl;
+		*stream << "class name:" << nmstr << endl;
+		*stream << "ObjectId:" << _obj->getObjectId() << endl;
+		*stream << "class version:" << m->getVersion() << endl;
 		//_obj->serialize(*this);
 
 		std::vector<std::string> p_list;
@@ -137,9 +151,9 @@ namespace GFramework
 
 			writeMetaProperty(_obj, p);
 		}
-		stream << objectDelimiter << endl;
+		*stream << objectDelimiter << endl;
 		return *this;
-	}
+	}*/
 
 	void GDeserializer::setObject_id(GObject* _obj, uint32 id)
 	{
@@ -192,14 +206,24 @@ namespace GFramework
 		reference_providers[_object_id] = _providing_object;
 	}
 
+	bool GDeserializer::open(IStreamSharedPtr _stream)
+	{
+		if (!_stream->good())
+		{
+			return false;
+		}
+		stream = _stream;
+		return true;
+	}
+
+	IStreamSharedPtr GDeserializer::getStream()
+	{
+		return stream;
+	}
+
 	void GDeserializer::close()
 	{
-		if(!stream.is_open())
-		{ 
-			return;
-		}
 		resolveDependencies();
-		stream.close();
 	}
 
 	GDeserializer::~GDeserializer()
@@ -207,33 +231,32 @@ namespace GFramework
 		close();
 	}
 
-	bool GBinaryDeSerializer::open(const char* filename)
+	bool GBinaryDeSerializer::open(IStreamSharedPtr _stream)
 	{
-		stream.open(filename, ios_base::in);
-		if (!stream.is_open())
+		if (!_stream->good())
 		{
 			return false;
 		}
-
+		stream = _stream;
 		return true;
 	}
 
 	bool GBinaryDeSerializer::readMetaProperty(GObject* _obj, GMetaproperty* property)
 	{
-		property->readBinaryValue(stream, _obj);
+		property->readBinaryValue(*this, _obj);
 		return true;
 	}
-
+	/*
 	GDeserializer & GBinaryDeSerializer::operator >> (GObject **_obj)
 	{
 		size_t len = 0;
-		stream.read((char*)&len, sizeof(len));
+		stream->read((char*)&len, sizeof(len));
 
 		char* classname = new char[len];
-		stream.read(classname, len);
+		stream->read(classname, len);
 		
 		unsigned int version = 0;				
-		stream.read((char*)&version, sizeof(version));
+		stream->read((char*)&version, sizeof(version));
 
 		std::vector < std::string > namespaces_class;
 		GMetaNamespace* nm = &GMetaNamespaceList::_global();
@@ -258,7 +281,7 @@ namespace GFramework
 		addReferenceProviders((*_obj)->getObjectId(), (*_obj));
 
 		return *this;
-	}
+	}*/
 
 	GBinaryDeSerializer::~GBinaryDeSerializer()
 	{
@@ -270,20 +293,19 @@ namespace GFramework
 
 	}
 
-	bool GTextDeSerializer::open(const char* filename)
+	bool GTextDeSerializer::open(IStreamSharedPtr _stream)
 	{
-		stream.open(filename, ios_base::in);
-		if (!stream.is_open())
+		if (!_stream->good())
 		{
 			return false;
 		}
-
+		stream = _stream;
 		return true;
 	}
 
 	bool GTextDeSerializer::readMetaProperty(GObject* _obj, GMetaproperty* property)
 	{
-		property->readASCIIValue(stream, _obj);
+		property->readASCIIValue(*this, _obj);
 		return true;
 	}
 
@@ -295,20 +317,20 @@ namespace GFramework
 		return std::make_pair(key, value);
 	}
 
-	GDeserializer & GTextDeSerializer::operator>>(GObject **_obj)
+	/*GDeserializer & GTextDeSerializer::operator>>(GObject **_obj)
 	{
 		string line;
 		string class_name;
 		do
 		{
-			std::getline(stream , line);
+			std::getline(*stream , line);
 			auto pos = line.find("class name:");
 			if (pos != string::npos)
 			{
 				class_name = line.substr(pos + strlen("class name:"));
 				break;
 			}
-		} while (!stream.eof());
+		} while (!stream->eof());
 
 		if (class_name.empty())
 		{
@@ -318,7 +340,7 @@ namespace GFramework
 		uint32 unique_id= 0;
 		do
 		{
-			std::getline(stream, line);
+			std::getline(*stream, line);
 			auto pos = line.find("ObjectId:");
 			if (pos != string::npos)
 			{
@@ -326,7 +348,7 @@ namespace GFramework
 				std::istringstream(line) >> unique_id;
 				break;
 			}
-		} while (!stream.eof());
+		} while (!stream->eof());
 
 		if (line.empty())
 		{
@@ -336,7 +358,7 @@ namespace GFramework
 		unsigned int version = 0;
 		do
 		{
-			std::getline(stream, line);
+			std::getline(*stream, line);
 			auto pos = line.find("class version:");
 			if (pos != string::npos)
 			{
@@ -344,14 +366,14 @@ namespace GFramework
 				std::istringstream(line) >> version;
 				break;
 			}
-		} while (!stream.eof());
+		} while (!stream->eof());
 
 		if (line.empty())
 		{
 			return *this;
 		}
 
-		if(!stream.eof())
+		if(!stream->eof())
 		{
 			std::vector < std::string > namespaces_class;
 			GMetaNamespace* nm = &GMetaNamespaceList::_global();
@@ -371,9 +393,9 @@ namespace GFramework
 			
 			setObject_id(*_obj, unique_id);
 
-			while (!stream.eof())
+			while (!stream->eof())
 			{
-				std::getline(stream, line);
+				std::getline(*stream, line);
 				auto pos = line.find(objectDelimiter);
 				if (pos != string::npos)
 				{
@@ -399,7 +421,7 @@ namespace GFramework
 		addReferenceProviders((*_obj)->getObjectId(), (*_obj));
 
 		return *this;
-	}
+	}*/
 
 	GTextDeSerializer::~GTextDeSerializer()
 	{

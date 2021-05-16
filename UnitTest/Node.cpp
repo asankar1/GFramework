@@ -25,7 +25,7 @@ using namespace GFrameworkTest;
 	BEGIN_DEFINE_META(Node)
 		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
 		.function("NodeFileInfo", NodeFileInfo)
-		.define<Node>("node")
+		.define<Node>("Node")
 		.baseMetaclass("GObject", { "GFramework" })
 		.version(1)
 		.functionPublic("about", &Node::about)
@@ -36,7 +36,7 @@ using namespace GFrameworkTest;
 		.functionPublic("addChild", &Node::addChild)
 		.functionPublic("getChild", &Node::getChild)
 		.property("visibility", &Node::visibility)
-		.property("Position", &Node::getPosition, &Node::setPosition)
+		/*.property("Position", &Node::getPosition, &Node::setPosition)*/
 		/*.editableProperty("position", &Node::position)*/
 		.property("parent", &Node::parent);
 	END_DEFINE_META(Node)
@@ -86,7 +86,7 @@ namespace GFrameworkTest
 		cout << "Node '" << getName() << "' initialized." << endl;
 	}
 
-	GMetaclass* Node::getMetaclass()
+	GMetaclass* Node::getMetaclass() const
 	{
 		return GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node");
 	}

@@ -17,12 +17,14 @@ file(
 	GLOB
 	header_files
 	${GSERIALIZATION_ROOT}/GSerializer.h
+	${GSERIALIZATION_ROOT}/GStringSerializer.h
 )
 
 file(
 	GLOB
 	source_files
 	${GSERIALIZATION_ROOT}/GSerializer.cpp
+	${GSERIALIZATION_ROOT}/GStringSerializer.cpp
 )
 
 add_library(

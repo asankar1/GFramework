@@ -23,7 +23,7 @@ namespace property_test {
 			int i = 0;
 		}
 
-		virtual GMetaclass* getMetaclass() override {
+		virtual GMetaclass* getMetaclass() const override {
 			return nullptr;
 		}
 

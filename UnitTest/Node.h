@@ -96,7 +96,7 @@ namespace GFrameworkTest
 		*/
 		virtual void initialize();
 
-		virtual GMetaclass* getMetaclass();
+		virtual GMetaclass* getMetaclass() const;
 
 		//protected://TODO: Fix
 		Node():GObject() {}

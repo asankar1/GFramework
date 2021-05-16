@@ -60,7 +60,7 @@ namespace GFramework
 	void register_lua_script_functions(lua_State *L, vector<luaL_Reg>& GPropertiesList)
 	{
 		GPropertiesList.push_back({ "newVec2", new_vec2_data });
-	}	
+	}
 
 	template <typename T>
 	GArithmeticProperty<T>::GArithmeticProperty(T v):value(v) {
@@ -135,8 +135,8 @@ namespace GFramework
 		return is;
 	}
 
-	GStringProperty::GStringProperty() {
-
+	GStringProperty::GStringProperty(const std::string v) {
+		value = v;
 	}
 
 	void GStringProperty::set(GVariant& _value) {
@@ -257,7 +257,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<GObject>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(GObject* value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(GObject* value)
 		{
 			return std::make_unique< GPointerProperty<GObject> >(value);
 		}

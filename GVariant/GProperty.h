@@ -23,7 +23,8 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(T t);
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(T t);
+		static T parseTextToData(std::istream& is);
 	};
 
 	class GFRAMEWORK_API GPropertyInterface
@@ -32,7 +33,7 @@ namespace GFramework
 		template<typename T>
 		static public GPropertyInterfaceUniquePtr ToProperty(T value)
 		{
-			return GPropertyConverter<T>::convertToProperty(value);
+			return GPropertyConverter<T>::convertDataToGProperty(value);
 		}
 		virtual void set(GVariant& _value) = 0;
 		virtual GVariant get() const = 0;
@@ -82,7 +83,7 @@ namespace GFramework
 	class GFRAMEWORK_API GStringProperty : public GPropertyInterface
 	{
 	public:
-		GStringProperty();
+		GStringProperty(const std::string v = "");
 
 		virtual void set(GVariant& _value);
 
@@ -242,9 +243,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::vec2>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec2 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::vec2 value)
 		{
 			return std::make_unique< GGlmProperty<glm::vec2> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::vec2 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -252,9 +265,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::vec3>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec3 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::vec3 value)
 		{
 			return std::make_unique< GGlmProperty<glm::vec3> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::vec3 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -262,9 +287,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::vec4>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec4 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::vec4 value)
 		{
 			return std::make_unique< GGlmProperty<glm::vec4> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::vec4 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -272,9 +309,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::mat2>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat2 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::mat2 value)
 		{
 			return std::make_unique< GGlmProperty<glm::mat2> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::mat2 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -282,9 +331,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::mat3>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat3 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::mat3 value)
 		{
 			return std::make_unique< GGlmProperty<glm::mat3> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::mat3 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -292,9 +353,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::mat4>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat4 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::mat4 value)
 		{
 			return std::make_unique< GGlmProperty<glm::mat4> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::mat4 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -302,7 +375,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<bool>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(bool value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(bool value)
 		{
 			return std::make_unique< GArithmeticProperty<bool> >(value);
 		}
@@ -312,7 +385,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int8>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int8 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int8 value)
 		{
 			return std::make_unique< GArithmeticProperty<int8> >(value);
 		}
@@ -322,7 +395,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint8>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint8 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint8 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint8> >(value);
 		}
@@ -332,7 +405,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int16>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int16 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int16 value)
 		{
 			return std::make_unique< GArithmeticProperty<int16> >(value);
 		}
@@ -342,7 +415,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint16>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint16 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint16 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint16> >(value);
 		}
@@ -352,7 +425,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int32>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int32 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int32 value)
 		{
 			return std::make_unique< GArithmeticProperty<int32> >(value);
 		}
@@ -362,7 +435,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint32>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint32 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint32 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint32> >(value);
 		}
@@ -372,7 +445,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int64>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int64 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int64 value)
 		{
 			return std::make_unique< GArithmeticProperty<int64> >(value);
 		}
@@ -382,7 +455,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint64>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint64 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint64 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint64> >(value);
 		}
@@ -392,7 +465,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<float>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(float value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(float value)
 		{
 			return std::make_unique< GArithmeticProperty<float> >(value);
 		}
@@ -402,9 +475,19 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<double>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(double value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(double value)
 		{
 			return std::make_unique< GArithmeticProperty<double> >(value);
+		}
+	};
+
+	template <>
+	class GFRAMEWORK_API GPropertyConverter <std::string>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(std::string value)
+		{
+			return std::make_unique< GStringProperty >(value);
 		}
 	};
 

@@ -78,6 +78,8 @@ namespace GFramework
 	class GMetaMemberfunction;
 	class GMetaconstructor;
 	class GMetaproperty;
+	class GSerializer;
+	class GDeserializer;
 
 	typedef GMetafunction GMetaStaticfunction;
 
@@ -126,7 +128,7 @@ namespace GFramework
 			static GMetaclassList _o;
 			return _o;
 		}*/
-		void print(std::string indent="");
+		void print(std::string indent = "");
 		~GMetaclassList();
 	private:
 		GMetaclassList();
@@ -156,19 +158,20 @@ namespace GFramework
 		virtual std::type_index getTypeInfo() = 0;
 		virtual bool isGObjectPointer() = 0;
 		virtual std::type_index getPointedGObjectTypeIndex() = 0;
-		virtual void set(void* _object, GVariant &value) = 0;
+		virtual void set(void* _object, GVariant& value) = 0;
 		virtual GVariant get(void* _object) = 0;
-		virtual std::ostream& writeBinaryValue(std::ostream& os, const GObject* obj) = 0;
-		virtual std::istream& readBinaryValue(std::istream& is, GObject* obj) = 0;
-		virtual std::ostream& writeASCIIValue(std::ostream& os, const GObject* obj) = 0;
-		virtual std::istream& readASCIIValue(std::istream& is, GObject* obj) = 0;
+		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) = 0;
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) = 0;
+		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) = 0;
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) = 0;
+		virtual void write(GSerializer* os, const GObject* obj) { }
 	protected:
 		GMetaproperty(const char* _name) {
 			name = std::string(_name);
 		}
 		std::string name;
-};
-
+	};
+#if 0
 	template<typename C, typename T>
 	class GDerivedMetaEditableproperty : public GMetaproperty
 	{
@@ -190,7 +193,7 @@ namespace GFramework
 			return mem_type().isGObjectPointer();
 		}
 
-		virtual std::type_index getPointedGObjectTypeIndex()	{
+		virtual std::type_index getPointedGObjectTypeIndex() {
 			//TODO: avoid find_type function invoke
 			auto t = find_type(ptr);
 			using type = decltype(t);
@@ -198,7 +201,7 @@ namespace GFramework
 			return mem_type().getPointedGObjectTypeIndex();
 		}
 
-		void set(void* _object, GVariant &value) {
+		void set(void* _object, GVariant& value) {
 			C* o = static_cast<C*>(_object);
 			(o->*ptr).set(value);// = boost::get<T>(value);
 			if (onupdate_cb) {
@@ -211,22 +214,22 @@ namespace GFramework
 			return (o->*ptr).get();
 		}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os, const GObject* obj) {
+		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) {
 			const C* o = static_cast<const C*>(obj);
 			return (o->*ptr).writeBinaryValue(os);
 		}
 
-		virtual std::istream& readBinaryValue(std::istream& is, GObject* obj) {
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
 			C* o = static_cast<C*>(obj);
 			return (o->*ptr).readBinaryValue(is);
 		}
 
-		virtual std::ostream& writeASCIIValue(std::ostream& os, const GObject* obj) {
+		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) {
 			const C* o = static_cast<const C*>(obj);
 			return (o->*ptr).writeASCIIValue(os);
 		}
 
-		virtual std::istream& readASCIIValue(std::istream& is, GObject* obj) {
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
 			C* o = static_cast<C*>(obj);
 			return (o->*ptr).readASCIIValue(is);
 		}
@@ -235,13 +238,94 @@ namespace GFramework
 		std::function<void(C*)> onupdate_cb;
 	};
 
-	//for public property (without getter and setter)
-	template<typename C, typename T>
-	class GDerivedMetaproperty : public GMetaproperty
+	template<typename C, typename GETTER_F, typename SETTER_F>
+	class GDerivedNonPublicMetaEditableproperty : public GMetaproperty
 	{
 	public:
-		GDerivedMetaproperty(const char* _name, T _ptr) : GMetaproperty(_name) {
-			ptr = _ptr;
+		GDerivedNonPublicMetaEditableproperty(const char* _name, GETTER_F get, SETTER_F set, std::function<void(C*)> callback) : GMetaproperty(_name) {
+			getter = get;
+			setter = set;
+			onupdate_cb = callback;
+		}
+
+		std::type_index getTypeInfo() {
+			return typeid(ResultType<GETTER_F>);
+		}
+
+		virtual bool isGObjectPointer() {
+			//TODO: avoid find_type function invoke
+			using mem_type = std::remove_pointer<ResultType<GETTER_F> >::type;
+			if (std::is_pointer<mem_type>::value)
+			{
+				if (std::is_base_of<GObject, std::remove_pointer<mem_type>::type >::value)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		virtual std::type_index getPointedGObjectTypeIndex() {
+			//TODO: avoid find_type function invoke
+			using type = ResultType<GETTER_F>;
+			return type_index(typeid(type));
+		}
+
+		void set(void* _object, GVariant& value) {
+			C* o = static_cast<C*>(_object);
+			//(o->*ptr).set(value);// = boost::get<T>(value);
+			(o->*setter)(GVariant::cast<ArgType<SETTER_F, 1>>(value));
+			if (onupdate_cb) {
+				onupdate_cb(o);
+			}
+		}
+
+		GVariant get(void* _object) {
+			C* o = static_cast<C*>(_object);
+			return (o->*getter)();
+		}
+
+		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) {
+			//TODO: Write a Text/Binary deser for non GProperty
+			return os;
+		}
+
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
+			//TODO: Write a Text/Binary deser for non GProperty
+			return is;
+		}
+
+		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) {
+			//TODO: Write a Text/Binary deser for non GProperty
+			const C* o = static_cast<const C*>(obj);
+			return GPropertyInterface::ToProperty((o->*getter)())->writeASCIIValue(os);
+			//return (o->*getter)().writeASCIIValue(os);
+			//return (o->*ptr).writeASCIIValue(os);
+			//return os;
+		}
+
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
+			//TODO: Write a Text/Binary deser for non GProperty
+			/*C* o = static_cast<C*>(obj);
+			std::remove_reference<ArgType<SETTER_F, 1> >::type prop;
+			prop.readASCIIValue(is);
+			(o->*setter)(prop);*/
+			return is;
+		}
+	private:
+	private:
+		GETTER_F getter;
+		SETTER_F setter;
+		std::function<void(C*)> onupdate_cb;
+	};
+#endif	
+	//for public property (without getter and setter)
+	template<typename C, typename T>
+	class GPublicMetaproperty : public GMetaproperty
+	{
+	public:
+		GPublicMetaproperty(const char* _name, T _ptr, std::function<void(C*)> callback) : GMetaproperty(_name), ptr(_ptr), onupdate_cb(callback) {
+
 		}
 
 		std::type_index getTypeInfo() {
@@ -253,7 +337,8 @@ namespace GFramework
 			auto t = find_type(ptr);
 			using type = decltype(t);
 			using mem_type = type::member_var_type;
-			return mem_type().isGObjectPointer();
+			//return mem_type().isGObjectPointer();
+			return false;
 		}
 
 		virtual std::type_index getPointedGObjectTypeIndex() {
@@ -261,50 +346,66 @@ namespace GFramework
 			auto t = find_type(ptr);
 			using type = decltype(t);
 			using mem_type = type::member_var_type;
-			return mem_type().getPointedGObjectTypeIndex();
+			//return mem_type().getPointedGObjectTypeIndex();
+			return typeid(T);
 		}
 
-		void set(void* _object, GVariant &value) {
+		void set(void* _object, GVariant& value) {
 			C* o = static_cast<C*>(_object);
-			(o->*ptr).set(value);// = boost::get<T>(value);
+			//(o->*ptr).set(value);// = boost::get<T>(value);
+			auto t = find_type(ptr);
+			using type = decltype(t);
+			using mem_type = type::member_var_type;
+			(o->*ptr) = GVariant::cast<mem_type&>(value);
+			if (onupdate_cb) {
+				onupdate_cb(o);
+			}
 		}
 
 		GVariant get(void* _object) {
 			C* o = static_cast<C*>(_object);
-			return (o->*ptr).get();
+			//			return (o->*ptr).get();
+			return (o->*ptr);
 		}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os, const GObject* obj) {
+		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) {
 			const C* o = static_cast<const C*>(obj);
-			return (o->*ptr).writeBinaryValue(os);
+			//return (o->*ptr).writeBinaryValue(os);
+			return os;
 		}
 
-		virtual std::istream& readBinaryValue(std::istream& is, GObject* obj) {
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
 			C* o = static_cast<C*>(obj);
-			return (o->*ptr).readBinaryValue(is);
+			//return (o->*ptr).readBinaryValue(is);
+			return is;
 		}
 
-		virtual std::ostream& writeASCIIValue(std::ostream& os, const GObject* obj) {
+		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) {
 			const C* o = static_cast<const C*>(obj);
-			return (o->*ptr).writeASCIIValue(os);
+			//return (o->*ptr).writeASCIIValue(os);
+			os << (o->*ptr);
+			return os;
 		}
 
-		virtual std::istream& readASCIIValue(std::istream& is, GObject* obj) {
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
 			C* o = static_cast<C*>(obj);
-			return (o->*ptr).readASCIIValue(is);
+			//return (o->*ptr).readASCIIValue(is);
+			is >> (o->*ptr);
+			return is;
 		}
+
 	private:
 		T ptr;
+		std::function<void(C*)> onupdate_cb;
+
 	};
 
 	//for protected or private property (with getter and/or setter)
 	template<typename C, typename GETTER_F, typename SETTER_F>
-	class GNonPublicMetaProperty : public GMetaproperty
+	class GNonPublicMetaproperty : public GMetaproperty
 	{
 	public:
-		GNonPublicMetaProperty(const char* name, GETTER_F get, SETTER_F set) : GMetaproperty(name) {
-			getter = get;
-			setter = set;
+		GNonPublicMetaproperty(const char* name, GETTER_F get, SETTER_F set, std::function<void(C*)> callback) : GMetaproperty(name), getter(get), setter(set), onupdate_cb(callback) {
 		}
 
 		std::type_index getTypeInfo() {
@@ -312,7 +413,7 @@ namespace GFramework
 		}
 
 		virtual bool isGObjectPointer() {
-			
+
 			using mem_type = std::remove_pointer<ResultType<GETTER_F> >::type;
 			if (std::is_pointer<mem_type>::value)
 			{
@@ -329,10 +430,13 @@ namespace GFramework
 			return type_index(typeid(type));
 		}
 
-		void set(void* _object, GVariant &value) {
+		void set(void* _object, GVariant& value) {
 			C* o = static_cast<C*>(_object);
 			//(o->*ptr).set(value);// = boost::get<T>(value);
 			(o->*setter)(GVariant::cast<ArgType<SETTER_F, 1>>(value));
+			if (onupdate_cb) {
+				onupdate_cb(o);
+			}
 		}
 
 		GVariant get(void* _object) {
@@ -340,32 +444,41 @@ namespace GFramework
 			return (o->*getter)();
 		}
 
-		virtual std::ostream& writeBinaryValue(std::ostream& os, const GObject* obj) {
+		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
 			return os;
 		}
 
-		virtual std::istream& readBinaryValue(std::istream& is, GObject* obj) {
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
 			return is;
 		}
 
-		virtual std::ostream& writeASCIIValue(std::ostream& os, const GObject* obj) {
+		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
 			const C* o = static_cast<const C*>(obj);
-			return GPropertyInterface::ToProperty((o->*getter)())->writeASCIIValue(os);
+			GPropertyInterface::ToProperty((o->*getter)())->writeASCIIValue(*os.getStream());
+			return os;
 			//return (o->*getter)().writeASCIIValue(os);
 			//return (o->*ptr).writeASCIIValue(os);
 			//return os;
 		}
 
-		virtual std::istream& readASCIIValue(std::istream& is, GObject* obj) {
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
+			C* o = static_cast<C*>(obj);
+			using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
+			arg_type value = arg_type();
+			auto prop = GPropertyInterface::ToProperty(value);
+			is >> (*prop);
+			//prop.readASCIIValue(is);
+			(o->*setter)(GVariant::cast<arg_type>(prop->get()));
 			return is;
 		}
 	private:
 		GETTER_F getter;
 		SETTER_F setter;
+		std::function<void(C*)> onupdate_cb;
 	};
 
 
@@ -373,10 +486,10 @@ namespace GFramework
 	class GFRAMEWORK_API GMetafunction_Base
 	{
 	public:
-		GMetafunction_Base(const char *_name) : name(_name) {
+		GMetafunction_Base(const char* _name) : name(_name) {
 		}
 		const std::string& getName() { return name; }
-		virtual int invoke_lua(lua_State*L) = 0;
+		virtual int invoke_lua(lua_State* L) = 0;
 		//virtual std::string getPrototype() = 0;		
 		virtual std::string getReturntype() = 0;
 		virtual std::string getParameters() = 0;
@@ -489,7 +602,7 @@ namespace GFramework
 	class GMetafunction : public GMetafunction_Base
 	{
 	public:
-		GMetafunction(const char *_name) : GMetafunction_Base(_name) {
+		GMetafunction(const char* _name) : GMetafunction_Base(_name) {
 		}
 		virtual GVariant invoke(std::vector<GVariant>& _args) = 0;
 	};
@@ -497,16 +610,16 @@ namespace GFramework
 	class GMetaMemberfunction : public GMetafunction_Base
 	{
 	public:
-		GMetaMemberfunction(const char *_name) : GMetafunction_Base(_name) {
+		GMetaMemberfunction(const char* _name) : GMetafunction_Base(_name) {
 		}
-		virtual GVariant invoke(void * o, std::vector<GVariant>& args) = 0;
+		virtual GVariant invoke(void* o, std::vector<GVariant>& args) = 0;
 	};
 
 	template<typename C, typename F>
 	class GMetaMemberfunction_derived : public GMetaMemberfunction
 	{
 	public:
-		GMetaMemberfunction_derived(const char *_name, F _f) : GMetaMemberfunction(_name), func(_f) {
+		GMetaMemberfunction_derived(const char* _name, F _f) : GMetaMemberfunction(_name), func(_f) {
 		}
 
 		virtual std::string getReturntype()
@@ -519,7 +632,7 @@ namespace GFramework
 			return PrototypePrintHelper<F, std::make_index_sequence<Arity<F>::value> >::getPublicMemberFunctionPrototype();
 		}
 
-		virtual GVariant invoke(void * _object, std::vector<GVariant>& _args) {
+		virtual GVariant invoke(void* _object, std::vector<GVariant>& _args) {
 			GVariant result;
 			result = member_function_invoke_helper<ResultType<F>, C, F, Arity<F>::value>::call(_object, func, _args);
 			return result;
@@ -542,7 +655,7 @@ namespace GFramework
 	class GMetafunction_derived : public GMetafunction
 	{
 	public:
-		GMetafunction_derived(const char *_name, F _f) : GMetafunction(_name), func(_f) {
+		GMetafunction_derived(const char* _name, F _f) : GMetafunction(_name), func(_f) {
 		}
 
 		virtual std::string getReturntype()
@@ -579,17 +692,17 @@ namespace GFramework
 	class GMetaconstructor : public GMetafunction_Base
 	{
 	public:
-		GMetaconstructor(const char *_name) : GMetafunction_Base(_name) {
+		GMetaconstructor(const char* _name) : GMetafunction_Base(_name) {
 		}
 
-		template<typename T=GObject>
+		template<typename T = GObject>
 		T* invoke(std::vector<GVariant>& _args) {
 			static_assert(std::is_base_of<GObject, T>::value, "Template argument to GMetaconstructor must be derived from GObject!");
 			return static_cast<T*>(invoke_internal(_args));
 		}
 
 	protected:
-		virtual GObject* invoke_internal (std::vector<GVariant>& _args) = 0;
+		virtual GObject* invoke_internal(std::vector<GVariant>& _args) = 0;
 	};
 
 	class GFRAMEWORK_API GMetaNamespaceList
@@ -618,7 +731,7 @@ namespace GFramework
 		GMetaNamespace* getMetaNamespace(const char* namespace_name);
 		GMetaNamespace* getParentNamespace();
 		template<typename FUNC>
-		GMetaNamespace& function(const char *_name, FUNC _f)
+		GMetaNamespace& function(const char* _name, FUNC _f)
 		{
 			auto f = new GMetafunction_derived<FUNC>(_name, _f);
 			metafunctionsList.insert(std::pair<std::string, GMetafunction*>(_name, f));
@@ -675,7 +788,7 @@ namespace GFramework
 	class GDerivedMetaconstructor : public GMetaconstructor
 	{
 	public:
-		GDerivedMetaconstructor(const char *_name) : GMetaconstructor(_name) {
+		GDerivedMetaconstructor(const char* _name) : GMetaconstructor(_name) {
 		}
 
 		virtual std::string getReturntype()
@@ -723,26 +836,26 @@ namespace GFramework
 	public:
 		const std::string& getName() { return name; }
 		virtual GObject* createInstance() = 0;
-		virtual GMetaconstructor* getConstructor(const char *_name) = 0;
-		virtual GMetaMemberfunction* getPublicMemberFunction(const char *_name) = 0;
-		virtual GMetaMemberfunction* getProtectedMemberFunction(const char *_name) = 0;
-		virtual GMetaStaticfunction* getStaticFunction(const char *_name) = 0;
-		virtual GMetaproperty* getProperty(const char *_name) = 0;
-		void getConstructorsList(std::vector<std::string> &constructors_list);
-		void getFunctionsList(std::vector<std::string> &functions_list);
-		void getStaticFunctionsList(std::vector<std::string> &functions_list);
-		void getPropertiesList(std::vector<std::string> &properties_list);
-		void getEditablePropertiesList(std::vector<std::string> &properties_list);
+		virtual GMetaconstructor* getConstructor(const char* _name) = 0;
+		virtual GMetaMemberfunction* getPublicMemberFunction(const char* _name) = 0;
+		virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name) = 0;
+		virtual GMetaStaticfunction* getStaticFunction(const char* _name) = 0;
+		virtual GMetaproperty* getProperty(const char* _name) = 0;
+		void getConstructorsList(std::vector<std::string>& constructors_list);
+		void getFunctionsList(std::vector<std::string>& functions_list);
+		void getStaticFunctionsList(std::vector<std::string>& functions_list);
+		void getPropertiesList(std::vector<std::string>& properties_list);
+		void getEditablePropertiesList(std::vector<std::string>& properties_list);
 		unsigned int getVersion();
 		static GMetaclass* getBaseMetaclass(std::vector<std::string>& class_list);
 		std::string getFullNamespace();
 	protected:
 		void addConstructor(const char* _name, GMetaconstructor* _c);
-		void addPublicFunction(const char *_name, GMetaMemberfunction* _f);
-		void addProtectedFunction(const char *_name, GMetaMemberfunction* _f);
-		void addStaticFunction(const char *_name, GMetaStaticfunction* _f);
-		void addProperty(const char *_name, GMetaproperty* _p);
-		void addEditableProperty(const char *_name, GMetaproperty* _p);
+		void addPublicFunction(const char* _name, GMetaMemberfunction* _f);
+		void addProtectedFunction(const char* _name, GMetaMemberfunction* _f);
+		void addStaticFunction(const char* _name, GMetaStaticfunction* _f);
+		void addProperty(const char* _name, GMetaproperty* _p);
+		void addEditableProperty(const char* _name, GMetaproperty* _p);
 		GMetaclass();
 
 	protected:
@@ -795,23 +908,31 @@ namespace GFramework
 		template<typename PROP>
 		GMetaAbstractclass<T>& editableProperty(const char* _name, PROP _p, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GDerivedMetaEditableproperty<T, PROP>(_name, _p, callback);
+			auto p = new GPublicMetaproperty<T, PROP>(_name, _p, callback);
+			addEditableProperty(_name, p);
+			return *this;
+		}
+
+		template<typename GETTER_F, typename SETTER_F>
+		GMetaAbstractclass<T>& editableProperty(const char* _name, GETTER_F get, SETTER_F set, std::function<void(T*)> callback = std::function<void(T*)>())
+		{
+			auto p = new GNonPublicMetaproperty<T, GETTER_F, SETTER_F>(_name, get, set, callback);
 			addEditableProperty(_name, p);
 			return *this;
 		}
 
 		template<typename PROP>
-		GMetaAbstractclass<T>& property(const char* _name, PROP _p)
+		GMetaAbstractclass<T>& property(const char* _name, PROP _p, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GDerivedMetaproperty<T, PROP>(_name, _p);
+			auto p = new GPublicMetaproperty<T, PROP>(_name, _p, callback);
 			addProperty(_name, p);
 			return *this;
 		}
 
 		template<typename GETTER_F, typename SETTER_F>
-		GMetaAbstractclass<T>& property(const char* _name, GETTER_F get, SETTER_F set)
+		GMetaAbstractclass<T>& property(const char* _name, GETTER_F get, SETTER_F set, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GNonPublicMetaProperty<T, GETTER_F, SETTER_F>(_name, get, set);
+			auto p = new GNonPublicMetaproperty<T, GETTER_F, SETTER_F>(_name, get, set, callback);
 			addProperty(_name, p);
 			return *this;
 		}
@@ -964,7 +1085,7 @@ namespace GFramework
 		GMetaAbstractclass() {}
 	};
 
-	
+
 	template<typename T>
 	class GMetaNonAbstractclass : public GMetaclass
 	{
@@ -1002,23 +1123,23 @@ namespace GFramework
 		template<typename PROP>
 		GMetaNonAbstractclass<T>& editableProperty(const char* _name, PROP _p, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GDerivedMetaEditableproperty<T, PROP>(_name, _p, callback);
+			auto p = new GPublicMetaproperty<T, PROP>(_name, _p, callback);
 			addEditableProperty(_name, p);
 			return *this;
 		}
 
 		template<typename PROP>
-		GMetaNonAbstractclass<T>& property(const char* _name, PROP _p)
+		GMetaNonAbstractclass<T>& property(const char* _name, PROP _p, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GDerivedMetaproperty<T, PROP>(_name, _p);
+			auto p = new GPublicMetaproperty<T, PROP>(_name, _p, callback);
 			addProperty(_name, p);
 			return *this;
 		}
 
 		template<typename GETTER_F, typename SETTER_F>
-		GMetaNonAbstractclass<T>& property(const char* _name, GETTER_F get, SETTER_F set)
+		GMetaNonAbstractclass<T>& property(const char* _name, GETTER_F get, SETTER_F set, std::function<void(T*)> callback = std::function<void(T*)>())
 		{
-			auto p = new GNonPublicMetaProperty<T, GETTER_F, SETTER_F>(_name, get, set);
+			auto p = new GNonPublicMetaproperty<T, GETTER_F, SETTER_F>(_name, get, set, callback);
 			addProperty(_name, p);
 			return *this;
 		}
