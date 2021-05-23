@@ -17,7 +17,7 @@ namespace GFramework
 	typedef std::shared_ptr<GPropertyInterface> GPropertyInterfaceSharedPtr;
 	typedef std::unique_ptr<GPropertyInterface> GPropertyInterfaceUniquePtr;
 
-	void register_lua_script_functions(lua_State *L, std::vector<luaL_Reg>& GPropertiesList);
+	void register_lua_script_functions(lua_State* L, std::vector<luaL_Reg>& GPropertiesList);
 
 	template <typename T>
 	struct GFRAMEWORK_API GPropertyUtility
@@ -54,7 +54,7 @@ namespace GFramework
 		virtual std::istream& readBinaryValue(std::istream& is) = 0;
 		virtual std::ostream& writeASCIIValue(std::ostream& os) const = 0;
 		virtual std::istream& readASCIIValue(std::istream& is) = 0;
-		virtual bool isGObjectPointer() {
+		virtual bool isGObjectPointer() const {
 			return false;
 		}
 
@@ -147,9 +147,12 @@ namespace GFramework
 	class  GPointerPropertyInterface : public GPropertyInterface
 	{
 	public:
+		virtual unsigned int getObjectId() const = 0;
 		virtual void subjectDeleted() = 0;
-                GPointerPropertyInterface(const GPointerPropertyInterface&) = delete;
-                GPointerPropertyInterface& operator=(const GPointerPropertyInterface&) = delete;
+		GPointerPropertyInterface(const GPointerPropertyInterface&) = delete;
+		GPointerPropertyInterface& operator=(const GPointerPropertyInterface&) = delete;
+		virtual GObjectSharedPtr getGObjectPointer() const = 0;
+		virtual void setGObjectPointer(GObjectSharedPtr) = 0;
 
 	protected:
 		GPointerPropertyInterface() {}
@@ -158,11 +161,15 @@ namespace GFramework
 	template<typename T>
 	class  GPointerProperty : public GPointerPropertyInterface
 	{
-		//static_assert(std::is_pointer<T>::value, "Template argument to GPointerProperty must be a pointer!");
-		//TODO: fix //static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 	public:
-		GPointerProperty(std::shared_ptr<T> v = std::shared_ptr<T>(nullptr)) : value(v){
+		GPointerProperty(std::shared_ptr<T> v = std::shared_ptr<T>(nullptr)) : value(v) {
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
+		}
 
+		virtual unsigned int getObjectId() const
+		{
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
+			return objectId;
 		}
 
 		virtual ~GPointerProperty() {
@@ -171,7 +178,7 @@ namespace GFramework
 			}
 		}
 
-		virtual bool isGObjectPointer() {
+		virtual bool isGObjectPointer() const {
 			return true;
 		}
 
@@ -188,9 +195,21 @@ namespace GFramework
 				value->unSubscribeDeletionNotification(this);
 			}
 			value = _value;
+			objectId = value->getObjectId();
 			if (value != nullptr) {
 				value->subscribeDeletionNotification(this);
 			}
+		}
+		
+		virtual void setGObjectPointer(GObjectSharedPtr v)
+		{
+			value = std::dynamic_pointer_cast<T>(v);
+			objectId = value->getObjectId();
+		}
+
+		virtual GObjectSharedPtr getGObjectPointer() const
+		{
+			return value;
 		}
 
 		virtual GVariant get() const {
@@ -206,6 +225,7 @@ namespace GFramework
 		}
 
 		virtual std::ostream& writeBinaryValue(std::ostream& os) const {
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 			if (value)
 			{
 				os << value->getObjectId();
@@ -218,9 +238,8 @@ namespace GFramework
 		}
 
 		virtual std::istream& readBinaryValue(std::istream& is) {
-			uint32 pointer_obj_id = 0;
-			is >> pointer_obj_id;
-			if (pointer_obj_id)
+			is >> objectId;
+			if (objectId)
 			{
 				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
@@ -228,6 +247,7 @@ namespace GFramework
 		}
 
 		virtual std::ostream& writeASCIIValue(std::ostream& os) const {
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 			if (value)
 			{
 				os << value->getObjectId();
@@ -239,9 +259,8 @@ namespace GFramework
 			return os;
 		}
 		virtual std::istream& readASCIIValue(std::istream& is) {
-			uint32 pointer_obj_id = 0;
-			is >> pointer_obj_id;
-			if (pointer_obj_id)
+			is >> objectId;
+			if (objectId)
 			{
 				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
@@ -250,6 +269,7 @@ namespace GFramework
 
 	private:
 		std::shared_ptr<T> value;
+		unsigned int objectId=0;
 	};
 
 #if 0

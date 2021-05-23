@@ -180,7 +180,7 @@ namespace GFramework
 		for (auto it = p_list.cbegin(); it != p_list.cend(); ++it) {
 			string property_name = *it;
 			auto p = m->getProperty(property_name.c_str());
-			deserializer.readMetaProperty(this, p);
+			deserializer.readMetaProperty(shared_from_this(), p);
 		}
 		return true;
 	}

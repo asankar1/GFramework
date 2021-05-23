@@ -97,7 +97,7 @@ namespace GFramework
 	public:
 		GStringDeserializer();
 		virtual ~GStringDeserializer();
-		virtual bool readMetaProperty(GObject* _obj, GMetaproperty* property);
+		virtual bool readMetaProperty(GObjectSharedPtr _obj, GMetaproperty* property);
 
 		/*template<typename T>
 		GStringDeserializer& operator>>(T* value)
@@ -135,7 +135,7 @@ namespace GFramework
 	protected:
 		virtual GDeserializer& read(GPropertyInterface& property);
 
-		virtual GDeserializer& read(GObject** _obj);
+		virtual GDeserializer& read(GObjectSharedPtr* _obj);
 
 		/*struct GObjectTypeHandler
 		{

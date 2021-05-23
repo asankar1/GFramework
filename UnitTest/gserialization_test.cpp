@@ -114,11 +114,11 @@ public:
 	}
 	Square boundingBox;
 	GColorProperty color;
+	GObjectPointerProperty parent;
 private:
 	GInt32Property radius;
 
 };
-
 
 BEGIN_DEFINE_META(Circle)
 	GMetaNamespaceList::_global()
@@ -127,6 +127,7 @@ BEGIN_DEFINE_META(Circle)
 	.property("x", &Circle::x)
 	.property("y", &Circle::y)
 	.property("Color", &Circle::color)
+	.property("parent", &Circle::parent)
 	/*.property("boundingbox", &Circle::boundingBox)*/;
 END_DEFINE_META(Circle)
 
@@ -163,6 +164,23 @@ void run_serialization_testcases()
 		ic1.y = 50;
 		ic1.color.setValue(Color(4, 5, 6, 7));
 
+		auto parent_circle = make_shared<Circle>();
+		parent_circle->rename("parent_circle");
+		parent_circle->setRadius(90);
+		parent_circle->x = 1000;
+		parent_circle->y = 500;
+		parent_circle->color.setValue(Color(44, 55, 66, 77));
+
+		auto grand_parent_circle = make_shared<Circle>();
+		grand_parent_circle->rename("grnd parent_circle");
+		grand_parent_circle->setRadius(900);
+		grand_parent_circle ->x = 10000;
+		grand_parent_circle->y = 5000;
+		grand_parent_circle->color.setValue(Color(444, 555, 666, 777));
+
+		parent_circle->parent.setValue(grand_parent_circle);
+		ic1.parent.setValue( parent_circle);
+
 		Square is1;
 		is1.setSize(17);
 		is1.x = 93;
@@ -173,7 +191,7 @@ void run_serialization_testcases()
 		GInt32Property i = 4;
 		GInt16troperty s = 2;
 		GColorProperty c(Color(1, 2, 3, 4));
-
+		 
 		
 		ts << s << i << s << c;
 		
@@ -196,7 +214,7 @@ void run_serialization_testcases()
 		GInt32Property ii = 4;
 		GInt16troperty ss = 2;
 		GColorProperty cc(Color(1, 2, 3, 4));
-		GObject* op1 = nullptr;
+		GObjectSharedPtr op1 = nullptr;
 		GObject* op2 = nullptr;
 		tds >> ss >> ii >> ss >> cc;
 		tds >> &op1;

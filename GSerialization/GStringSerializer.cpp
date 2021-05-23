@@ -114,7 +114,7 @@ GStringDeserializer::~GStringDeserializer()
 }
 
 
-bool GStringDeserializer::readMetaProperty(GObject* _obj, GMetaproperty* property)
+bool GStringDeserializer::readMetaProperty(GObjectSharedPtr _obj, GMetaproperty* property)
 {
 	property->readASCIIValue(*this, _obj);
 	return true;
@@ -149,7 +149,7 @@ GDeserializer& GStringDeserializer::read(GPropertyInterface& property)
 	return *this;
 }
 
-GDeserializer& GStringDeserializer::read(GObject** _obj)
+GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 {
 	string line;
 	string class_name;
@@ -251,7 +251,7 @@ GDeserializer& GStringDeserializer::read(GObject** _obj)
 
 	//(*_obj)->deserialize(*this, version);
 
-	addReferenceProviders((*_obj)->getObjectId(), (*_obj));
+	//addReferenceProviders((*_obj)->getObjectId(), (*_obj));
 
 	return *this;
 }

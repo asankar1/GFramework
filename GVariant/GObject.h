@@ -27,7 +27,7 @@ namespace GFramework
 
 	/*! \brief This the base class for all the other classes.
 	*/
-	class GFRAMEWORK_API GObject
+	class GFRAMEWORK_API GObject : public std::enable_shared_from_this<GObject>
 	{
 	public:
 		GObject(const GObject& obj);

@@ -48,6 +48,25 @@ namespace GFramework
 		virtual GSerializer& operator<<(GObject* _obj) = 0;*/
 		GSerializer& operator<<(const GPropertyInterface& prop)
 		{
+			if (prop.isGObjectPointer())
+			{
+				auto pointer_prop = dynamic_cast<const GPointerPropertyInterface*>(&prop);
+				if (pointer_prop->getGObjectPointer())
+				{
+					postProcessor.addPointer(pointer_prop);
+				}
+				/*{
+					auto itr = reference_providers.find(pointer_prop->getObjectId());
+					if (itr == reference_providers.end())
+					{
+						reference_providers.insert({ pointer_prop->getObjectId(), std::vector<GObjectSharedPtr>({ pointer_prop->getGObjectPointer() }) });
+					}
+					else
+					{
+						itr->second.push_back(pointer_prop->getGObjectPointer());
+					}
+				}*/
+			}
 			return write(prop);
 		}
 
@@ -69,14 +88,26 @@ namespace GFramework
 			return *this;
 		}
 
+		class PostProcessor
+		{
+		public:
+			void process(GSerializer& serializer);
+			void addPointer(const GPointerPropertyInterface* pointer_prop);
+			~PostProcessor();
+		private:
+			std::map<unsigned int, std::vector<GObjectSharedPtr> > reference_providers;
+			PostProcessor* childPP = nullptr;
+			bool isProcessing = false;
+		};
+		PostProcessor postProcessor;
 		static std::mutex reference_seeker_mutex;
 		static std::mutex reference_provider_mutex;
-		static std::map<unsigned int, std::vector<GObject*>> reference_seekers;
-		static std::map<unsigned int, std::vector<GObject*>> reference_providers;
+		static std::map<unsigned int, std::vector<GPointerPropertyInterface*> > reference_seekers;
+		static std::map<unsigned int, std::vector<GObjectSharedPtr> > reference_providers;
 		OStreamSharedPtr stream;
 	};
 
-#if 1
+#if 0
 	class GFRAMEWORK_API GBinarySerializer : public GSerializer
 	{
 	public:
@@ -86,7 +117,7 @@ namespace GFramework
 		/*virtual GSerializer& operator<<(GObject& _obj) override;
 		virtual GSerializer& operator<<(GObject* _obj) override;*/
 	};
-#endif
+
 	class GFRAMEWORK_API GTextSerializer : public GSerializer
 	{
 	public:
@@ -99,7 +130,7 @@ namespace GFramework
 	protected:
 		const char* objectDelimiter;
 	};
-
+#endif
 	class GFRAMEWORK_API GDeserializer
 	{
 	public:
@@ -108,38 +139,56 @@ namespace GFramework
 		IStreamSharedPtr getStream();
 		virtual void close();
 		//virtual GDeserializer& operator>>(GObject** _obj) = 0;
-		virtual bool readMetaProperty(GObject* _obj, GMetaproperty* property) = 0;
+		virtual bool readMetaProperty(GObjectSharedPtr _obj, GMetaproperty* property) = 0;
 		static void addReferenceSeeker(unsigned int _object_id, GObjectSharedPtr* _seeking_object);
-		static void addReferenceProviders(unsigned int _object_id, GObject* _providing_object);
+		static void addReferenceProviders(unsigned int _object_id, GObjectSharedPtr _providing_object);
 		void resolveDependencies();
-		void setObject_id(GObject* _obj, uint32 id);
+		void setObject_id(GObjectSharedPtr _obj, uint32 id);
 		GDeserializer& operator>>(GPropertyInterface& prop)
 		{
-			return read(prop);
+			read(prop);
+			if (prop.isGObjectPointer())
+			{
+				auto pointer_prop = dynamic_cast<GPointerPropertyInterface*>(&prop);
+				//if (pointer_prop->getObjectId())
+				{
+					{
+						auto itr = reference_seekers.find(pointer_prop->getObjectId());
+						if (itr == reference_seekers.end())
+						{
+							reference_seekers.insert({ pointer_prop->getObjectId(), std::vector<GPointerPropertyInterface*>({ pointer_prop }) });
+						}
+						else
+						{
+							itr->second.push_back(pointer_prop);
+						}
+					}
+				}
+			}
+
+			return *this;
 		}
 
-		GDeserializer& operator>>(GObject** _obj)
-		{
-			return read(_obj);
-		}
+		GDeserializer& operator>>(GObjectSharedPtr* _obj);
+
 	protected:
 		virtual GDeserializer& read(GPropertyInterface& property)
 		{
 			return *this;
 		}
 
-		virtual GDeserializer& read(GObject** _obj)
+		virtual GDeserializer& read(GObjectSharedPtr* _obj)
 		{
 			return *this;
 		}
 
 		static std::mutex reference_seeker_mutex;
 		static std::mutex reference_provider_mutex;
-		static std::map<unsigned int, std::vector<GObject*>> reference_seekers;
-		static std::map<unsigned int, GObject*> reference_providers;
+		static std::map<unsigned int, std::vector<GPointerPropertyInterface*> > reference_seekers;
+		static std::map<unsigned int, GObjectSharedPtr> reference_providers;
 		IStreamSharedPtr stream;
 	};
-
+#if 0
 	class GFRAMEWORK_API GBinaryDeSerializer : public GDeserializer
 	{
 	public:
@@ -161,4 +210,5 @@ namespace GFramework
 		const char* objectDelimiter;
 		virtual std::pair<std::string, std::string> parseProperty(std::string line);
 	};
+#endif
 }

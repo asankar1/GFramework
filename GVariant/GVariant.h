@@ -15,6 +15,7 @@ namespace GFramework
 {
 	class GObject;
 	typedef std::shared_ptr<GObject> GObjectSharedPtr;
+	typedef std::shared_ptr<const GObject> GObjectConstSharedPtr;
 
 	int GFRAMEWORK_API open_lua_variant_module(lua_State *L);
 

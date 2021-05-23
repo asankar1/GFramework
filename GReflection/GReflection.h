@@ -161,9 +161,9 @@ namespace GFramework
 		virtual void set(void* _object, GVariant& value) = 0;
 		virtual GVariant get(void* _object) = 0;
 		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) = 0;
-		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) = 0;
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObjectSharedPtr obj) = 0;
 		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) = 0;
-		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) = 0;
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj) = 0;
 		virtual void write(GSerializer* os, const GObject* obj) { }
 	protected:
 		GMetaproperty(const char* _name) {
@@ -219,7 +219,7 @@ namespace GFramework
 			return (o->*ptr).writeBinaryValue(os);
 		}
 
-		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObjectSharedPtr obj) {
 			C* o = static_cast<C*>(obj);
 			return (o->*ptr).readBinaryValue(is);
 		}
@@ -229,7 +229,7 @@ namespace GFramework
 			return (o->*ptr).writeASCIIValue(os);
 		}
 
-		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj) {
 			C* o = static_cast<C*>(obj);
 			return (o->*ptr).readASCIIValue(is);
 		}
@@ -290,7 +290,7 @@ namespace GFramework
 			return os;
 		}
 
-		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObjectSharedPtr obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
 			return is;
 		}
@@ -304,7 +304,7 @@ namespace GFramework
 			//return os;
 		}
 
-		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
 			/*C* o = static_cast<C*>(obj);
 			std::remove_reference<ArgType<SETTER_F, 1> >::type prop;
@@ -351,7 +351,12 @@ namespace GFramework
 		}
 
 		void set(void* _object, GVariant& value) {
-			C* o = static_cast<C*>(_object);
+			auto t = find_type(ptr);
+			using type = decltype(t);
+			using mem_type = type::member_var_type;
+			using ValueGetterType = std::conditional < std::is_base_of < GPropertyInterface, mem_type > ::value, GPropertyValueGetter, NonGPropertyValueGetter > ::type;
+			ValueGetterType::set(_object, value, ptr, onupdate_cb);
+			/*C* o = static_cast<C*>(_object);
 			//(o->*ptr).set(value);// = boost::get<T>(value);
 			auto t = find_type(ptr);
 			using type = decltype(t);
@@ -359,13 +364,16 @@ namespace GFramework
 			(o->*ptr) = GVariant::cast<mem_type&>(value);
 			if (onupdate_cb) {
 				onupdate_cb(o);
-			}
+			}*/
 		}
 
 		GVariant get(void* _object) {
-			C* o = static_cast<C*>(_object);
-			//			return (o->*ptr).get();
-			return (o->*ptr);
+			auto t = find_type(ptr);
+			using type = decltype(t);
+			using mem_type = type::member_var_type;
+
+			using ValueGetterType = std::conditional < std::is_base_of < GPropertyInterface, mem_type > ::value, GPropertyValueGetter, NonGPropertyValueGetter > ::type;
+			return ValueGetterType::get(_object, ptr);
 		}
 
 		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) {
@@ -374,8 +382,8 @@ namespace GFramework
 			return os;
 		}
 
-		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
-			C* o = static_cast<C*>(obj);
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObjectSharedPtr obj) {
+			auto o = std::static_pointer_cast<C>(obj);
 			//return (o->*ptr).readBinaryValue(is);
 			return is;
 		}
@@ -387,12 +395,57 @@ namespace GFramework
 			return os;
 		}
 
-		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
-			C* o = static_cast<C*>(obj);
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj) {
+			auto o = std::static_pointer_cast<C>(obj);
 			//return (o->*ptr).readASCIIValue(is);
-			is >> (o->*ptr);
+			is >> (o.get()->*ptr);
 			return is;
 		}
+
+	protected:
+		struct GPropertyValueGetter
+		{
+			static void set(void* _object, GVariant& value, T ptr, std::function<void(C*)> onupdate_cb) {
+				C* o = static_cast<C*>(_object);
+				auto t = find_type(ptr);
+				using type = decltype(t);
+				using mem_type = type::member_var_type;
+				(o->*ptr).set(value);
+				if (onupdate_cb) {
+					onupdate_cb(o);
+				}
+			}
+
+			static GVariant get(void* _object, T ptr)
+			{
+				C* o = static_cast<C*>(_object);
+				auto t = find_type(ptr);
+				using type = decltype(t);
+				using mem_type = type::member_var_type;
+				//mem_type v = o->*ptr;
+				return ((o->*ptr).get());
+			}
+		};
+
+		struct NonGPropertyValueGetter
+		{
+			static void set(void* _object, GVariant& value, T ptr, std::function<void(C*)> onupdate_cb) {
+				C* o = static_cast<C*>(_object);
+				auto t = find_type(ptr);
+				using type = decltype(t);
+				using mem_type = type::member_var_type;
+				(o->*ptr) = GVariant::cast<mem_type&>(value);
+				if (onupdate_cb) {
+					onupdate_cb(o);
+				}
+			}
+
+			static GVariant get(void* _object, T ptr)
+			{
+				C* o = static_cast<C*>(_object);
+				return (o->*ptr);
+			}
+		};
 
 	private:
 		T ptr;
@@ -445,11 +498,13 @@ namespace GFramework
 		}
 
 		virtual GSerializer& writeBinaryValue(GSerializer& os, const GObject* obj) {
+			const C* o = static_cast<const C*>(obj);
 			//TODO: Write a Text/Binary deser for non GProperty
 			return os;
 		}
 
-		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObject* obj) {
+		virtual GDeserializer& readBinaryValue(GDeserializer& is, GObjectSharedPtr obj) {
+			auto o = std::static_pointer_cast<C>(obj);
 			//TODO: Write a Text/Binary deser for non GProperty
 			return is;
 		}
@@ -466,14 +521,14 @@ namespace GFramework
 			//return os;
 		}
 
-		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObject* obj) {
+		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
-			C* o = static_cast<C*>(obj);
+			auto o = std::static_pointer_cast<C>(obj);
 			using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
 			auto prop = GPropertyUtility<arg_type>::create();
 			is >> (*prop);
 			//prop.readASCIIValue(is);
-			(o->*setter)(GVariant::cast<arg_type>(prop->get()));
+			(o.get()->*setter)(GVariant::cast<arg_type>(prop->get()));
 			return is;
 		}
 	private:
@@ -836,7 +891,7 @@ namespace GFramework
 	{
 	public:
 		const std::string& getName() { return name; }
-		virtual GObject* createInstance() = 0;
+		virtual GObjectSharedPtr createInstance() = 0;
 		virtual GMetaconstructor* getConstructor(const char* _name) = 0;
 		virtual GMetaMemberfunction* getPublicMemberFunction(const char* _name) = 0;
 		virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name) = 0;
@@ -896,8 +951,8 @@ namespace GFramework
 		}
 
 		//not applicable for abstract meta class. So assert if called.
-		virtual GObject* createInstance() {
-			return nullptr;
+		virtual GObjectSharedPtr createInstance() {
+			return GObjectSharedPtr();
 		}
 
 		template<typename T2>
@@ -1109,8 +1164,8 @@ namespace GFramework
 			return *this;
 		}
 
-		virtual GObject* createInstance() {
-			return new T();
+		virtual GObjectSharedPtr createInstance() {
+			return std::make_shared<T>();
 		}
 
 		template<typename F>
