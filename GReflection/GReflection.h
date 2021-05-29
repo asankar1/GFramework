@@ -25,6 +25,7 @@
 #endif
 #include <GFramework/GVariant/GVariant.h>
 #include <GFramework/GVariant/GProperty.h>
+#include <GFramework/GSerialization/GSerializer.h>
 #include <GFramework/GReflection/GReflectionHelpers.h>
 #include <GFramework/GScript/GLua_data_exchange.h>
 #include <GFramework/GScript/GLuaScript.h>
