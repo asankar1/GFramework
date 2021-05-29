@@ -99,6 +99,21 @@ bool GStringSerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* pr
 {
 	*stream << property->getName() << ":";
 	property->writeASCIIValue(*this, _obj);
+	if (!stream->good())
+	{
+		if (stream->eof())
+		{
+			cerr << "End of file reached when writing metaproperty:" << property << endl;
+		}
+		if (stream->fail())
+		{
+			cerr << "Operation failed when writing metaproperty:" << property << endl;
+		}
+		if (stream->bad())
+		{
+			cerr << "stream corrupted when writing metaproperty:" << property << endl;
+		}
+	}
 	*stream << endl;
 	return true;
 }
@@ -135,9 +150,9 @@ std::string GStringDeserializer::findNextProperty(string line)
 	{
 		string key = line.substr(0, pos);
 		size_t l = line.length();
-		auto a1 = stream->tellg();
+		int p1 = stream->tellg();
 		stream->seekg(-(l - pos)-1, ios_base::cur);
-		auto a2 = stream->tellg();
+		int p2 = stream->tellg();
 		return key;
 	}
 	return "";
@@ -243,6 +258,22 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 					if (metaprop != nullptr)
 					{
 						metaprop->readASCIIValue(*this, *_obj);
+						if (!stream->good())
+						{
+							if (stream->eof())
+							{
+								cerr << "End of file reached when reading metaproperty:" << prop << endl;
+							}
+							if (stream->fail())
+							{
+								cerr << "Operation failed when reading metaproperty:" << prop << endl;
+							}
+							if (stream->bad())
+							{
+								cerr << "stream corrupted when reading metaproperty:" << prop << endl;
+							}
+							return *this;
+						}
 					}
 				}
 			}
