@@ -511,27 +511,58 @@ namespace GFramework
 
 		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) {
 			//TODO: Write a Text/Binary deser for non GProperty
-			const C* o = static_cast<const C*>(obj);
 			using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
-			auto prop = GPropertyUtility<arg_type>::create((o->*getter)());
-			prop->writeASCIIValue(*os.getStream());
-			return os;
-			//return (o->*getter)().writeASCIIValue(os);
-			//return (o->*ptr).writeASCIIValue(os);
-			//return os;
+			using ReaderType = typename std::conditional<std::is_base_of<GPropertyInterface, arg_type>::value, GPropertyHandler, NonGPropertyHandler>::type;
+			return ReaderType::writeASCIIValue(os, obj, getter);
 		}
 
 		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj) {
-			//TODO: Write a Text/Binary deser for non GProperty
-			auto o = std::static_pointer_cast<C>(obj);
 			using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-			auto prop = GPropertyUtility<arg_type>::create();
-			is >> (*prop);
-			//prop.readASCIIValue(is);
-			(o.get()->*setter)(GVariant::cast<arg_type>(prop->get()));
-			return is;
+			using ReaderType = typename std::conditional<std::is_base_of<GPropertyInterface, arg_type>::value, GPropertyHandler, NonGPropertyHandler>::type;
+			return ReaderType::readASCIIValue(is, obj, setter);
 		}
 	private:
+		struct GPropertyHandler
+		{
+			static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+			{
+				auto o = std::static_pointer_cast<C>(obj);
+				using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
+				arg_type prop;
+				is >> (prop);
+				(o.get()->*setter)(prop);
+				return is;
+			}
+
+			static GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj, GETTER_F getter) {
+				const C* o = static_cast<const C*>(obj);
+				using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
+				arg_type prop((o->*getter)());
+				prop.writeASCIIValue(*os.getStream());
+				return os;
+			}
+		};
+
+		struct NonGPropertyHandler
+		{
+			static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+			{
+				auto o = std::static_pointer_cast<C>(obj);
+				using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
+				auto prop = GPropertyUtility<arg_type>::create();
+				is >> (*prop);
+				(o.get()->*setter)(GVariant::cast<arg_type>(prop->get()));
+				return is;
+			}
+
+			static GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj, GETTER_F getter) {
+				const C* o = static_cast<const C*>(obj);
+				using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
+				auto prop = GPropertyUtility<arg_type>::create((o->*getter)());
+				prop->writeASCIIValue(*os.getStream());
+				return os;
+			}
+		};
 		GETTER_F getter;
 		SETTER_F setter;
 		std::function<void(C*)> onupdate_cb;
