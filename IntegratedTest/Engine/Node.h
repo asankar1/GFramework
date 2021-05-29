@@ -103,7 +103,7 @@ namespace GFrameworkTest
 
         //virtual GMetaclass* metaclassName();
 
-        virtual GMetaclass* getMetaclass() override;
+        virtual GMetaclass* getMetaclass() const override;
 
 		//protected://TODO: Fix
 		Node():GObject() {}
