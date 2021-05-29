@@ -107,7 +107,7 @@ namespace GFramework
 
 	template <typename T>
 	std::istream& GArithmeticProperty<T>::readASCIIValue(std::istream& is) {
-		is >> value;
+		is >> std::dec >> value;
 		return is;
 	}
 

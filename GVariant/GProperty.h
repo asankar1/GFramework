@@ -72,6 +72,8 @@ namespace GFramework
 		static_assert(std::is_arithmetic<T>::value, "Template argument T to GArithmeticProperty must be an arithmetic type!");
 	public:
 		GArithmeticProperty(T v = std::numeric_limits<T>::min());
+		
+		bool operator==(const T& rhs) { return (value == rhs); }
 
 		virtual void set(GVariant& _value);
 
@@ -98,6 +100,8 @@ namespace GFramework
 	public:
 		GStringProperty(const std::string v = "");
 
+		bool operator==(const std::string& rhs) { return (value == rhs); }
+
 		virtual void set(GVariant& _value);
 
 		void setValue(const std::string& _value);
@@ -123,6 +127,8 @@ namespace GFramework
 	{
 	public:
 		GGlmProperty(T v = T());
+
+		bool operator==(const T& rhs) { return (value == rhs); }
 
 		virtual void set(GVariant& _value);
 
@@ -195,16 +201,25 @@ namespace GFramework
 				value->unSubscribeDeletionNotification(this);
 			}
 			value = _value;
-			objectId = value->getObjectId();
 			if (value != nullptr) {
+				objectId = value->getObjectId();
 				value->subscribeDeletionNotification(this);
+			}
+			else {
+				objectId = 0;
 			}
 		}
 		
 		virtual void setGObjectPointer(GObjectSharedPtr v)
 		{
 			value = std::dynamic_pointer_cast<T>(v);
-			objectId = value->getObjectId();
+			if (value != nullptr) {
+				objectId = value->getObjectId();
+			}
+			else {
+				objectId = 0;
+			}
+
 		}
 
 		virtual GObjectSharedPtr getGObjectPointer() const
@@ -565,7 +580,7 @@ namespace GFramework
 	typedef GArithmeticProperty<char> GCharProperty;
 	typedef GArithmeticProperty<int8> GInt8Property;
 	typedef GArithmeticProperty<uint8> GUint8Property;
-	typedef GArithmeticProperty<int16> GInt16troperty;
+	typedef GArithmeticProperty<int16> GInt16Property;
 	typedef GArithmeticProperty<uint16> GUint16Property;
 	typedef GArithmeticProperty<int32> GInt32Property;
 	typedef GArithmeticProperty<uint32> GUint32Property;
