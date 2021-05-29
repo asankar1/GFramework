@@ -289,13 +289,16 @@ END_DEFINE_META(Square)*/
 
 void run_serialization_testcases()
 {
-	cout << endl << "Starting test cases for 'Serialization'..." << endl << endl;
+	cout << "================================" << endl;
+	cout << "Startig GSerialization testcases" << endl;
+	cout << "================================" << endl;
 	
 /*	NodeSharedPtr nullparent(NULL);
 	NodeSharedPtr osphere1_ptr = make_shared<sphere>("sphere1", nullparent, 25);
 	sphere osphere2("sphere2", osphere1_ptr, 15);
 */
 #if 1
+	cout << "\nPerform serialization and deserialization with text file format:" << endl;
 	{
 		//Intialize test case contents
 		SerializationTestClass write_obj;

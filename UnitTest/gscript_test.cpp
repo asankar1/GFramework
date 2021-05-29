@@ -123,7 +123,7 @@ void run_script_testcases()
 	//st.add_metatable_to_metatable("new", "sphere", "sphere");
 
 	lua_State* L = st.L;
-	int error = luaL_loadfile(L, "../../../GScript/script.lua");
+	int error = luaL_loadfile(L, "../script.lua");
 	if (error) // if non-0, then an error
 	{
 		// the top of the stack should be the error string

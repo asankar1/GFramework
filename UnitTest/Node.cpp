@@ -48,7 +48,7 @@ namespace GFrameworkTest
 	}
 	Node::Node(const char *_name, NodeSharedPtr& _parent) : GObject(_name)
 	{	
-		parent.setValue(_parent.get());
+		parent.setValue(_parent);
 		cout << "Node '" << getName() << "' constructed." << endl;
 	}
 
@@ -93,12 +93,12 @@ namespace GFrameworkTest
 
 	void Node::setParent(NodeSharedPtr _parent)
 	{
-		parent.setValue(_parent.get());
+		parent.setValue(_parent);
 	}
 
 	Node* Node::getParent()
 	{
-		return parent.getValue();
+		return parent.getValue().get();
 	}
 
 	void Node::addChild(NodeSharedPtr _child)

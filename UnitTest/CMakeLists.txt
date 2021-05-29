@@ -33,8 +33,8 @@ file(
 	${TEST_ROOT}/greflection_test.cpp
 	${TEST_ROOT}/gserialization_test.cpp
 	${TEST_ROOT}/gscript_test.cpp
-	#${TEST_ROOT}/Node.cpp
-	#${TEST_ROOT}/Sphere.cpp
+	${TEST_ROOT}/Node.cpp
+	${TEST_ROOT}/Sphere.cpp
 )
 
 
@@ -128,7 +128,12 @@ install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_
 		)
 		
 install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release/"
+						"${GFRAMEWORK_PATH}/bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release/"
 			CONFIGURATIONS Release
 			DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
 		)		
+		
+install	(	FILES "${TEST_ROOT}/script.lua"
+			DESTINATION ./test
+		)				

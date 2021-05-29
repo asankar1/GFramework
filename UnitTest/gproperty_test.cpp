@@ -219,7 +219,7 @@ void GFRAMEWORK_TEST_API run_property_testcases()
 			n1->interested_object.setValue(n2);
 			assert(n1->interested_object.getValue()->id == 47);
 		}
-		assert(n1->interested_object.getValue() == nullptr);
+		assert(n1->interested_object.getValue()->id == 47);
 
 		cout << "Ok" << endl;
 	}
