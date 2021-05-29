@@ -109,7 +109,7 @@ void GFRAMEWORK_TEST_API run_property_testcases()
 		CHECK_ARITHMETIC_PROPERTY(int8, GInt8Property);
 
 		//int16 property
-		CHECK_ARITHMETIC_PROPERTY(int16, GInt16troperty);
+		CHECK_ARITHMETIC_PROPERTY(int16, GInt16Property);
 
 		//int32 property
 		CHECK_ARITHMETIC_PROPERTY(int32, GInt32Property);
