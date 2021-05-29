@@ -550,7 +550,7 @@ namespace GFramework
 			{
 				auto o = std::static_pointer_cast<C>(obj);
 				using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-				auto prop = GPropertyUtility<arg_type>::create();
+				auto prop = GPropertyUtility<std::remove_cv<arg_type>::type>::create();
 				is >> (*prop);
 				(o.get()->*setter)(GVariant::cast<arg_type>(prop->get()));
 				return is;
@@ -559,7 +559,7 @@ namespace GFramework
 			static GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj, GETTER_F getter) {
 				const C* o = static_cast<const C*>(obj);
 				using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
-				auto prop = GPropertyUtility<arg_type>::create((o->*getter)());
+				auto prop = GPropertyUtility<std::remove_cv<arg_type>::type>::create((o->*getter)());
 				prop->writeASCIIValue(*os.getStream());
 				return os;
 			}
