@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <GFramework/GReflection/GReflection.h>
 #include <GEditor/utilities/logger.h>
 #include <GEditor/ui/menus/contextmenu.h>
@@ -7,6 +9,7 @@
 #include "testproject.h"
 #include "testapplication.h"
 
+using namespace std;
 using namespace GFramework;
 using namespace GFramework::Editor;
 using namespace GFrameworkTest;
@@ -48,16 +51,25 @@ void TestApplication::initialize()
 
 	//create project window context menu
 	auto prj_window = mainWindow->getDefaultProjectWindow();
-	ContextMenu* mnu = prj_window->getContextMenu();
-	mnu->add("Create/node", [] {	Logger::debug() << "Node addded";
-    auto selection = Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection();
-	NodeSharedPtr np;
-    if(selection.size() > 0)
+    auto prj_window_ctx_mnu = prj_window->getContextMenu();
+
+    prj_window_ctx_mnu->add("Create/Node", []
     {
-        //np = selection.back();
-    }
-	GObjectSharedPtr object(new Node("Node1", np));
-    /*Application::instance()->getProject()->addObject(object);*/ });
+        auto selection = Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection();
+        NodeSharedPtr parent;
+        if(selection.size() > 0)
+        {
+            parent = dynamic_pointer_cast<Node>(selection.back());
+        }
+        else
+        {
+            auto projoect = dynamic_cast<TestProject*>(Application::instance()->getProject());
+            parent = dynamic_pointer_cast<Node>(projoect->getSceneGraphRoot());
+        }
+        auto object = make_shared<Node>("DefaultNode", parent);
+        Application::instance()->getProject()->getSection("SceneGraph")->addObject(object);
+        Logger::debug() << "Node addded";
+    });
 
 	/*test t1;
 	mnu->addActionHandler("Create/Cube", std::bind(&test::callback, &t1));
@@ -75,6 +87,7 @@ void TestApplication::newProject(QString path)
 	}
 
 	project = new TestProject(file);
+    mainWindow->getDefaultProjectWindow()->setModel(project->getSection("SceneGraph")->getModel());
 	project->initialize();
 }
 

@@ -12,10 +12,11 @@ public:
 	~TestProject();
 	virtual void initialize() override;
 	static Project* openProject(QString proj_path);
-
+        GObjectSharedPtr getSceneGraphRoot();
 private:
 	TestProject(QFile* proj_file);
         ProjectSection* sceneGraphSection;
         GObjectSharedPtr sceneGraphRoot;
+        //TODO: see if the friend can be removed
 	friend TestApplication;
 };

@@ -43,3 +43,8 @@ Project * TestProject::openProject(QString proj_path)
 	return prj;
 
 }
+
+GObjectSharedPtr TestProject::getSceneGraphRoot()
+{
+    return sceneGraphRoot;
+}
