@@ -13,7 +13,8 @@ TestProject::TestProject(QFile* proj_file)
     sceneGraphSection = nullptr;
 	jsonDocument = QJsonDocument::fromJson(file->readAll());
     //rootJsonObject = jsonDocument.object();
-    if(addSection("SceneGraph"))
+
+    if(addSection<Node>("SceneGraph"))
     {
         sceneGraphSection = getSection("SceneGraph");
     }

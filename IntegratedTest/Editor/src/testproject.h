@@ -15,7 +15,7 @@ public:
         GObjectSharedPtr getSceneGraphRoot();
 private:
 	TestProject(QFile* proj_file);
-        ProjectSection* sceneGraphSection;
+        std::shared_ptr<ProjectSection> sceneGraphSection;
         GObjectSharedPtr sceneGraphRoot;
         //TODO: see if the friend can be removed
 	friend TestApplication;

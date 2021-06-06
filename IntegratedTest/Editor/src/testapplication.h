@@ -1,7 +1,9 @@
 #pragma once
 
+#include <Engine/Node.h>
+
 #include <GEditor/core/application.h>
-//#include <GEditor/ui/windows/projectwindow.h>
+#include <GEditor/ui/windows/treelistwindow.h>
 
 using namespace GFramework::Editor;
 
@@ -15,5 +17,5 @@ public:
 	virtual void openProject(QString path) override;
 
 private:
-   //ProjectWindow* nodeBrowserWindow;
+   std::shared_ptr<TreeListWindow<GFrameworkTest::Node>> nodeBrowserWindow;
 };

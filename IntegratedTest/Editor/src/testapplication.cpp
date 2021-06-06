@@ -4,7 +4,7 @@
 #include <GEditor/utilities/logger.h>
 #include <GEditor/ui/menus/contextmenu.h>
 #include <GEditor/ui/windows/projectwindow.h>
-#include <Engine/Node.h>
+
 
 #include "testproject.h"
 #include "testapplication.h"
@@ -32,8 +32,8 @@ void TestApplication::initialize()
 	Application::initialize();
 
     //create additional windows
-    //nodeBrowserWindow = new ProjectWindow("Node Browser", mainWindow);
-    //mainWindow->addDockWidget(Qt::LeftDockWidgetArea, nodeBrowserWindow);
+    nodeBrowserWindow = make_shared<TreeListWindow<Node>>("Node Browser", mainWindow);
+    mainWindow->addWindow(nodeBrowserWindow.get());
 
 	//register types
 	auto m = GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node");
@@ -55,7 +55,14 @@ void TestApplication::initialize()
 
     prj_window_ctx_mnu->add("Create/Node", []
     {
-        auto selection = Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection();
+        auto window = dynamic_cast<TreeListWindow<Node>*>(Application::instance()->mainWindow->getWindow("Node Browser"));
+        if(window == nullptr)
+        {
+            Logger::critical() << "Unable to cast 'Node Browser' window when invoking content menu 'Create/Node'";
+            return;
+        }
+
+        auto selection = window->getSelection();
         NodeSharedPtr parent;
         if(selection.size() > 0)
         {
@@ -63,11 +70,17 @@ void TestApplication::initialize()
         }
         else
         {
-            auto projoect = dynamic_cast<TestProject*>(Application::instance()->getProject());
-            parent = dynamic_pointer_cast<Node>(projoect->getSceneGraphRoot());
+            auto project = dynamic_cast<TestProject*>(Application::instance()->getProject());
+            parent = dynamic_pointer_cast<Node>(project->getSceneGraphRoot());
         }
         auto object = make_shared<Node>("DefaultNode", parent);
-        Application::instance()->getProject()->getSection("SceneGraph")->addObject(object);
+        auto section = dynamic_pointer_cast<ProjectSectionOfType<Node>>(Application::instance()->getProject()->getSection("SceneGraph"));
+        if(!section)
+        {
+            Logger::critical() << "Unable to cast 'SceneGraph' section when invoking content menu 'Create/Node'";
+            return;
+        }
+        section->addObject(object);
         Logger::debug() << "Node addded";
     });
 
@@ -87,7 +100,7 @@ void TestApplication::newProject(QString path)
 	}
 
 	project = new TestProject(file);
-    mainWindow->getDefaultProjectWindow()->setModel(project->getSection("SceneGraph")->getModel());
+    nodeBrowserWindow->setModel(project->getSection("SceneGraph")->getModel());
 	project->initialize();
 }
 

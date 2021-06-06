@@ -98,9 +98,9 @@ namespace GFrameworkTest
         parent.setValue(_parent);
 	}
 
-	Node* Node::getParent()
+    GFrameworkTest::NodeSharedPtr Node::getParent()
 	{
-        return parent.getValue().get();
+        return parent.getValue();
 	}
 
 	void Node::addChild(NodeSharedPtr _child)
