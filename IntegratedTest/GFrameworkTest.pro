@@ -7,6 +7,7 @@ SUBDIRS += \
 
 
 
- #Editor.depends = Engine
+ Editor.depends = Engine
+ Editor.depends = GEditor
 
-CONFIG += ordered
+#CONFIG += ordered

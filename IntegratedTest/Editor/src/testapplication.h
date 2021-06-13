@@ -5,6 +5,8 @@
 #include <GEditor/core/application.h>
 #include <GEditor/ui/windows/treelistwindow.h>
 
+Q_DECLARE_METATYPE(GFrameworkTest::NodeSharedPtr);
+
 using namespace GFramework::Editor;
 
 class TestApplication : public Application
