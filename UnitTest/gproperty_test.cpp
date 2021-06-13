@@ -23,7 +23,7 @@ namespace property_test {
 			int i = 0;
 		}
 
-		virtual GMetaclass* getMetaclass() override {
+		virtual GMetaclass* getMetaclass() const override {
 			return nullptr;
 		}
 
@@ -109,7 +109,7 @@ void GFRAMEWORK_TEST_API run_property_testcases()
 		CHECK_ARITHMETIC_PROPERTY(int8, GInt8Property);
 
 		//int16 property
-		CHECK_ARITHMETIC_PROPERTY(int16, GInt16troperty);
+		CHECK_ARITHMETIC_PROPERTY(int16, GInt16Property);
 
 		//int32 property
 		CHECK_ARITHMETIC_PROPERTY(int32, GInt32Property);
@@ -216,10 +216,10 @@ void GFRAMEWORK_TEST_API run_property_testcases()
 		shared_ptr<property_test::Node> n1 = make_shared<property_test::Node>(23);
 		{
 			shared_ptr<property_test::Node> n2 = make_shared<property_test::Node>(47);
-			n1->interested_object.setValue(n2.get());
+			n1->interested_object.setValue(n2);
 			assert(n1->interested_object.getValue()->id == 47);
 		}
-		assert(n1->interested_object.getValue() == nullptr);
+		assert(n1->interested_object.getValue()->id == 47);
 
 		cout << "Ok" << endl;
 	}

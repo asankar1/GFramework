@@ -25,7 +25,7 @@ using namespace GFrameworkTest;
 	BEGIN_DEFINE_META(Node)
 		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
 		.function("NodeFileInfo", NodeFileInfo)
-		.define<Node>("node")
+		.define<Node>("Node")
 		.baseMetaclass("GObject", { "GFramework" })
 		.version(1)
 		.functionPublic("about", &Node::about)
@@ -48,7 +48,7 @@ namespace GFrameworkTest
 	}
 	Node::Node(const char *_name, NodeSharedPtr& _parent) : GObject(_name)
 	{	
-		parent.setValue(_parent.get());
+		parent.setValue(_parent);
 		cout << "Node '" << getName() << "' constructed." << endl;
 	}
 
@@ -86,19 +86,19 @@ namespace GFrameworkTest
 		cout << "Node '" << getName() << "' initialized." << endl;
 	}
 
-	GMetaclass* Node::getMetaclass()
+	GMetaclass* Node::getMetaclass() const
 	{
 		return GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node");
 	}
 
 	void Node::setParent(NodeSharedPtr _parent)
 	{
-		parent.setValue(_parent.get());
+		parent.setValue(_parent);
 	}
 
 	Node* Node::getParent()
 	{
-		return parent.getValue();
+		return parent.getValue().get();
 	}
 
 	void Node::addChild(NodeSharedPtr _child)

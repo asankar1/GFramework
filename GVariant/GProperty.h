@@ -17,30 +17,44 @@ namespace GFramework
 	typedef std::shared_ptr<GPropertyInterface> GPropertyInterfaceSharedPtr;
 	typedef std::unique_ptr<GPropertyInterface> GPropertyInterfaceUniquePtr;
 
-	void register_lua_script_functions(lua_State *L, std::vector<luaL_Reg>& GPropertiesList);
+	void register_lua_script_functions(lua_State* L, std::vector<luaL_Reg>& GPropertiesList);
 
+	template <typename T>
+	struct GFRAMEWORK_API GPropertyUtility
+	{
+		//static_assert(false, "This template must be specialized for each property type, this will be used by GReflection");
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(T value);
+	};
+
+#if 0
 	template <typename T>
 	class GFRAMEWORK_API GPropertyConverter
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(T t);
+		//static_assert(false, "This template must be specialized for each property type, this will be used by GReflection");
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(T v);
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(T t);
+		static T parseTextToData(std::istream& is);
 	};
+#endif
 
 	class GFRAMEWORK_API GPropertyInterface
 	{
 	public:
-		template<typename T>
+		/*template<typename T>
 		static public GPropertyInterfaceUniquePtr ToProperty(T value)
 		{
-			return GPropertyConverter<T>::convertToProperty(value);
-		}
+			return GPropertyConverter<T>::convertDataToGProperty(value);
+		}*/
 		virtual void set(GVariant& _value) = 0;
 		virtual GVariant get() const = 0;
 		virtual std::ostream& writeBinaryValue(std::ostream& os) const = 0;
 		virtual std::istream& readBinaryValue(std::istream& is) = 0;
 		virtual std::ostream& writeASCIIValue(std::ostream& os) const = 0;
 		virtual std::istream& readASCIIValue(std::istream& is) = 0;
-		virtual bool isGObjectPointer() {
+		virtual bool isGObjectPointer() const {
 			return false;
 		}
 
@@ -58,6 +72,8 @@ namespace GFramework
 		static_assert(std::is_arithmetic<T>::value, "Template argument T to GArithmeticProperty must be an arithmetic type!");
 	public:
 		GArithmeticProperty(T v = std::numeric_limits<T>::min());
+		
+		bool operator==(const T& rhs) { return (value == rhs); }
 
 		virtual void set(GVariant& _value);
 
@@ -82,7 +98,9 @@ namespace GFramework
 	class GFRAMEWORK_API GStringProperty : public GPropertyInterface
 	{
 	public:
-		GStringProperty();
+		GStringProperty(const std::string v = "");
+
+		bool operator==(const std::string& rhs) { return (value == rhs); }
 
 		virtual void set(GVariant& _value);
 
@@ -110,6 +128,8 @@ namespace GFramework
 	public:
 		GGlmProperty(T v = T());
 
+		bool operator==(const T& rhs) { return (value == rhs); }
+
 		virtual void set(GVariant& _value);
 
 		void setValue(T _value);
@@ -133,9 +153,12 @@ namespace GFramework
 	class  GPointerPropertyInterface : public GPropertyInterface
 	{
 	public:
+		virtual unsigned int getObjectId() const = 0;
 		virtual void subjectDeleted() = 0;
-                GPointerPropertyInterface(const GPointerPropertyInterface&) = delete;
-                GPointerPropertyInterface& operator=(const GPointerPropertyInterface&) = delete;
+		GPointerPropertyInterface(const GPointerPropertyInterface&) = delete;
+		GPointerPropertyInterface& operator=(const GPointerPropertyInterface&) = delete;
+		virtual GObjectSharedPtr getGObjectPointer() const = 0;
+		virtual void setGObjectPointer(GObjectSharedPtr) = 0;
 
 	protected:
 		GPointerPropertyInterface() {}
@@ -144,11 +167,15 @@ namespace GFramework
 	template<typename T>
 	class  GPointerProperty : public GPointerPropertyInterface
 	{
-		//static_assert(std::is_pointer<T>::value, "Template argument to GPointerProperty must be a pointer!");
-		//TODO: fix //static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 	public:
-		GPointerProperty(T* v = nullptr) : value(v){
+		GPointerProperty(std::shared_ptr<T> v = std::shared_ptr<T>(nullptr)) : value(v) {
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
+		}
 
+		virtual unsigned int getObjectId() const
+		{
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
+			return objectId;
 		}
 
 		virtual ~GPointerProperty() {
@@ -157,33 +184,54 @@ namespace GFramework
 			}
 		}
 
-		virtual bool isGObjectPointer() {
+		virtual bool isGObjectPointer() const {
 			return true;
 		}
 
 		virtual std::type_index getPointedGObjectTypeIndex() {
-			return typeid(T);
+			return typeid(std::shared_ptr<T>);
 		}
 
 		virtual void set(GVariant& _value) {
-			setValue(GVariant::cast<T*>(_value));
+			setValue(GVariant::cast<std::shared_ptr<T>>(_value));
 		}
 
-		void setValue(T* _value) {
+		void setValue(std::shared_ptr<T> _value) {
 			if (value != nullptr) {
 				value->unSubscribeDeletionNotification(this);
 			}
 			value = _value;
 			if (value != nullptr) {
+				objectId = value->getObjectId();
 				value->subscribeDeletionNotification(this);
 			}
+			else {
+				objectId = 0;
+			}
+		}
+		
+		virtual void setGObjectPointer(GObjectSharedPtr v)
+		{
+			value = std::dynamic_pointer_cast<T>(v);
+			if (value != nullptr) {
+				objectId = value->getObjectId();
+			}
+			else {
+				objectId = 0;
+			}
+
+		}
+
+		virtual GObjectSharedPtr getGObjectPointer() const
+		{
+			return value;
 		}
 
 		virtual GVariant get() const {
-			return GVariant::create <T*>(value);
+			return GVariant::create < std::shared_ptr<T> >(value);
 		}
 
-		T* getValue() const {
+		std::shared_ptr<T> getValue() const {
 			return value;
 		}
 
@@ -192,6 +240,7 @@ namespace GFramework
 		}
 
 		virtual std::ostream& writeBinaryValue(std::ostream& os) const {
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 			if (value)
 			{
 				os << value->getObjectId();
@@ -204,9 +253,8 @@ namespace GFramework
 		}
 
 		virtual std::istream& readBinaryValue(std::istream& is) {
-			uint32 pointer_obj_id = 0;
-			is >> pointer_obj_id;
-			if (pointer_obj_id)
+			is >> objectId;
+			if (objectId)
 			{
 				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
@@ -214,6 +262,7 @@ namespace GFramework
 		}
 
 		virtual std::ostream& writeASCIIValue(std::ostream& os) const {
+			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 			if (value)
 			{
 				os << value->getObjectId();
@@ -225,9 +274,8 @@ namespace GFramework
 			return os;
 		}
 		virtual std::istream& readASCIIValue(std::istream& is) {
-			uint32 pointer_obj_id = 0;
-			is >> pointer_obj_id;
-			if (pointer_obj_id)
+			is >> objectId;
+			if (objectId)
 			{
 				//TODO: Fix: GDeserializer::addReferenceSeeker(pointer_obj_id, value);
 			}
@@ -235,16 +283,30 @@ namespace GFramework
 		}
 
 	private:
-		T* value;
+		std::shared_ptr<T> value;
+		unsigned int objectId=0;
 	};
 
+#if 0
 	template <>
 	class GFRAMEWORK_API GPropertyConverter<glm::vec2>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec2 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::vec2 value)
 		{
 			return std::make_unique< GGlmProperty<glm::vec2> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::vec2 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -252,9 +314,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::vec3>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec3 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::vec3 value)
 		{
 			return std::make_unique< GGlmProperty<glm::vec3> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::vec3 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -262,9 +336,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::vec4>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::vec4 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::vec4 value)
 		{
 			return std::make_unique< GGlmProperty<glm::vec4> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::vec4 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -272,9 +358,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::mat2>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat2 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::mat2 value)
 		{
 			return std::make_unique< GGlmProperty<glm::mat2> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::mat2 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -282,9 +380,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::mat3>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat3 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::mat3 value)
 		{
 			return std::make_unique< GGlmProperty<glm::mat3> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::mat3 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -292,9 +402,21 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<glm::mat4>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(glm::mat4 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(glm::mat4 value)
 		{
 			return std::make_unique< GGlmProperty<glm::mat4> >(value);
+		}
+
+		static auto parseTextToData(std::istream& is)
+		{
+			glm::mat4 value;
+			const unsigned int size = sizeof(decltype(value)) / sizeof(decltype(value)::value_type);
+			float* pointer = glm::value_ptr(value);
+			for (unsigned int i = 0; i < size; i++)
+			{
+				is >> std::hex >> *((int32*)pointer + i);
+			}
+			return value;
 		}
 	};
 
@@ -302,7 +424,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<bool>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(bool value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(bool value)
 		{
 			return std::make_unique< GArithmeticProperty<bool> >(value);
 		}
@@ -312,7 +434,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int8>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int8 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int8 value)
 		{
 			return std::make_unique< GArithmeticProperty<int8> >(value);
 		}
@@ -322,7 +444,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint8>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint8 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint8 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint8> >(value);
 		}
@@ -332,7 +454,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int16>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int16 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int16 value)
 		{
 			return std::make_unique< GArithmeticProperty<int16> >(value);
 		}
@@ -342,7 +464,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint16>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint16 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint16 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint16> >(value);
 		}
@@ -352,7 +474,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int32>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int32 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int32 value)
 		{
 			return std::make_unique< GArithmeticProperty<int32> >(value);
 		}
@@ -362,7 +484,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint32>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint32 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint32 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint32> >(value);
 		}
@@ -372,7 +494,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<int64>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(int64 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(int64 value)
 		{
 			return std::make_unique< GArithmeticProperty<int64> >(value);
 		}
@@ -382,7 +504,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<uint64>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(uint64 value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(uint64 value)
 		{
 			return std::make_unique< GArithmeticProperty<uint64> >(value);
 		}
@@ -392,7 +514,7 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<float>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(float value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(float value)
 		{
 			return std::make_unique< GArithmeticProperty<float> >(value);
 		}
@@ -402,12 +524,22 @@ namespace GFramework
 	class GFRAMEWORK_API GPropertyConverter<double>
 	{
 	public:
-		static GPropertyInterfaceUniquePtr convertToProperty(double value)
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(double value)
 		{
 			return std::make_unique< GArithmeticProperty<double> >(value);
 		}
 	};
 
+	template <>
+	class GFRAMEWORK_API GPropertyConverter <std::string>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(std::string value)
+		{
+			return std::make_unique< GStringProperty >(value);
+		}
+	};
+#endif
 	/*template<typename T>
 	class  GProperty : public GPropertyInterface
 	{
@@ -448,7 +580,7 @@ namespace GFramework
 	typedef GArithmeticProperty<char> GCharProperty;
 	typedef GArithmeticProperty<int8> GInt8Property;
 	typedef GArithmeticProperty<uint8> GUint8Property;
-	typedef GArithmeticProperty<int16> GInt16troperty;
+	typedef GArithmeticProperty<int16> GInt16Property;
 	typedef GArithmeticProperty<uint16> GUint16Property;
 	typedef GArithmeticProperty<int32> GInt32Property;
 	typedef GArithmeticProperty<uint32> GUint32Property;
@@ -458,4 +590,176 @@ namespace GFramework
 	typedef GArithmeticProperty<double> GDoubleProperty;
 	typedef GPointerProperty<GObject> GObjectPointerProperty;
 	//typedef GPointerProperty<Node> GNodePointerProperty;
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<bool>
+	{
+		typedef bool dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<int8>
+	{
+		typedef int8 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<uint8>
+	{
+		typedef uint8 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<int16>
+	{
+		typedef int16 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<uint16>
+	{
+		typedef uint16 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<int32>
+	{
+		typedef int32 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<uint32>
+	{
+		typedef uint32 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<int64>
+	{
+		typedef int64 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<uint64>
+	{
+		typedef uint64 dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<float>
+	{
+		typedef float dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<double>
+	{
+		typedef double dataType;
+		typedef GArithmeticProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<glm::vec2>
+	{
+		typedef glm::vec2 dataType;
+		typedef GGlmProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<glm::vec3>
+	{
+		typedef glm::vec3 dataType;
+		typedef GGlmProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<glm::vec4>
+	{
+		typedef glm::vec4 dataType;
+		typedef GGlmProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<glm::mat2>
+	{
+		typedef glm::mat2 dataType;
+		typedef GGlmProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<glm::mat3>
+	{
+		typedef glm::mat3 dataType;
+		typedef GGlmProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<glm::mat4>
+	{
+		typedef glm::mat4 dataType;
+		typedef GGlmProperty<dataType> GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<std::string>
+	{
+		typedef std::string dataType;
+		typedef GStringProperty GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
+
+	template <>
+	struct GFRAMEWORK_API GPropertyUtility<GObjectSharedPtr>
+	{
+		typedef GObjectSharedPtr dataType;
+		typedef GObjectPointerProperty GPropertyType;
+		static GPropertyInterfaceSharedPtr create();
+		static GPropertyInterfaceSharedPtr create(dataType value);
+	};
 }

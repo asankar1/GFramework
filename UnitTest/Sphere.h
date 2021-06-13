@@ -61,7 +61,7 @@ namespace GFrameworkTest
 		*/
 		virtual void about();
 
-		virtual GMetaclass* getMetaclass();
+		virtual GMetaclass* getMetaclass() const;
 	protected:
 		//sphere() {}
 		void reconstruct();

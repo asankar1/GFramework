@@ -79,7 +79,7 @@ namespace GFrameworkTest
 		* get the parent of the node object		
 		* \return parent node
 		*/
-		Node* getParent();
+        NodeSharedPtr getParent();
 
 		/**
 		* Add a child node to the node object
@@ -103,7 +103,7 @@ namespace GFrameworkTest
 
         //virtual GMetaclass* metaclassName();
 
-        virtual GMetaclass* getMetaclass() override;
+        virtual GMetaclass* getMetaclass() const override;
 
 		//protected://TODO: Fix
 		Node():GObject() {}

@@ -1,12 +1,15 @@
+#include <memory>
+
 #include <GFramework/GReflection/GReflection.h>
 #include <GEditor/utilities/logger.h>
 #include <GEditor/ui/menus/contextmenu.h>
 #include <GEditor/ui/windows/projectwindow.h>
-#include <Engine/Node.h>
+
 
 #include "testproject.h"
 #include "testapplication.h"
 
+using namespace std;
 using namespace GFramework;
 using namespace GFramework::Editor;
 using namespace GFrameworkTest;
@@ -29,35 +32,60 @@ void TestApplication::initialize()
 	Application::initialize();
 
     //create additional windows
-    //nodeBrowserWindow = new ProjectWindow("Node Browser", mainWindow);
-    //mainWindow->addDockWidget(Qt::LeftDockWidgetArea, nodeBrowserWindow);
+    nodeBrowserWindow = make_shared<TreeListWindow<Node>>("Node Browser", mainWindow);
+    mainWindow->addWindow(nodeBrowserWindow.get(), Qt::LeftDockWidgetArea);
 
 	//register types
 	auto m = GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node");
     std::shared_ptr<GObjectEditorInfo> node_info = std::make_shared<GObjectEditorInfo>();
 	node_info->contextMenu = std::make_shared<ContextMenu>();
     node_info->contextMenu->add("ResetNode", []() {
-        for(auto var : Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection())
+        auto window = dynamic_cast<TreeListWindow<Node>*>(Application::instance()->mainWindow->getWindow("Node Browser"));
+        for(auto var : window->getSelection())
 		{
 			Logger::debug() << "Node " << var->getName().c_str() << " reset";
 		}
 		
 	});
+
     //Application::instance()->registerObjectType(m, QString(""));
     Application::instance()->registerObjectType(m, node_info);
-
+#if 1
 	//create project window context menu
-	auto prj_window = mainWindow->getDefaultProjectWindow();
-	ContextMenu* mnu = prj_window->getContextMenu();
-	mnu->add("Create/node", [] {	Logger::debug() << "Node addded";
-    auto selection = Application::instance()->mainWindow->getDefaultProjectWindow()->getSelection();
-	NodeSharedPtr np;
-    if(selection.size() > 0)
+    //auto prj_window = mainWindow->getDefaultProjectWindow();
+    auto prj_window_ctx_mnu = nodeBrowserWindow->getContextMenu();
+
+    prj_window_ctx_mnu->add("Create/Node", []
     {
-        //np = selection.back();
-    }
-	GObjectSharedPtr object(new Node("Node1", np));
-    /*Application::instance()->getProject()->addObject(object);*/ });
+        auto window = dynamic_cast<TreeListWindow<Node>*>(Application::instance()->mainWindow->getWindow("Node Browser"));
+        if(window == nullptr)
+        {
+            Logger::critical() << "Unable to cast 'Node Browser' window when invoking content menu 'Create/Node'";
+            return;
+        }
+
+        auto selection = window->getSelection();
+        NodeSharedPtr parent;
+        if(selection.size() > 0)
+        {
+            parent = dynamic_pointer_cast<Node>(selection.back());
+        }
+        else
+        {
+            auto project = dynamic_cast<TestProject*>(Application::instance()->getProject());
+            parent = dynamic_pointer_cast<Node>(project->getSceneGraphRoot());
+        }
+        auto object = make_shared<Node>("DefaultNode", parent);
+        auto section = dynamic_pointer_cast<ProjectSectionOfType<Node>>(Application::instance()->getProject()->getSection("SceneGraph"));
+        if(!section)
+        {
+            Logger::critical() << "Unable to cast 'SceneGraph' section when invoking content menu 'Create/Node'";
+            return;
+        }
+        section->addObject(object);
+        Logger::debug() << "Node addded";
+    });
+#endif
 
 	/*test t1;
 	mnu->addActionHandler("Create/Cube", std::bind(&test::callback, &t1));
@@ -75,7 +103,8 @@ void TestApplication::newProject(QString path)
 	}
 
 	project = new TestProject(file);
-	project->initialize();
+    project->initialize();
+    nodeBrowserWindow->setModel(project->getSection("SceneGraph")->getModel());
 }
 
 void TestApplication::openProject(QString path)

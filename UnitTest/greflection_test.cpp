@@ -32,7 +32,7 @@ void GFRAMEWORK_TEST_API run_reflection_testcases()
 	GMetaNamespace GFrameworkTest = GMetaNamespaceList::_global()._namespace("GFrameworkTest");
 	GMetaNamespace GFramework = GMetaNamespaceList::_global()._namespace("GFramework");
 	GMetaclass *objectmeta = GFramework.getMetaclass("GObject");// GMetaclassList::instance().getMetaclass("GObject");
-	GMetaclass *nodemeta = GFrameworkTest.getMetaclass("node");// GMetaclassList::instance().getMetaclass("node");
+	GMetaclass *nodemeta = GFrameworkTest.getMetaclass("Node");// GMetaclassList::instance().getMetaclass("node");
 	GMetaclass *spheremeta = GFrameworkTest.getMetaclass("sphere");// GMetaclassList::instance().getMetaclass("sphere");
 
 	NodeSharedPtr np(NULL);
@@ -184,12 +184,7 @@ void GFRAMEWORK_TEST_API run_reflection_testcases()
 		vector<GVariant> args_f1;
 		GVariant r = f1->invoke(&n, args_f1);
 
-		auto f2 = objectmeta->getPublicMemberFunction("setObjectId");
-		vector<GVariant> args_f2;
-		args_f2.push_back(444U);
-		f2->invoke(&n, args_f2);
-
-		assert(GVariant::cast<const unsigned int&>(r) == 444);
+		assert(GVariant::cast<const unsigned int&>(r) > 0);
 	}
 
 	// call function taking void arguments and return void 
@@ -299,15 +294,6 @@ void GFRAMEWORK_TEST_API run_reflection_testcases()
 		GVariant v = false;
 		pv->set(&n, v);
 		assert(n.visibility.getValue() == false);
-	}
-
-	cout << "\nSet the non-public property of a class" << endl;
-	{
-		auto pv = nodemeta->getProperty("Position");
-		glm::vec3 pos(10, 11, 13);
-		GVariant v = GVariant::create<const glm::vec3 &>(pos);
-		pv->set(&n, v);
-		assert(n.getPosition() == pos);
 	}
 
 #if 0

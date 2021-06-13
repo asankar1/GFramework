@@ -513,7 +513,7 @@ void GFRAMEWORK_TEST_API run_variant_testcases()
 		CHECK_POINTER_TYPE(const float);
 		CHECK_POINTER_TYPE(const float);
 		CHECK_POINTER_TYPE(const float);
-		CHECK_POINTER_TYPE(const double);
+		CHECK_POINTER_TYPE(const double); 
 		CHECK_POINTER_TYPE(const double);
 		CHECK_POINTER_TYPE(const double);
 		CHECK_POINTER_TYPE(const double);

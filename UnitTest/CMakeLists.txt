@@ -39,7 +39,7 @@ file(
 
 
 include_directories(${TEST_ROOT})
-include_directories(${TEST_ROOT}/../..)
+include_directories(${GFRAMEWORK_PATH}/include)
 include_directories(${THIRDPARTY_LUA_PATH}/src)
 include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
@@ -116,6 +116,7 @@ install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_
 		)
 		
 install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug/"
+						"${GFRAMEWORK_PATH}/bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug/"
 			CONFIGURATIONS Debug
 			DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
@@ -127,7 +128,12 @@ install	(	TARGETS gframework_static_test gframework_shared_test gframework_test_
 		)
 		
 install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release/"
+						"${GFRAMEWORK_PATH}/bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release/"
 			CONFIGURATIONS Release
 			DESTINATION ./test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
 		)		
+		
+install	(	FILES "${TEST_ROOT}/script.lua"
+			DESTINATION ./test
+		)				

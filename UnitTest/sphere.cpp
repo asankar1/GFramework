@@ -19,7 +19,7 @@ using namespace GFrameworkTest;
 	BEGIN_DEFINE_META(sphere)
 		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
 			.define<sphere>("sphere")
-				.baseMetaclass("node", {"GFrameworkTest"})
+				.baseMetaclass("Node", {"GFrameworkTest"})
 				.version(1)
 				.constructor<void*()>("DefaultCons")
 				.constructor<void*(unsigned int)>("Cons1")
@@ -84,7 +84,7 @@ namespace GFrameworkTest
 		cout << "Radius: " << radius.getValue() << endl;
 	}
 
-	GMetaclass* sphere::getMetaclass()
+	GMetaclass* sphere::getMetaclass() const
 	{
 		return GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere");
 	}

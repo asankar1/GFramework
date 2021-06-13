@@ -27,9 +27,17 @@ namespace GFramework
 
 	/*! \brief This the base class for all the other classes.
 	*/
-	class GFRAMEWORK_API GObject
+	class GFRAMEWORK_API GObject : public std::enable_shared_from_this<GObject>
 	{
 	public:
+		GObject(const GObject& obj);
+
+		GObject(const GObject&& obj);
+
+		GObject& operator=(const GObject&);
+
+		GObject& operator=(const GObject&&);
+
 		virtual ~GObject();
 
 		/**
@@ -69,7 +77,7 @@ namespace GFramework
 		* Typically this should return the metaclass of the class.
 		* \return constant pointer to the string
 		*/
-		virtual GMetaclass* getMetaclass() = 0;
+		virtual GMetaclass* getMetaclass() const = 0;
 
 		/**
 		* This is a virtual function, all the inheritors may override to have its own implementation.
@@ -131,7 +139,7 @@ namespace GFramework
 		*/
 		GObject(const char *_name);
 
-		GObject() {}
+		GObject();
 
 	private:
 		/**
@@ -147,6 +155,6 @@ namespace GFramework
 		std::map<GObject*,  unsigned int> observers;
 		std::set<GPointerPropertyInterface*> deletion_subscribers;
 		friend GDeserializer;
-		//META_FRIEND(GObject);
+		//DECLARE_META_FRIEND(GObject);
 	};
 }
