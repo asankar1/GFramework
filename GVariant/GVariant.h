@@ -3,7 +3,7 @@
 #include <glm/vec3.hpp>
 #include <boost/variant.hpp>
 #include <boost/any.hpp>
-#include <GScript/GFrameworkLua.h>
+#include <GFramework/GScript/GFrameworkLua.h>
 
 
 /*! \file GVariant.h
@@ -15,6 +15,7 @@ namespace GFramework
 {
 	class GObject;
 	typedef std::shared_ptr<GObject> GObjectSharedPtr;
+	typedef std::shared_ptr<const GObject> GObjectConstSharedPtr;
 
 	int GFRAMEWORK_API open_lua_variant_module(lua_State *L);
 

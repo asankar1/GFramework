@@ -1,6 +1,6 @@
 #include <sstream>
-#include <GVariant/GVariant.h>
-#include <GVariant/GProperty.h>
+#include <GFramework/GVariant/GVariant.h>
+#include <GFramework/GVariant/GProperty.h>
 
 using namespace std;
 
@@ -80,10 +80,10 @@ namespace GFramework
 		return 1;
 	}
 
-	int open_lua_variant_module(lua_State *L)
+	/*int open_lua_variant_module(lua_State *L)
 	{
 		luaL_requiref(L, "GVariant", register_lua_variant_module, 1);
 
 		return 1;
-	}
+	}*/
 }

@@ -17,12 +17,14 @@ file(
 	GLOB
 	header_files
 	${GSERIALIZATION_ROOT}/GSerializer.h
+	${GSERIALIZATION_ROOT}/GStringSerializer.h
 )
 
 file(
 	GLOB
 	source_files
 	${GSERIALIZATION_ROOT}/GSerializer.cpp
+	${GSERIALIZATION_ROOT}/GStringSerializer.cpp
 )
 
 add_library(
@@ -34,7 +36,7 @@ add_library(
 set_property(TARGET gserialization_shared PROPERTY CXX_STANDARD 14)
 
 
-include_directories(${GFRAMEWORK_ROOT})
+include_directories(${GFRAMEWORK_ROOT}/../)
 include_directories(${include_paths})
 
 add_library(
@@ -49,7 +51,7 @@ set_output_paths(gserialization)
 
 
 install	(	DIRECTORY ${GSERIALIZATION_ROOT}
-			DESTINATION ./include
+			DESTINATION ./include/GFramework
 			FILES_MATCHING PATTERN "*.h"
 		)
 		

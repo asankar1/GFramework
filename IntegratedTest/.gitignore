@@ -34,6 +34,7 @@
 # Visual studio files
 *.VC.*db
 *.VC.db
+.vs
 
 # Zip files
 *.7z
@@ -45,6 +46,12 @@ output/
 Documentation/Output
 _Sample/
 Exec*
+Editor/Debug
+Editor/Release
+Editor/x64
+Engine/Debug
+Engine/Release
+Engine/x64
 
 # Project specific files
 Documentation/DUMP

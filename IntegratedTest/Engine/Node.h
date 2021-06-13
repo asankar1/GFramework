@@ -2,8 +2,8 @@
 #include <vector>
 #include <glm/vec3.hpp>
 #include <boost/shared_ptr.hpp>
-#include <GVariant/GObject.h>
-#include <GReflection/GReflection.h>
+#include <GFramework/GVariant/GObject.h>
+#include <GFramework/GReflection/GReflection.h>
 
 #ifdef VARIANT_DYNAMIC_LIBRARY
 #ifdef DLL_EXPORT
@@ -19,17 +19,28 @@
 *	\brief class, functions, enums, typedefs, macros and other definitions related to Node class.
 */
 
-namespace GFramework
+namespace GFrameworkTest
 {
+	using namespace GFramework;
 	/*! \brief This the base class for all the types of nodes.
 	*/
+
+	void NodeFileInfo();
+
 	class Node;
 	typedef std::shared_ptr<Node> NodeSharedPtr;
-	class Node : public GObject
+    class GFRAMEWORKTEST_API Node : public GObject
 	{
 	public:
 		/**
 		* Constructs the node class.
+		* \param _name is the name of the object.
+		* \return Nil
+		*/
+		Node(const char *_name);
+
+		/**
+		* Constructs the node class as a child to a parent node.
 		* \param _name is the name of the object.
 		* \param _parent is the parent object to the sphere onject
 		* \return Nil
@@ -40,19 +51,10 @@ namespace GFramework
 
 		/**
 		* Sets the position of the node.
-		* \param x is x position of the node
-		* \param y is y position of the node
-		* \param z is z position of the node
+		* \param _pos is position of the node
 		* \return void
 		*/
-		void setPosition(float x, float y, float z);
-
-		/**
-		* Sets the position of the node.
-		* \param pos is position of the node
-		* \return void
-		*/
-		void setPosition_(glm::vec3 &&pos);
+		void setPosition(const glm::vec3& _pos);
 
 		/**
 		* Gets the position of the node.
@@ -77,7 +79,7 @@ namespace GFramework
 		* get the parent of the node object		
 		* \return parent node
 		*/
-		Node* getParent();
+        NodeSharedPtr getParent();
 
 		/**
 		* Add a child node to the node object
@@ -99,17 +101,23 @@ namespace GFramework
 		*/
 		virtual void initialize();
 
-		virtual const char* metaclassName();
+        //virtual GMetaclass* metaclassName();
 
+        virtual GMetaclass* getMetaclass() const override;
 
-	//protected://TODO: Fix
+		//protected://TODO: Fix
 		Node():GObject() {}
+
+		GBoolProperty visibility;
+	protected:
+		const char* getMagicString();
+
 	private:
 		GVec3Property position; /*!< Position of the node*/
 		GPointerProperty<Node> parent; /*!< Pointer to the parent of the node object*/
 		std::vector<NodeSharedPtr> children;
 
-		META_FRIEND(Node);
+		//META_FRIEND(Node);
 	};
 }
 

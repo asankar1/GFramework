@@ -15,3 +15,6 @@ set(GFRAMEWORK_SHARED_LIB_EXT "dll")
 
 set(CMAKE_C_COMPILER H:/cygwin64/bin/gcc.exe)
 set(CMAKE_CXX_COMPILER H:/cygwin64/bin/g++.exe)
+
+set(GFRAMEWORK_IMPORT_API __declspec\(dllimport\))
+set(GFRAMEWORK_EXPORT_API __declspec\(dllexport\))

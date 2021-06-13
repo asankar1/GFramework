@@ -4,9 +4,9 @@
 #include <cassert>
 #include <limits>
 #include <array>
-#include <GVariant/GObject.h>
-#include <GVariant/GVariant.h>
-#include <GVariant/GProperty.h>
+#include <GFramework/GVariant/GObject.h>
+#include <GFramework/GVariant/GVariant.h>
+#include <GFramework/GVariant/GProperty.h>
 #include "gproperty_test.h"
 
 using namespace std;
@@ -15,6 +15,7 @@ using namespace GFramework;
 namespace property_test {
 	class Node : public GObject {
 	public:
+		Node() {}
 		Node(int i) :id(i) {}
 		virtual void initialize() {
 		}
@@ -22,8 +23,8 @@ namespace property_test {
 			int i = 0;
 		}
 
-		virtual const char* metaclassName() {
-			return "Node";
+		virtual GMetaclass* getMetaclass() const override {
+			return nullptr;
 		}
 
 		GPointerProperty<Node> interested_object;
@@ -31,7 +32,7 @@ namespace property_test {
 	};
 }
 
-void run_property_testcases()
+void GFRAMEWORK_TEST_API run_property_testcases()
 {
 	cout << "===========================" << endl;
 	cout << "Startig GProperty testcases" << endl;
@@ -108,7 +109,7 @@ void run_property_testcases()
 		CHECK_ARITHMETIC_PROPERTY(int8, GInt8Property);
 
 		//int16 property
-		CHECK_ARITHMETIC_PROPERTY(int16, GInt16troperty);
+		CHECK_ARITHMETIC_PROPERTY(int16, GInt16Property);
 
 		//int32 property
 		CHECK_ARITHMETIC_PROPERTY(int32, GInt32Property);
@@ -215,10 +216,10 @@ void run_property_testcases()
 		shared_ptr<property_test::Node> n1 = make_shared<property_test::Node>(23);
 		{
 			shared_ptr<property_test::Node> n2 = make_shared<property_test::Node>(47);
-			n1->interested_object.setValue(n2.get());
+			n1->interested_object.setValue(n2);
 			assert(n1->interested_object.getValue()->id == 47);
 		}
-		assert(n1->interested_object.getValue() == nullptr);
+		assert(n1->interested_object.getValue()->id == 47);
 
 		cout << "Ok" << endl;
 	}

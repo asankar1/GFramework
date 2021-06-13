@@ -1,6 +1,7 @@
 #include <sstream>
 #include <iomanip>
-#include <GVariant/GProperty.h>
+#include <GFramework/GVariant/GProperty.h>
+#include <GFramework/GVariant/GObject.h>
 using namespace std;
 
 namespace GFramework
@@ -59,7 +60,7 @@ namespace GFramework
 	void register_lua_script_functions(lua_State *L, vector<luaL_Reg>& GPropertiesList)
 	{
 		GPropertiesList.push_back({ "newVec2", new_vec2_data });
-	}	
+	}
 
 	template <typename T>
 	GArithmeticProperty<T>::GArithmeticProperty(T v):value(v) {
@@ -88,7 +89,7 @@ namespace GFramework
 
 	template <typename T>
 	std::ostream& GArithmeticProperty<T>::writeASCIIValue(std::ostream& os) const {
-		os << value << " ";
+		os << std::dec << value << " ";
 		return os;
 	}
 
@@ -106,7 +107,7 @@ namespace GFramework
 
 	template <typename T>
 	std::istream& GArithmeticProperty<T>::readASCIIValue(std::istream& is) {
-		is >> value;
+		is >> std::dec >> value;
 		return is;
 	}
 
@@ -134,8 +135,8 @@ namespace GFramework
 		return is;
 	}
 
-	GStringProperty::GStringProperty() {
-
+	GStringProperty::GStringProperty(const std::string v) {
+		value = v;
 	}
 
 	void GStringProperty::set(GVariant& _value) {
@@ -251,6 +252,17 @@ namespace GFramework
 		is.read(reinterpret_cast<char*>(pointer), size * sizeof(float));
 		return is;
 	}
+#if 0
+	template <>
+	class GFRAMEWORK_API GPropertyConverter<GObject>
+	{
+	public:
+		static GPropertyInterfaceUniquePtr convertDataToGProperty(GObject* value)
+		{
+			return std::make_unique< GPointerProperty<GObject> >(value);
+		}
+	};
+#endif
 
 	template class GArithmeticProperty<bool>;
 	template class GArithmeticProperty<int8>;
@@ -269,4 +281,196 @@ namespace GFramework
 	template class GGlmProperty<glm::mat2>;
 	template class GGlmProperty<glm::mat3>;
 	template class GGlmProperty<glm::mat4>;
+	//template class GPropertyConverter<GObject>;
+
+	
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::vec2>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::vec2>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::vec3>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::vec3>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::vec4>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::vec4>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::mat2>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::mat2>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::mat3>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::mat3>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::mat4>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<glm::mat4>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<bool>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<bool>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int8>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int8>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint8>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint8>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int16>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int16>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint16>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint16>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int32>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int32>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint32>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint32>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int64>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<int64>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint64>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<uint64>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<float>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<float>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<double>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<double>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<std::string>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<std::string>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<GObjectSharedPtr>::create()
+	{
+		return std::make_shared< GPropertyType >();
+	}
+
+	GPropertyInterfaceSharedPtr GPropertyUtility<GObjectSharedPtr>::create(dataType value)
+	{
+		return std::make_unique< GPropertyType >(value);
+	}
 }

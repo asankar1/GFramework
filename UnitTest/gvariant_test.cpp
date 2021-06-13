@@ -3,13 +3,16 @@
 #include <cassert>
 #include <limits>
 #include <cmath>
-#include <boost/core/typeinfo.hpp>
-#include <GVariant/GVariant.h>
+#include <array>
 
+#include <GFramework/GVariant/GVariant.h>
 #include "gvariant_test.h"
+#ifndef Q_MOC_RUN
+#include <boost/core/typeinfo.hpp>
 #include <boost/variant.hpp>
 #include <boost/function.hpp>
-#include <array>
+#endif
+
 using namespace std;
 using namespace GFramework;
 
@@ -150,7 +153,7 @@ typedef int(base_class::*virtual_member_func_ptr(void));
 
 typedef int(derived_class::*nonvirtual_member_func_ptr(void));
 
-void run_variant_testcases()
+void GFRAMEWORK_TEST_API run_variant_testcases()
 {
 	/*
 	std::cout << endl << "Starting test cases for 'Variant'..." << endl << endl;
@@ -510,7 +513,7 @@ void run_variant_testcases()
 		CHECK_POINTER_TYPE(const float);
 		CHECK_POINTER_TYPE(const float);
 		CHECK_POINTER_TYPE(const float);
-		CHECK_POINTER_TYPE(const double);
+		CHECK_POINTER_TYPE(const double); 
 		CHECK_POINTER_TYPE(const double);
 		CHECK_POINTER_TYPE(const double);
 		CHECK_POINTER_TYPE(const double);

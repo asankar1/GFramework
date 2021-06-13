@@ -1,4 +1,4 @@
-#include <GLua_data_exchange.h>
+#include <GFramework/GScript/GLua_data_exchange.h>
 
 namespace GFramework
 {

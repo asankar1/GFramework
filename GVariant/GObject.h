@@ -5,19 +5,9 @@
 #include <memory>
 #include <map>
 #include <set>
-#include <GVariant/GProperty.h>
-#include <GReflection/GReflection.h>
-//#include <GSerialization/GSerializer.h>
-
-#ifdef VARIANT_DYNAMIC_LIBRARY
-#ifdef DLL_EXPORT
-#define LIBRARY_API __declspec( dllexport )
-#else
-#define LIBRARY_API __declspec( dllimport )
-#endif
-#else
-#define LIBRARY_API
-#endif
+#include <GFramework/GVariant/GProperty.h>
+#include <GFramework/GReflection/GReflection.h>
+//#include <GFramework/GSerialization/GSerializer.h>
 
 /*! \file GObject.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to GObject class.
@@ -37,9 +27,17 @@ namespace GFramework
 
 	/*! \brief This the base class for all the other classes.
 	*/
-	class GFRAMEWORK_API GObject
+	class GFRAMEWORK_API GObject : public std::enable_shared_from_this<GObject>
 	{
 	public:
+		GObject(const GObject& obj);
+
+		GObject(const GObject&& obj);
+
+		GObject& operator=(const GObject&);
+
+		GObject& operator=(const GObject&&);
+
 		virtual ~GObject();
 
 		/**
@@ -54,13 +52,6 @@ namespace GFramework
 		* \return object_id as const unsigned int
 		*/
 		const unsigned int& getObjectId() const;
-
-		/**
-		* set the id of the object
-		* \param _newid is an unsigned int as the new object_id
-		* \return void
-		*/
-		void setObjectId(unsigned int _newid);
 
 		/**
 		* Add a new object to the observers list
@@ -83,10 +74,10 @@ namespace GFramework
 
 		/**
 		* This is a pure virtual function, all the inheritors should implement this.
-		* Typically this should return the metaclass name of the class.
+		* Typically this should return the metaclass of the class.
 		* \return constant pointer to the string
 		*/
-		virtual const char* metaclassName() = 0;
+		virtual GMetaclass* getMetaclass() const = 0;
 
 		/**
 		* This is a virtual function, all the inheritors may override to have its own implementation.
@@ -140,6 +131,7 @@ namespace GFramework
 		const std::string & getName() const;
 
 	protected:
+
 		/**
 		* Constructs the GObject class.
 		* \param _name is a string reference.
@@ -147,14 +139,22 @@ namespace GFramework
 		*/
 		GObject(const char *_name);
 
-		GObject() {}
+		GObject();
 
 	private:
+		/**
+		* set the id of the object
+		* \param _newid is an unsigned int as the new object_id
+		* \return void
+		*/
+		void setObjectId(uint32 _newid);
+
 		GStringProperty name; /*!< Name of the object*/
 		GUint32Property object_id;
 		static std::atomic<unsigned int> atomic_count;
 		std::map<GObject*,  unsigned int> observers;
 		std::set<GPointerPropertyInterface*> deletion_subscribers;
-		META_FRIEND(GObject);
+		friend GDeserializer;
+		//DECLARE_META_FRIEND(GObject);
 	};
 }

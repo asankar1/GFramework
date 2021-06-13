@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <GVariant/GVariant.h>
+#include <GFramework/GVariant/GVariant.h>
 
 namespace GFramework
 {
@@ -58,7 +58,7 @@ namespace GFramework
 		{
 			if (v)
 			{
-				const char* metaclass_name = v->metaclassName();
+				const char* metaclass_name = v->getMetaclass()->getName().c_str();
 				size_t nbytes = sizeof(Glua_abstract_ptr);
 				Glua_abstract_ptr* userdata = (Glua_abstract_ptr*)lua_newuserdata(L, nbytes);
 				userdata->object = v.get();

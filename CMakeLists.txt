@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
 
 message(STATUS "-----------------------------------")
 message(STATUS "Main CMakeLists file for GFramework")
@@ -27,7 +27,7 @@ project(GFramework)
 
 include(toolchain_utilities)
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/Build/output CACHE PATH "Select the install path for GFramework" FORCE)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/output/GFramework CACHE PATH "Select the install path for GFramework" FORCE)
 
 # Host PC configuration
 set(HOST_SCRIPT_EXT bat)
@@ -74,17 +74,22 @@ add_library(
 	$<TARGET_OBJECTS:gscript_shared>
 )
 
+set(GFRAMEWORK_BUILD_TEST OFF CACHE BOOL "Select to build the test for Gframework")
+		
+if(${GFRAMEWORK_BUILD_TEST} MATCHES ON)
+	add_subdirectory(UnitTest)
+endif(${GFRAMEWORK_BUILD_TEST} MATCHES ON)
 		
 install	(	TARGETS gframework_static gframework_shared
 			CONFIGURATIONS Debug
-			RUNTIME DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
+			RUNTIME DESTINATION ./bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
 			LIBRARY DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
 			ARCHIVE DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Debug
 		)
 
 install	(	TARGETS gframework_static gframework_shared
 			CONFIGURATIONS Release
-			RUNTIME DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
+			RUNTIME DESTINATION ./bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 			LIBRARY DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 			ARCHIVE DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 		)

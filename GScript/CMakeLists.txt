@@ -50,7 +50,7 @@ add_library(
 set_property(TARGET gscript_shared PROPERTY CXX_STANDARD 14)
 
 
-include_directories(${GFRAMEWORK_ROOT})
+include_directories(${GFRAMEWORK_ROOT}/../)
 include_directories(${include_paths})
 
 add_library(
@@ -66,7 +66,7 @@ set_output_paths(gscript)
 
 
 install	(	DIRECTORY ${GSCRIPT_ROOT}
-			DESTINATION ./include
+			DESTINATION ./include/GFramework
 			FILES_MATCHING PATTERN "*.h"
 		)
 		
