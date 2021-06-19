@@ -95,6 +95,12 @@ namespace GFrameworkTest
 		*/
 		NodeSharedPtr getChild(size_t index);
 
+        /**
+        * gets the child count
+        * \return child count
+        */
+        size_t getChildCount();
+
 		/**
 		* Initializes the node object
 		* \return void

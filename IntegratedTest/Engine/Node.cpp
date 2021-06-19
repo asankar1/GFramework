@@ -82,6 +82,11 @@ namespace GFrameworkTest
 		return children.at(index);
 	}
 
+    size_t Node::getChildCount()
+    {
+        return children.size();
+    }
+
 	void Node::initialize()
 	{
 		cout << "Node '" << getName() << "' initialized." << endl;

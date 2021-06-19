@@ -114,5 +114,5 @@ void TestApplication::openProject(QString path)
 		Logger::critical() << "The project " << path << " does not exist!";
 		return;
 	}
-	project = TestProject::openProject(path);
+    project = TestProject::openProject(path);
 }
