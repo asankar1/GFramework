@@ -177,7 +177,7 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 			class_name = line.substr(pos + strlen("class name:"));
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (class_name.empty())
 	{
@@ -195,7 +195,7 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 			std::istringstream(line) >> unique_id;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
@@ -213,14 +213,14 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 			std::istringstream(line) >> version;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
 		return *this;
 	}
 
-	if (!stream->eof())
+	if (stream->good())
 	{
 		std::vector < std::string > namespaces_class;
 		GMetaNamespace* nm = &GMetaNamespaceList::_global();
@@ -236,11 +236,15 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 		}
 
 		GMetaclass* metaclass = nm->getMetaclass(namespaces_class.back().c_str());
+		if (!metaclass)
+		{
+			cerr << "Unable to find metaclass " << namespaces_class.back() << endl;
+		}
 		*_obj = metaclass->createInstance();
 
 		setObject_id(*_obj, unique_id);
 
-		while (!stream->eof())
+		while (stream->good())
 		{
 			std::getline(*stream, line);
 			auto pos = line.find(objectDelimiter);
@@ -301,7 +305,7 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 			class_name = line.substr(pos + strlen("class name:"));
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (class_name.empty())
 	{
@@ -319,7 +323,7 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 			std::istringstream(line) >> unique_id;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
@@ -337,14 +341,14 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 			std::istringstream(line) >> version;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
 		return *this;
 	}
 
-	if (!stream->eof())
+	if (stream->good())
 	{
 		std::vector < std::string > namespaces_class;
 		GMetaNamespace* nm = &GMetaNamespaceList::_global();
@@ -364,7 +368,7 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 
 		setObject_id(*_obj, unique_id);
 
-		while (!stream->eof())
+		while (stream->good())
 		{
 			std::getline(*stream, line);
 			auto pos = line.find(objectDelimiter);

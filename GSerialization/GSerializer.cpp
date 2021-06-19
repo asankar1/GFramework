@@ -290,7 +290,7 @@ namespace GFramework
 
 	void GDeserializer::close()
 	{
-		while (!stream->eof())
+		while (stream->good())
 		{
 			GObjectSharedPtr heap_object = nullptr;
 			(*this) >> &heap_object;
@@ -407,7 +407,7 @@ namespace GFramework
 				class_name = line.substr(pos + strlen("class name:"));
 				break;
 			}
-		} while (!stream->eof());
+		} while (stream->good());
 
 		if (class_name.empty())
 		{
@@ -425,7 +425,7 @@ namespace GFramework
 				std::istringstream(line) >> unique_id;
 				break;
 			}
-		} while (!stream->eof());
+		} while (stream->good());
 
 		if (line.empty())
 		{
@@ -443,14 +443,14 @@ namespace GFramework
 				std::istringstream(line) >> version;
 				break;
 			}
-		} while (!stream->eof());
+		} while (stream->good());
 
 		if (line.empty())
 		{
 			return *this;
 		}
 
-		if(!stream->eof())
+		if(stream->good())
 		{
 			std::vector < std::string > namespaces_class;
 			GMetaNamespace* nm = &GMetaNamespaceList::_global();
@@ -470,7 +470,7 @@ namespace GFramework
 			
 			setObject_id(*_obj, unique_id);
 
-			while (!stream->eof())
+			while (stream->good())
 			{
 				std::getline(*stream, line);
 				auto pos = line.find(objectDelimiter);
