@@ -46,8 +46,8 @@ namespace GFramework
 		virtual bool writeMetaProperty(const GObject* _obj, GMetaproperty* property);
 	protected:
 		virtual GSerializer& write(const GPropertyInterface& property);
-		virtual GSerializer& write(const GObject& _obj);
-		struct GObjectTypeHandler
+		virtual GSerializer& write(const GObjectSharedPtr& _obj) override;
+		/*struct GObjectTypeHandler
 		{
 			static void write(GStringSerializer& stream, GObject& obj)
 			{
@@ -71,7 +71,7 @@ namespace GFramework
 			{
 				GStringSerializerWriter::write(stream, *value);
 			}
-		};
+		};*/
 		const char* objectDelimiter;
 	};
 

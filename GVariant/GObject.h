@@ -102,26 +102,8 @@ namespace GFramework
 
 		void unSubscribeDeletionNotification(GPointerPropertyInterface* _observer);
 
-		void name_modified() {
-			std::cout << "someone modified my name" << std::endl;
-		}
-
 		static void about() {
 			std::cout << "This is the base object!" << std::endl;
-		}
-
-		static unsigned int count() {
-			return 112233;
-		}
-
-		static int add(int x, int y) {
-			return (x+y);
-		}
-
-		static void updateMagicNumber(int x) {
-			static int i;
-			std::cout << "Old MagicNumber is " << i << " and new MagicNumber is " << x << std::endl;
-			i = x;
 		}
 
 		/**

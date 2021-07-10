@@ -1,25 +1,23 @@
+#include <memory>
 #include <iostream>
 #include "Node.h"
 using namespace std;
 using namespace GFramework;
 
+template<>
+GPropertyInterfaceSharedPtr GFramework::GPropertyUtility< std::shared_ptr<GFrameworkTest::Node> >::create()
+{
+    return std::make_shared< GPointerProperty<GFrameworkTest::Node> >();
+}
+
+template<>
+GPropertyInterfaceSharedPtr GFramework::GPropertyUtility< shared_ptr<GFrameworkTest::Node> >::create(shared_ptr<GFrameworkTest::Node> value)
+{
+    return std::make_unique< GPointerProperty<GFrameworkTest::Node> >(value);
+}
+
 namespace GFrameworkTest
 {
-	/*BEGIN_DEFINE_META(Node)
-		GMetaclassList::instance().define<Node>("node")
-			.baseMetaclass("GObject")
-			.version(1)
-			.function("about", &Node::about)
-			.function("getPosition", &Node::getPosition)
-			.function("setPosition", &Node::setPosition)
-			.function("setParent", &Node::setParent)
-			.function("getParent", &Node::getParent)
-			.function("addChild", &Node::addChild)
-			.function("getChild", &Node::getChild)
-			.editableProperty("position", &Node::position)
-			.property("parent", &Node::parent);
-	END_DEFINE_META(Node)*/
-
 	BEGIN_DEFINE_META(Node)
 		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
 		.function("NodeFileInfo", NodeFileInfo)
@@ -33,10 +31,11 @@ namespace GFrameworkTest
 		.functionPublic("getParent", &Node::getParent)
 		.functionPublic("addChild", &Node::addChild)
 		.functionPublic("getChild", &Node::getChild)
-		.property("visibility", &Node::visibility)
-		.property("Position", &Node::getPosition, &Node::setPosition)
-		/*.editableProperty("position", &Node::position)
-		.property("parent", &Node::parent)*/;
+        .property("parent", &Node::getParent, &Node::setParent)
+        //.property("position", &Node::getPosition, &Node::setPosition)
+        .editableProperty("visibility", &Node::visibility)
+        .editableProperty("position", &Node::position)
+        ;
 	END_DEFINE_META(Node)
 
 	void NodeFileInfo()
@@ -77,12 +76,12 @@ namespace GFrameworkTest
 			cout << "Parent: " << parent.getValue()->getName() << endl;
 	}
 
-	NodeSharedPtr Node::getChild(size_t index)
+    NodeSharedPtr Node::getChild(size_t index) const
 	{
 		return children.at(index);
 	}
 
-    size_t Node::getChildCount()
+    size_t Node::getChildCount() const
     {
         return children.size();
     }
@@ -101,9 +100,9 @@ namespace GFrameworkTest
 	void Node::setParent(NodeSharedPtr _parent)
 	{
         parent.setValue(_parent);
-	}
+    }
 
-    GFrameworkTest::NodeSharedPtr Node::getParent()
+    GFrameworkTest::NodeSharedPtr Node::getParent() const
 	{
         return parent.getValue();
 	}

@@ -79,7 +79,7 @@ namespace GFrameworkTest
 		* get the parent of the node object		
 		* \return parent node
 		*/
-        NodeSharedPtr getParent();
+        NodeSharedPtr getParent() const;
 
 		/**
 		* Add a child node to the node object
@@ -93,13 +93,13 @@ namespace GFrameworkTest
 		* \param index as size_t
 		* \return child at the index
 		*/
-		NodeSharedPtr getChild(size_t index);
+        NodeSharedPtr getChild(size_t index) const;
 
         /**
         * gets the child count
         * \return child count
         */
-        size_t getChildCount();
+        size_t getChildCount() const;
 
 		/**
 		* Initializes the node object
@@ -114,12 +114,13 @@ namespace GFrameworkTest
 		//protected://TODO: Fix
 		Node():GObject() {}
 
-		GBoolProperty visibility;
+        GBoolProperty visibility;
+        GVec3Property position; /*!< Position of the node*/
 	protected:
 		const char* getMagicString();
 
 	private:
-		GVec3Property position; /*!< Position of the node*/
+
 		GPointerProperty<Node> parent; /*!< Pointer to the parent of the node object*/
 		std::vector<NodeSharedPtr> children;
 
