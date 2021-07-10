@@ -39,7 +39,7 @@ file(
 
 
 include_directories(${TEST_ROOT})
-include_directories(${GFRAMEWORK_PATH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../)
 include_directories(${THIRDPARTY_LUA_PATH}/src)
 include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
