@@ -23,17 +23,21 @@ GStringDeserializer& GStringDeserializerReader::read<short>(GStringDeserializer&
 	return stream;
 }
 
-struct Color
+class Color
 {
+public:
 	Color() {}
-	Color(int8 _r, int8 _g, int8 _b, int8 _a) : r(_r), g(_g), b(_b), a(_a) {}
-	int8 r=0, g=0, b=0, a=0;
+	Color(uint8 _r, uint8 _g, uint8 _b, uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
+	uint8 r=0, g=0, b=0, a=0;
+	bool operator==(const Color& rhs) { return (this->r == rhs.r && this->g == rhs.g && this->b == rhs.b && this->a == rhs.a); }
 };
 namespace GFramework {
 	class GColorProperty : public GPropertyInterface
 	{
 	public:
 		GColorProperty(Color v = Color()) : value(v) {}
+
+		bool operator==(const Color& rhs) { return (value == rhs); }
 
 		virtual void set(GVariant& _value)
 		{
@@ -57,7 +61,7 @@ namespace GFramework {
 
 		std::ostream& writeASCIIValue(std::ostream& os) const
 		{
-			os << (unsigned short)value.r << " " << (unsigned short)value.g << " " << (unsigned short)value.b << " " << (unsigned short)value.a << " ";
+			os << value.r << " " << value.g << " " << value.b << " " << value.a << " ";
 			return os;
 		}
 
@@ -158,6 +162,7 @@ public:
 	GDoubleProperty  get_gdoubleproperty_private() const { return gdoubleproperty_private; };
 	GStringProperty  get_gstringproperty_private() const { return gstringproperty_private; };
 	GObjectPointerProperty  get_gobjectpointerproperty_private() const { return gobjectpointerproperty_private; };
+	GColorProperty  get_gcolorproperty_private() const { return gcolorproperty_private; };
 
 	void set_gvec2property_private(GVec2Property  v) { gvec2property_private = v; };
 	void set_gvec3property_private(GVec3Property  v) { gvec3property_private = v; };
@@ -179,6 +184,7 @@ public:
 	void set_gdoubleproperty_private(GDoubleProperty  v) { gdoubleproperty_private = v; };
 	void set_gstringproperty_private(GStringProperty  v) { gstringproperty_private = v; };
 	void set_gobjectpointerproperty_private(GObjectPointerProperty   v) { gobjectpointerproperty_private = v; };
+	void set_gcolorproperty_private(GColorProperty   v) { gcolorproperty_private = v; };
 	
 public:
 	GVec2Property gvec2property_public;
@@ -201,6 +207,7 @@ public:
 	GDoubleProperty gdoubleproperty_public;
 	GStringProperty gstringproperty_public;
 	GObjectPointerProperty gobjectpointerproperty_public;
+	GColorProperty gcolorproperty_public;
 private:
 	GVec2Property gvec2property_private;
 	GVec3Property gvec3property_private;
@@ -222,6 +229,7 @@ private:
 	GDoubleProperty gdoubleproperty_private;
 	GStringProperty gstringproperty_private;
 	GObjectPointerProperty gobjectpointerproperty_private;
+	GColorProperty gcolorproperty_private;
 
 };
 
@@ -249,6 +257,7 @@ GMetaNamespaceList::_global()
 .property("gdoubleproperty_private", &SerializationTestClass::get_gdoubleproperty_private, &SerializationTestClass::set_gdoubleproperty_private)
 .property("gstringproperty_private", &SerializationTestClass::get_gstringproperty_private, &SerializationTestClass::set_gstringproperty_private)
 .property("gobjectpointerproperty_private", &SerializationTestClass::get_gobjectpointerproperty_private, &SerializationTestClass::set_gobjectpointerproperty_private)
+.property("gcolorproperty_private", &SerializationTestClass::get_gcolorproperty_private, &SerializationTestClass::set_gcolorproperty_private)
 .property("gvec2property_public", &SerializationTestClass::gvec2property_public)
 .property("gvec3property_public", &SerializationTestClass::gvec3property_public)
 .property("gvec4property_public", &SerializationTestClass::gvec4property_public)
@@ -269,6 +278,7 @@ GMetaNamespaceList::_global()
 .property("gdoubleproperty_public", &SerializationTestClass::gdoubleproperty_public)
 .property("gstringproperty_public", &SerializationTestClass::gstringproperty_public)
 .property("gobjectpointerproperty_public", &SerializationTestClass::gobjectpointerproperty_public)
+.property("gcolorproperty_public", &SerializationTestClass::gcolorproperty_public)
 ;
 END_DEFINE_META(SerializationTestClass)
 
@@ -340,6 +350,7 @@ void run_serialization_testcases()
 		double double_val = 3.14;
 		string string_val = "default string value";
 		GObjectSharedPtr gobject_ptr = GObjectSharedPtr(nullptr);
+		Color blue(0, 0, 255, 255);
 
 
 		
@@ -366,6 +377,7 @@ void run_serialization_testcases()
 		SETUP_PUBLIC_PROPERTY(gstringproperty_public, string_val);
 		SETUP_PUBLIC_PROPERTY(gdoubleproperty_public, double_val);
 		SETUP_PUBLIC_PROPERTY(gobjectpointerproperty_public, gobject_ptr);
+		SETUP_PUBLIC_PROPERTY(gcolorproperty_public, blue);
 		
 		/*auto gobjectpointerproperty_public_assigner = [&]() {write_obj->gobjectpointerproperty_public = gobject_ptr; };
 		gobjectpointerproperty_public_assigner();
@@ -396,6 +408,7 @@ void run_serialization_testcases()
 		SETUP_PRIVATE_PROPERTY(gdoubleproperty_private, double_val);
 		SETUP_PRIVATE_PROPERTY(gstringproperty_private, string_val);
 		SETUP_PRIVATE_PROPERTY(gobjectpointerproperty_private, gobject_ptr);
+		SETUP_PRIVATE_PROPERTY(gcolorproperty_private, blue);
 		//TODO: find a way to test the below
 		//write_obj->set_gobjectpointerproperty_private(gobject_ptr);
 
@@ -452,6 +465,7 @@ void run_serialization_testcases()
 		//TODO: find a way to use assignment operator for the GObjectPointer
 		//assert(ptr->gobjectpointerproperty_public.getValue() == gobject_ptr);
 		VERIFY_PROPERTY(gobjectpointerproperty_public, ptr);
+		VERIFY_PROPERTY(gcolorproperty_public, ptr);
 
 		VERIFY_PROPERTY(gvec2property_private, ptr);
 		VERIFY_PROPERTY(gvec3property_private, ptr);
@@ -473,6 +487,7 @@ void run_serialization_testcases()
 		VERIFY_PROPERTY(gdoubleproperty_private, ptr);
 		VERIFY_PROPERTY(gstringproperty_private, ptr);
 		VERIFY_PROPERTY(gobjectpointerproperty_private, ptr);
+		VERIFY_PROPERTY(gcolorproperty_private, ptr);
 	}
 #endif
 #if 0
