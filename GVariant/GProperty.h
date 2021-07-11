@@ -75,6 +75,8 @@ namespace GFramework
 		
 		bool operator==(const T& rhs) { return (value == rhs); }
 
+		bool operator==(const GArithmeticProperty<T>& rhs) { return (value == rhs.value); }
+
 		virtual void set(GVariant& _value);
 
 		void setValue(T _value);
@@ -93,6 +95,9 @@ namespace GFramework
 
 	private:
 		T value;
+
+	public:
+		using type = decltype(value);
 	};
 
 	class GFRAMEWORK_API GStringProperty : public GPropertyInterface
@@ -101,6 +106,8 @@ namespace GFramework
 		GStringProperty(const std::string v = "");
 
 		bool operator==(const std::string& rhs) { return (value == rhs); }
+
+		bool operator==(const GStringProperty& rhs) { return (value == rhs.value); }
 
 		virtual void set(GVariant& _value);
 
@@ -120,6 +127,10 @@ namespace GFramework
 
 	private:
 		std::string value;
+
+	public:
+		using type = decltype(value);
+
 	};
 
 	template <typename T>
@@ -129,6 +140,8 @@ namespace GFramework
 		GGlmProperty(T v = T());
 
 		bool operator==(const T& rhs) { return (value == rhs); }
+
+		bool operator==(const GGlmProperty<T>& rhs) { return (value == rhs.value); }
 
 		virtual void set(GVariant& _value);
 
@@ -148,6 +161,9 @@ namespace GFramework
 
 	private:
 		T value;
+
+	public:
+		using type = decltype(value);
 	};
 
 	class  GPointerPropertyInterface : public GPropertyInterface
@@ -173,6 +189,8 @@ namespace GFramework
 		}
 		
 		bool operator==(const std::shared_ptr<T> rhs) { return (value == rhs); }
+
+		bool operator==(const GPointerProperty<T>& rhs) { return (value == rhs.value); }
 
 		virtual unsigned int getObjectId() const
 		{
@@ -231,7 +249,8 @@ namespace GFramework
 		}
 
 		virtual GVariant get() const {
-			return GVariant::create < std::shared_ptr<T> >(value);
+			//return GVariant::create < std::shared_ptr<T> >(value);
+			return GVariant::create(value);
 		}
 
 		std::shared_ptr<T> getValue() const {
@@ -290,6 +309,8 @@ namespace GFramework
 	private:
 		std::shared_ptr<T> value;
 		unsigned int objectId=0;
+	public:
+		using type = decltype(value);
 	};
 
 #if 0

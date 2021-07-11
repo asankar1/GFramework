@@ -25,4 +25,13 @@ namespace GFramework
 
 	//64bit unsigned integer
 	typedef unsigned long long int uint64;
+
+	//32bit float
+	typedef float float32;
+
+	//64bit float
+	typedef double float64;
+
+	//80bit float
+	typedef long double float80;
 }
