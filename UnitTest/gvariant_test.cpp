@@ -624,28 +624,61 @@ void test_gvariant_compund_types_class(GVariant& gv)
 void test_gvariant_compund_types_function(GVariant& gv)
 {
 	bool result = true;
+	auto f1 = []()->int {return 345; };
+	gv = GVariant::create(f1);
+	result = result && (GVariant::cast<decltype(f1)>(gv)() == 345);
 
 	PRINT_TESTCASE_NAME("function object");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_enum(GVariant& gv)
 {
 	bool result = true;
+	enum BgColor
+	{
+		black,
+		white,
+		blue
+	};
+	
+	BgColor v1 = BgColor::black;
+	gv = GVariant::create(v1);
+	result = result && (GVariant::cast<BgColor >(gv) == BgColor::black);
 
 	PRINT_TESTCASE_NAME("Enum");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_union(GVariant& gv)
 {
 	bool result = true;
+	union id
+	{
+		uint8 sender_id;
+		uint8 receiver_id;
+	};
+
+	id v1;
+	v1.sender_id = 243;
+
+	gv = GVariant::create(v1);
+	result = result && (GVariant::cast<id>(gv).receiver_id == v1.sender_id);
 
 	PRINT_TESTCASE_NAME("Union");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_GVariant(GVariant& gv)
@@ -659,61 +692,133 @@ void test_gvariant_compund_types_GVariant(GVariant& gv)
 
 	PRINT_TESTCASE_NAME("GVariant inside GVariant");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_string(GVariant& gv)
 {
 	bool result = true;
 
+	std::string  v1 = "Test str";
+	gv = GVariant::create(v1);
+	result = result && (GVariant::cast<std::string>(gv) == v1);
+
 	PRINT_TESTCASE_NAME("string");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_wstring(GVariant& gv)
 {
 	bool result = true;
 
+	std::wstring  v1 = L"Test str";
+	gv = GVariant::create(v1);
+	result = result && (GVariant::cast<std::wstring>(gv) == v1);
+
 	PRINT_TESTCASE_NAME("wstring");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_vector(GVariant& gv)
 {
 	bool result = true;
 
+	std::vector<uint64> objectid;
+	objectid.push_back(123);
+	objectid.push_back(456);
+	objectid.push_back(789);
+	gv = GVariant::create(objectid);
+	result = result && (GVariant::cast<std::vector<uint64>>(gv)[0] ==123);
+	result = result && (GVariant::cast<std::vector<uint64>>(gv)[1] ==456);
+	result = result && (GVariant::cast<std::vector<uint64>>(gv)[2] ==789);
+
 	PRINT_TESTCASE_NAME("std::vector");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_list(GVariant& gv)
 {
 	bool result = true;
 
+	std::list<uint64> objectid;
+	objectid.push_back(123);
+	objectid.push_back(456);
+	objectid.push_back(789);
+
+	gv = GVariant::create(objectid);
+
+	//Must store the casted value into a variable,
+	//calling (GVariant::cast<decltype(objectid)>(gv)).begin() will leave a dangling reference
+	auto v = (GVariant::cast<decltype(objectid)>(gv));
+	auto itr = v.begin();
+	result = result && (*itr == 123);
+	itr++;
+	result = result && (*itr == 456);
+	itr++;
+	result = result && (*itr == 789);
+	itr++;
+	result = result && (itr == v.end());
+
 	PRINT_TESTCASE_NAME("std::list");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_map(GVariant& gv)
 {
 	bool result = true;
+	std::map < uint64, glm::vec4> boundingrects;
+	boundingrects[123] = glm::vec4(1);
+	boundingrects[456] = glm::vec4(2);
+	boundingrects[789] = glm::vec4(3);
+	gv = GVariant::create(boundingrects);
+	result = result && (GVariant::cast<std::map < uint64, glm::vec4>>(gv)[123] == glm::vec4(1));
+	result = result && (GVariant::cast<std::map < uint64, glm::vec4>>(gv)[456] == glm::vec4(2));
+	result = result && (GVariant::cast<std::map < uint64, glm::vec4>>(gv)[789] == glm::vec4(3));
 
 	PRINT_TESTCASE_NAME("std::map");
 
-	PRINT_RESULT("Not Supported");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 void test_gvariant_compund_types_tuple(GVariant& gv)
 {
 	bool result = true;
 
-	PRINT_TESTCASE_NAME("std::tuple");
+	std::tuple< float32, glm::vec2, std::string> circle;
+	circle = std::make_tuple<float32, glm::vec2, std::string>(3.14f, glm::vec2(123,456), "Circle1");
+	gv = GVariant::create(circle);
+	
+	result = result && (std::get<0>(GVariant::cast<decltype(circle)>(gv)) == 3.14f);
+	result = result && (std::get<1>(GVariant::cast<decltype(circle)>(gv)) == glm::vec2(123, 456));
+	result = result && (std::get<2>(GVariant::cast<decltype(circle)>(gv)) == "Circle1");
 
-	PRINT_RESULT("Not Supported");
+	PRINT_TESTCASE_NAME("std::tuple");
+	if (result)
+		PRINT_RESULT("SUCCESS");
+	else
+		PRINT_RESULT("FAILED");
 }
 
 #if 1
