@@ -10,19 +10,19 @@ using namespace std;
 
 namespace GFramework
 {
-	std::map<unsigned int, std::vector<GPointerPropertyInterface*> > GSerializer::reference_seekers;
+	std::map<unsigned int, std::vector<std::shared_ptr<GPointerPropertyInterface> > > GSerializer::reference_seekers;
 	std::map<unsigned int, std::vector<GObjectSharedPtr> > GSerializer::reference_providers;
 	std::mutex GSerializer::reference_seeker_mutex;
 	std::mutex GSerializer::reference_provider_mutex;
 
-	std::map<unsigned int, std::vector<GPointerPropertyInterface*> > GDeserializer::reference_seekers;
+	std::map<unsigned int, std::vector<std::shared_ptr<GDeserializer::GObjectSharedPtrSetter> > > GDeserializer::reference_seekers;
 	std::map<unsigned int, GObjectSharedPtr> GDeserializer::reference_providers;
 	std::mutex GDeserializer::reference_seeker_mutex;
 	std::mutex GDeserializer::reference_provider_mutex;
 
 	GSerializer::~GSerializer()
 	{
-		close();
+		
 	}
 
 	bool GSerializer::open(OStreamSharedPtr _stream)
@@ -57,7 +57,7 @@ namespace GFramework
 		{
 			for (auto obj : p.second)
 			{
-				serializer << *(obj);
+				serializer << (obj);
 			}
 			p.second.clear();
 		}
@@ -80,15 +80,20 @@ namespace GFramework
 		}
 		else
 		{
-			auto itr = reference_providers.find(pointer_prop->getObjectId());
-			if (itr == reference_providers.end())
-			{
-				reference_providers.insert({ pointer_prop->getObjectId(), std::vector<GObjectSharedPtr>({ pointer_prop->getGObjectPointer() }) });
-			}
-			else
-			{
-				itr->second.push_back(pointer_prop->getGObjectPointer());
-			}
+			addReferenceProvider(pointer_prop->getGObjectPointer());
+		}
+	}
+
+	void GSerializer::addReferenceProvider(GObjectSharedPtr& obj)
+	{
+		auto itr = reference_providers.find(obj->getObjectId());
+		if (itr == reference_providers.end())
+		{
+			reference_providers.insert({ obj->getObjectId(), std::vector<GObjectSharedPtr>({ obj }) });
+		}
+		else
+		{
+			itr->second.push_back(obj);
 		}
 	}
 
@@ -232,7 +237,7 @@ namespace GFramework
 		for (auto itr1 = reference_seekers.begin(); itr1 != reference_seekers.end(); ++itr1)
 		{
 			unsigned int object_id = itr1->first;
-			auto provider = reference_providers[object_id];
+			GObjectSharedPtr provider = reference_providers[object_id];
 			if (provider)
 			{
 				for (auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); ++itr2)
@@ -240,7 +245,8 @@ namespace GFramework
 					auto pointer = *itr2;
 					//TODO avoid this dynamic cast
 					//pointer->reset(dynamic_cast<GObject*>(provider));
-					pointer->setGObjectPointer(provider);
+					//pointer->setGObjectPointer(provider);
+					pointer->setValue(provider);
 				}
 			}
 			else
@@ -305,7 +311,7 @@ namespace GFramework
 
 	GDeserializer::~GDeserializer()
 	{
-		close();
+		
 	}
 #if 0 //Text and binary desierializers
 	bool GBinaryDeSerializer::open(IStreamSharedPtr _stream)

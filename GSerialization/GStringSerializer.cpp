@@ -17,18 +17,18 @@ GStringSerializer::~GStringSerializer()
 {
 
 }
-GSerializer& GStringSerializer::write(const GObject& _obj)
+GSerializer& GStringSerializer::write(const GObjectSharedPtr& _obj)
 {
 
 	if (!stream->good())
 		return *this;
 
-	GMetaclass* m = _obj.getMetaclass();
+	GMetaclass* m = _obj->getMetaclass();
 	string nmstr = m->getFullNamespace();
 	//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
 	//const char* classname = m->getName().c_str();
 	*stream << "class name:" << nmstr << endl;
-	*stream << "GObjectId:" << _obj.getObjectId() << endl;
+	*stream << "GObjectId:" << _obj->getObjectId() << endl;
 	*stream << "class version:" << m->getVersion() << endl;
 	//_obj->serialize(*this);
 
@@ -40,7 +40,7 @@ GSerializer& GStringSerializer::write(const GObject& _obj)
 		string property_name = *it;
 		auto p = m->getProperty(property_name.c_str());
 
-		writeMetaProperty(&_obj, p);
+		writeMetaProperty(_obj.get(), p);
 	}
 	*stream << objectDelimiter << endl;
 	return *this;
@@ -113,6 +113,7 @@ bool GStringSerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* pr
 		{
 			cerr << "stream corrupted when writing metaproperty:" << property << endl;
 		}
+		return false;
 	}
 	*stream << endl;
 	return true;
@@ -410,7 +411,7 @@ namespace GStringSerializerWriter
 	template<>
 	GStringSerializer& write<int>(GStringSerializer& stream, int& value)
 	{
-		*stream.getStream() << std::hex << value << " ";
+		*stream.getStream() << value << " ";
 		return stream;
 	}
 }
@@ -420,7 +421,7 @@ namespace GStringDeserializerReader
 	template<>
 	GStringDeserializer& read<int>(GStringDeserializer& stream, int& value)
 	{
-		*stream.getStream() >> std::hex >> value;
+		*stream.getStream() >> value;
 		return stream;
 	}
 }
