@@ -104,15 +104,32 @@ namespace GFramework
 		many(T&& t) : boost::any(std::move(t)) {
 		}*/
 
-		template<typename T>
+		/*template<typename T>
 		void operator=(T&& rhs) {
 			*this = create<T>(rhs);
 			return;
+		}*/
+
+		// Perfect forwarding of ValueType
+		template <class ValueType>
+		many& operator=(ValueType&& rhs)
+		{
+			//many(create<ValueType&&>(rhs)).swap(*this);
+			many(create(std::forward<ValueType>(rhs))).swap(*this);
+			return *this;
 		}
 
-		void operator=(many&& rhs) {
+		/*void operator=(many&& rhs) {
 			rhs.swap(*this);
 			return;
+		}*/
+
+		// move assignement
+		many& operator=(many&& rhs) BOOST_NOEXCEPT
+		{
+			rhs.swap(*this);
+			many().swap(rhs);
+			return *this;
 		}
 
 		template<typename T>

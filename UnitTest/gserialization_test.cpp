@@ -51,7 +51,8 @@ namespace GFramework {
 
 		virtual GVariant get() const
 		{
-			return GVariant::create<Color>(value);
+			//return GVariant::create<Color>(value);
+			return GVariant::create(value);
 		}
 
 		const Color& getValue() const

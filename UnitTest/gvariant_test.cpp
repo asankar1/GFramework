@@ -437,24 +437,23 @@ void test_gvariant_compund_types_unique_ptr(GVariant& gv)
 void test_gvariant_compund_types_lvalue_ref(GVariant& gv)
 {
 	bool result = true;
+#if 0
 	int a1 = 123;
 	int& a2 = a1;
 
 	gv = GVariant::create(a2);
 	a1 = 456;
-	result = result && (GVariant::cast<int>(gv) == a1);
+	result = result && (GVariant::cast<int&>(gv) == a1);
 
 	const int& a3 = a1;
 	gv = GVariant::create(a3);
 	a1 = 789;
 	result = result && (GVariant::cast<int&>(gv) == a1);
+#endif
 
 	PRINT_TESTCASE_NAME("LValue reference");
 
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	PRINT_RESULT("Not Supported");
 }
 
 void test_gvariant_compund_types_rvalue_ref(GVariant& gv)
@@ -687,8 +686,12 @@ void test_gvariant_compund_types_GVariant(GVariant& gv)
 
 	int i = 4;
 	GVariant gv2 = i;
-	gv = gv2;
-	//result = result && (GVariant::cast<int>(gv) == 4);
+
+	gv = (gv2);
+	result = result && (GVariant::cast<int>(gv2) == 4);
+
+	gv = GVariant::create(gv2);
+	result = result && (GVariant::cast<int>(gv2) == 4);
 
 	PRINT_TESTCASE_NAME("GVariant inside GVariant");
 

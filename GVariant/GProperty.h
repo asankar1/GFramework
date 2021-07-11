@@ -249,7 +249,8 @@ namespace GFramework
 		}
 
 		virtual GVariant get() const {
-			return GVariant::create < std::shared_ptr<T> >(value);
+			//return GVariant::create < std::shared_ptr<T> >(value);
+			return GVariant::create(value);
 		}
 
 		std::shared_ptr<T> getValue() const {
