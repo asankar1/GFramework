@@ -47,9 +47,9 @@ endif(${HOSTNAME_PREFIX} MATCHES "Linux")
 #include(cpackconfig)
 
 # third party libraries
-set(THIRDPARTY_LUA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lua-5.3.4 CACHE PATH "Lua path")
-set(THIRDPARTY_GLM_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm_0_9_8_3 CACHE PATH "glm path")
-set(THIRDPARTY_BOOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/boost_1_63_0 CACHE PATH "Boost path")
+set(THIRDPARTY_LUA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lua CACHE PATH "Lua 5.3.4 path")
+set(THIRDPARTY_GLM_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm CACHE PATH "glm 0.9.8 path")
+set(THIRDPARTY_BOOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/boost CACHE PATH "Boost 1.63.0 path")
 
 add_subdirectory(GVariant)
 add_subdirectory(GSerialization)

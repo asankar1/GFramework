@@ -7,9 +7,9 @@ message(STATUS "----------------------------------------")
 set(TEST_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(GFRAMEWORK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../output/GFramework)
 set(CMAKE_MODULE_PATH ${TEST_ROOT}/../cmake ${CMAKE_MODULE_PATH})
-set(THIRDPARTY_LUA_PATH ${TEST_ROOT}/../third_party/lua-5.3.4 CACHE PATH "Lua path")
-set(THIRDPARTY_GLM_PATH ${TEST_ROOT}/../third_party/glm_0_9_8_3 CACHE PATH "glm path")
-set(THIRDPARTY_BOOST_PATH ${TEST_ROOT}/../third_party/boost_1_63_0 CACHE PATH "Boost path")
+set(THIRDPARTY_LUA_PATH ${TEST_ROOT}/../third_party/lua CACHE PATH "Lua 5.3.4 path")
+set(THIRDPARTY_GLM_PATH ${TEST_ROOT}/../third_party/glm CACHE PATH "glm 9.8 path")
+set(THIRDPARTY_BOOST_PATH ${TEST_ROOT}/../third_party/boost CACHE PATH "Boost 1.63 path")
 
 project(GFramework_Test)
 
@@ -40,7 +40,7 @@ file(
 
 include_directories(${TEST_ROOT})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../)
-include_directories(${THIRDPARTY_LUA_PATH}/src)
+include_directories(${THIRDPARTY_LUA_PATH})
 include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
 link_directories(${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
