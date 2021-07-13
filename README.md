@@ -1,6 +1,7 @@
 # GFramework
 
 The idea of GFramework is to develop a 'Generic framework' to create any application that supports and test the following:
+
   * Variant
   * Reflection
   * Serialization with versioning

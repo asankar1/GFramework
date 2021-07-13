@@ -41,7 +41,7 @@ namespace GFramework
 	GObject::GObject(const char *_name)
 	{
 		object_id.setValue(atomic_count.load());
-		atomic_count++;
+		atomic_count+=1;
 		name.setValue(string(_name));
 	}
 	
