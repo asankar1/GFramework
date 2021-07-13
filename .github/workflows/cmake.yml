@@ -1,6 +1,10 @@
 name: CMake
 
-on: workflow_dispatch
+on: 
+  push:
+    branches:
+      - ci_setup
+
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
