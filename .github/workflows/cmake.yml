@@ -36,6 +36,6 @@ jobs:
 
     - name: Building ${{ matrix.build_config }}
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build_vs2015 --config ${{ matrix.build_config }} --target install
+      run: cmake --build ${{github.workspace}}/build_vs2015_${{ matrix.build_config }} --config ${{ matrix.build_config }} --target install
 
     
