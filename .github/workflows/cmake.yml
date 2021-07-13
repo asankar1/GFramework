@@ -21,8 +21,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - name: Checkout submodules
+    - name: Checkout submodule third_party/lua
       run: git submodule update --init third_party/lua
+    - name: Checkout submodule third_party/glm
       run: git submodule update --init third_party/glm
 
     - name: Configure CMake
