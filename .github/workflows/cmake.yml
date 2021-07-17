@@ -44,6 +44,12 @@ jobs:
       run: |
         cd ${{github.workspace}}/UnitTest/output/build_vs2015/test/${{env.BUILD_TYPE}}
         .\gframework_static_test.exe --gtest_output="xml:${{github.workspace}}/UnitTest/Reports/Windows_VS2015_${{env.BUILD_TYPE}}_Report.xml"
+        
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1.19
+      if: always()
+      with:
+        files: ${{github.workspace}}/UnitTest/Reports/*.xml
       
     - name: Verify New or Changed report files
       if: ${{ success() }}
