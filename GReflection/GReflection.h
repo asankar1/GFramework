@@ -37,6 +37,10 @@
 #define GET_METACLASS_INTERNAL(c) c##_metacreator_.m
 //#define END_DEFINE_META(c) GLuaState::register_script_for_metaclass(GMetaclassList::instance().getMetaclassByType<c>());} }; static c##_metacreator _c##_metacreator;
 
+#define IS_BASE(BASE_TYPE, DERIVED_TYPE) std::is_base_of<BASE_TYPE, DERIVED_TYPE>::value	
+#define IS_SHARED_PTR(TYPE) is_shared_ptr<TYPE>::value
+#define CONDITIONAL_TYPE(CONDITION, YES_TYPE, NO_TYPE) typename std::conditional<CONDITION, YES_TYPE, NO_TYPE>::type
+
 /*! \file GReflection.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to GReflection class.
 */
@@ -137,6 +141,12 @@ namespace GFramework
 		std::map<std::string, GMetaclass*> Gmetatable;
 	};
 #endif
+	template<class T>
+	struct is_shared_ptr : std::false_type {};
+
+	template<class T>
+	struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
+
 
 	template<typename C, typename T>
 	struct class_member_var
@@ -166,6 +176,7 @@ namespace GFramework
 		virtual GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj) = 0;
 		virtual GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj) = 0;
 		virtual void write(GSerializer* os, const GObject* obj) { }
+		virtual void setGObjectSharedPointer(GObject* obj, std::shared_ptr<GObject>& value) {}
 	protected:
 		GMetaproperty(const char* _name) {
 			name = std::string(_name);
@@ -523,46 +534,121 @@ namespace GFramework
 			return ReaderType::readASCIIValue(is, obj, setter);
 		}
 	private:
-		struct GPropertyHandler
+
+		struct GPropertyHandler //the type is a GProperty
 		{
 			static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
 			{
-				auto o = std::static_pointer_cast<C>(obj);
 				using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-				arg_type prop;
-				is >> (prop);
-				(o.get()->*setter)(prop);
-				return is;
+				using ReaderType = CONDITIONAL_TYPE(IS_BASE(GPointerPropertyInterface, arg_type), ObjectPointerPropertyHandler, NonObjectPointerPropertyHandler);
+				return ReaderType::readASCIIValue(is, obj, setter);
 			}
 
 			static GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj, GETTER_F getter) {
 				const C* o = static_cast<const C*>(obj);
 				using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
 				arg_type prop((o->*getter)());
-				prop.writeASCIIValue(*os.getStream());
+				//prop.writeASCIIValue(*os.getStream());
+				os << prop;
 				return os;
 			}
+		private:
+			struct ObjectPointerPropertyHandler //the type is a GObjectpointerProperty
+			{
+				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+				{
+					//TODO
+					auto o = std::static_pointer_cast<C>(obj);
+					using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
+					arg_type prop;
+					is >> (prop);
+					if (prop.getObjectId())
+					{
+						is.addReferenceSeeker(prop.getObjectId(), obj.get(), setter);
+					}
+					return is;
+				}
+			};
+
+			struct NonObjectPointerPropertyHandler //the type is a GProperty but not GObjectPointerProperty
+			{
+				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+				{
+					auto o = std::static_pointer_cast<C>(obj);
+					using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
+					arg_type prop;
+					is >> (prop);
+					(o.get()->*setter)(prop);
+					return is;
+				}
+			};
 		};
 
-		struct NonGPropertyHandler
+		struct NonGPropertyHandler //the type is a NOT GProperty
 		{
 			static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
 			{
-				auto o = std::static_pointer_cast<C>(obj);
 				using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-				auto prop = GPropertyUtility<std::remove_cv<arg_type>::type>::create();
-				is >> (*prop);
-				(o.get()->*setter)(GVariant::cast<arg_type>(prop->get()));
-				return is;
+				using ReaderType = CONDITIONAL_TYPE(IS_SHARED_PTR(arg_type), SharedPointerHandler, NonPointerHandler);
+				return ReaderType::readASCIIValue(is, obj, setter);
 			}
 
 			static GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj, GETTER_F getter) {
 				const C* o = static_cast<const C*>(obj);
 				using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
 				auto prop = GPropertyUtility<std::remove_cv<arg_type>::type>::create((o->*getter)());
-				prop->writeASCIIValue(*os.getStream());
+				//prop->writeASCIIValue(*os.getStream());
+				os << (*prop);
 				return os;
 			}
+		private:
+			struct SharedPointerHandler //the type is some shared pointer but not shared_ptr<GObject>
+			{
+				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+				{
+					using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
+					using ReaderType = CONDITIONAL_TYPE(IS_BASE(GObject, arg_type::element_type), GObjectSharedPointerHandler, NonObjectSharedPointerHandler);
+					return ReaderType::readASCIIValue(is, obj, setter);
+				}
+			};
+
+			struct GObjectSharedPointerHandler //the type is shared_ptr<GObject> but not GProperty
+			{
+				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+				{
+					auto prop = GPropertyUtility<GObjectSharedPtr>::create();
+					is >> (*prop);
+					if (prop->getObjectId())
+					{
+						is.addReferenceSeeker(prop->getObjectId(), obj.get(), setter);
+					}
+					return is;
+				}
+			};
+
+			struct NonObjectSharedPointerHandler //the type is shared_ptr<T> but T is not GObject
+			{
+				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+				{
+					//TODO
+					static_assert(false, "Deserializing shared_ptr<T> but T is not GObject is not yet implemented");
+					return is;
+				}
+			};
+
+			struct NonPointerHandler
+			{
+				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
+				{
+					auto o = std::static_pointer_cast<C>(obj);
+					using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
+					auto prop = GPropertyUtility<std::remove_cv<arg_type>::type>::create();
+					is >> (*prop);
+					(o.get()->*setter)(GVariant::cast<arg_type>(prop->get()));
+					//(o.get()->*setter)(GVariant::cast<arg_type>(prop));
+					return is;
+				}
+			};
 		};
 		GETTER_F getter;
 		SETTER_F setter;

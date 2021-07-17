@@ -89,37 +89,37 @@ namespace GFramework
 
 	template <typename T>
 	std::ostream& GArithmeticProperty<T>::writeASCIIValue(std::ostream& os) const {
-		os << std::dec << value << " ";
+		os << value << " ";
 		return os;
 	}
 
 	template <>
 	std::ostream& GArithmeticProperty<float>::writeASCIIValue(std::ostream& os) const {
-		os << std::hex << *((int32*)&value) << " ";
+		os << *((int32*)&value) << " ";
 		return os;
 	}
 
 	template <>
 	std::ostream& GArithmeticProperty<double>::writeASCIIValue(std::ostream& os) const {
-		os << std::hex << *((int64*)&value) << " ";
+		os << *((int64*)&value) << " ";
 		return os;
 	}
 
 	template <typename T>
 	std::istream& GArithmeticProperty<T>::readASCIIValue(std::istream& is) {
-		is >> std::dec >> value;
+		is >> value;
 		return is;
 	}
 
 	template <>
 	std::istream& GArithmeticProperty<float>::readASCIIValue(std::istream& is) {
-		is >> std::hex >> *((int32*)&value);
+		is >> *((int32*)&value);
 		return is;
 	}
 
 	template <>
 	std::istream& GArithmeticProperty<double>::readASCIIValue(std::istream& is) {
-		is >> std::hex >> *((int64*)&value);
+		is >> *((int64*)&value);
 		return is;
 	}
 
@@ -163,13 +163,9 @@ namespace GFramework
 	std::istream& GStringProperty::readASCIIValue(std::istream& is) {
 		size_t count;
 		is >> count;
-		std::string str;
-		while (value.length() < count)
-		{
-			is >> str;
-			value.append(str);
-		}
-
+		value = std::string(count, '\0');
+		is.read(&value[0], 1);//to remove the space between the count and first character
+		is.read(&value[0], count);
 		return is;
 	}
 
@@ -220,7 +216,7 @@ namespace GFramework
 		for (unsigned int i = 0; i < size; i++)
 		{
 			//os << pointer[i] << " ";
-			os << std::hex << *((int32*)pointer+i) << " ";
+			os << *((int32*)pointer+i) << " ";
 		}
 		return os;
 	}
@@ -232,7 +228,7 @@ namespace GFramework
 		for (unsigned int i = 0; i < size; i++)
 		{
 			//is >> pointer[i];
-			is >> std::hex >> *((int32*)pointer+i);
+			is >> *((int32*)pointer+i);
 		}
 		return is;
 	}
@@ -464,12 +460,12 @@ namespace GFramework
 		return std::make_unique< GPropertyType >(value);
 	}
 
-	GPropertyInterfaceSharedPtr GPropertyUtility<GObjectSharedPtr>::create()
+	std::shared_ptr<GObjectPointerProperty>  GPropertyUtility<GObjectSharedPtr>::create()
 	{
 		return std::make_shared< GPropertyType >();
 	}
 
-	GPropertyInterfaceSharedPtr GPropertyUtility<GObjectSharedPtr>::create(dataType value)
+	std::shared_ptr<GObjectPointerProperty> GPropertyUtility<GObjectSharedPtr>::create(dataType value)
 	{
 		return std::make_unique< GPropertyType >(value);
 	}

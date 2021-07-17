@@ -39,7 +39,6 @@
 *.7z
 
 # Project specific folders
-third_party/
 Build*/
 output/
 Documentation/Output

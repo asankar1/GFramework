@@ -33,20 +33,15 @@ namespace GFramework
 		.functionPublic("getName", &GObject::getName)
 		.functionPublic("rename", &GObject::rename)
 		.functionPublic("getObjectId", &GObject::getObjectId)
-		/*.functionPublic("setObjectId", &GObject::setObjectId)*/
 		.staticFunction("about", GObject::about)
 		.functionPublic("rename", &GObject::rename)
-		.staticFunction("count", GObject::count)
-		.staticFunction("add", GObject::add)
-		.staticFunction("updateMagicNumber", GObject::updateMagicNumber)
-		/*.editableProperty("name", &GObject::getName, &GObject::rename)*/
-		/*.property("object_id", &GObject::object_id)*/;
+		.editableProperty("name", &GObject::getName, &GObject::rename);
 	END_DEFINE_META(GObject)
 
 	GObject::GObject(const char *_name)
 	{
 		object_id.setValue(atomic_count.load());
-		atomic_count++;
+		atomic_count+=1;
 		name.setValue(string(_name));
 	}
 	

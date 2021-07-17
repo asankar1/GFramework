@@ -2,3 +2,11 @@
 	path = GEditor
 	url = https://github.com/asankar1/GEditor.git
 	branch = GEditor_Dev
+[submodule "third_party/lua"]
+	path = third_party/lua
+	url = https://github.com/lua/lua
+	branch = v5.3
+[submodule "third_party/glm"]
+	path = third_party/glm
+	url = https://github.com/g-truc/glm
+	branch = 0.9.8

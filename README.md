@@ -1,6 +1,7 @@
 # GFramework
 
 The idea of GFramework is to develop a 'Generic framework' to create any application that supports and test the following:
+
   * Variant
   * Reflection
   * Serialization with versioning
@@ -18,9 +19,10 @@ This currently supports WIndows OS and built using Visual C++ 2015. However, it 
 ### Prerequisites
 
 To build this project you need
-  * C++11 compatible compiler
-  * Boost header only library files
-  * glm math library
+  * C++14 compatible compiler
+  * Boost header only library files 1.63.0
+  * glm math library 0.9.8
+  * Lua 5.3.4
   * Doxygen generator
 
 ## Build status
