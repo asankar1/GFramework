@@ -12,11 +12,13 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: windows-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        build_config: [Release, Debug, RelWithDebInfo]
+        build_toolset: [v140, v141]
 
     steps:
     - name: Checkout repository
@@ -28,22 +30,22 @@ jobs:
     - name: Checkout submodule third_party/glm
       run: git submodule update --init third_party/glm
 
-    - name: Configure CMake for GFramework with configuration ${{env.BUILD_TYPE}}
-      run: cmake -B ${{github.workspace}}/build_vs2015 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "Visual Studio 16 2019" -A x64 -T v140
+    - name: Configure CMake for GFramework with configuration ${{ matrix.build_config }}
+      run: cmake -B ${{github.workspace}}/build_${{ matrix.build_toolset }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -G "Visual Studio 16 2019" -A x64 -T ${{ matrix.build_toolset }}"
 
-    - name: Build GFramework with configuration ${{env.BUILD_TYPE}}
-      run: cmake --build ${{github.workspace}}/build_vs2015 --config ${{env.BUILD_TYPE}} --target install
+    - name: Build GFramework with configuration ${{ matrix.build_config }}
+      run: cmake --build ${{github.workspace}}/build_${{ matrix.build_toolset }} --config ${{ matrix.build_config }} --target install
       
-    - name: Configure CMake for Unit test with configuration ${{env.BUILD_TYPE}}
-      run: cmake UnitTest -B ${{github.workspace}}/UnitTest/build_vs2015 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/UnitTest/output/build_vs2015/ -G "Visual Studio 16 2019" -A x64 -T v140
+    - name: Configure CMake for Unit test with configuration ${{ matrix.build_config }}
+      run: cmake UnitTest -B ${{github.workspace}}/UnitTest/build_${{ matrix.build_toolset }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/UnitTest/output/build_${{ matrix.build_toolset }}/ -G "Visual Studio 16 2019" -A x64 -T ${{ matrix.build_toolset }}"
 
-    - name: Build Unit test with configuration ${{env.BUILD_TYPE}}
-      run: cmake --build ${{github.workspace}}/UnitTest/build_vs2015 --config ${{env.BUILD_TYPE}} --target install      
+    - name: Build Unit test with configuration ${{ matrix.build_config }}
+      run: cmake --build ${{github.workspace}}/UnitTest/build_${{ matrix.build_toolset }} --config ${{ matrix.build_config }} --target install      
       
     - name: Run Unit test
       run: |
-        cd ${{github.workspace}}/UnitTest/output/build_vs2015/test/${{env.BUILD_TYPE}}
-        .\gframework_static_test.exe --gtest_output="xml:${{github.workspace}}/UnitTest/Reports/Windows_VS2015_${{env.BUILD_TYPE}}_Report.xml"
+        cd ${{github.workspace}}/UnitTest/output/build_${{ matrix.build_toolset }}/test/${{ matrix.build_config }}
+        .\gframework_static_test.exe --gtest_output="xml:${{github.workspace}}/UnitTest/Reports/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Report.xml"
         
     - name: Publish Unit Test Results
       uses: EnricoMi/publish-unit-test-result-action/composite@v1.19
