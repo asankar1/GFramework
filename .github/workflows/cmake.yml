@@ -28,6 +28,34 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build_vs2015 --config ${{env.BUILD_TYPE}} --target install
+      run: cmake --build ${{github.workspace}}/build_vs2015 -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/output/build_vs2015/ --config ${{env.BUILD_TYPE}} --target install
+      
+    - name: Run Unit test
+      # Invoke unit test
+      run: cd ${{github.workspace}}/output/build_vs2015/test/${{env.BUILD_TYPE}} && gframework_shared_test --gtest_output="xml:${{github.workspace}}/Reports/Windows_VS2015_${{env.BUILD_TYPE}}_Report.xml"
+      
+    - name: Verify New or Changed report files
+      uses: tj-actions/verify-changed-files@v7.1
+      id: verify-changed-files
+      with:
+          files: |
+             ${{github.workspace}}/Reports
+  
+    - name: setup git config to commit the reports
+      if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
+      run: |
+          echo "Changed files: ${{ steps.verify_changed_files.outputs.changed_files }}"
+          # setup the username and email. I tend to use 'GitHub Actions Bot' with no email by default
+          cd ${{github.workspace}}
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
 
+    - name: commit the reports
+      if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
+      run: |
+          # Stage the file, commit and push
+          cd ${{github.workspace}}
+          git add Reports/*.xml
+          git commit -m "Updated auto-generated unit test reports"
+          git push origin ci_setup
     
