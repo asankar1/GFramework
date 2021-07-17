@@ -23,7 +23,7 @@ using namespace GFrameworkTest;
 > 
 */
 
-void GFRAMEWORK_TEST_API run_reflection_testcases()
+void run_reflection_testcases()
 {
 	cout << "=============================" << endl;
 	cout << "Startig GReflection testcases" << endl;

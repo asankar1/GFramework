@@ -6,6 +6,8 @@
 #include <cmath>
 #include <array>
 
+#include <gtest/gtest.h>
+
 #include <GFramework/GVariant/GTypes.h>
 #include <GFramework/GVariant/GVariant.h>
 #include <GFramework/GVariant/GObject.h>
@@ -334,7 +336,7 @@ bool test_gvariant_fundemental_types<void>(GVariant& gv)
 				PRINT_RESULT("FAILED"); \
 		}
 
-void test_gvariant_compund_types_raw_pointer(GVariant& gv)
+bool test_gvariant_compund_types_raw_pointer(GVariant& gv)
 {
 	bool result = true;
 	float f1 = 1.0f;
@@ -358,15 +360,10 @@ void test_gvariant_compund_types_raw_pointer(GVariant& gv)
 	result = result && (GVariant::cast<float*>(gv) == &f1);
 	result = result && (*GVariant::cast<float* const>(gv) == f1);
 
-
-	PRINT_TESTCASE_NAME("Raw Pointer");
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_one_dim_array(GVariant& gv)
+bool test_gvariant_compund_types_one_dim_array(GVariant& gv)
 {
 	bool result = true;
 
@@ -375,29 +372,23 @@ void test_gvariant_compund_types_one_dim_array(GVariant& gv)
 	result = result && (GVariant::cast<int*>(gv)[0] == arr1[0]);
 	result = result && (GVariant::cast<int*>(gv)[4] == arr1[4]);
 
-	PRINT_TESTCASE_NAME("One dimensional array");
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_multi_dim_array(GVariant& gv)
+bool test_gvariant_compund_types_multi_dim_array(GVariant& gv)
 {
-	bool result = true;
+	bool result = false;
 	//TODO:bad exceptioption thrown for multi-dimension array
 	/*int arr2[2][5] = { { 1,2,3,4,5 },{ 1,2,3,4,5 } };
 	gv = GVariant::create(arr2);
 	result = result && (GVariant::cast<int*>(gv)[0] == arr2[0][0]);
 	result = result && (GVariant::cast<int*>(gv)[1] == arr2[1][4]);*/
-
-	PRINT_TESTCASE_NAME("Multi dimensional array");
-	PRINT_RESULT("Not Supported");
+	return result;
 }
 
-void test_gvariant_compund_types_shared_ptr(GVariant& gv)
+bool test_gvariant_compund_types_shared_ptr(GVariant& gv)
 {
-	bool result = true;
+	bool result = false;
 
 	//shared pointer
 	auto v7 = std::make_shared<int>();
@@ -412,16 +403,12 @@ void test_gvariant_compund_types_shared_ptr(GVariant& gv)
 	result = result && (GVariant::cast<std::unique_ptr<T>>(gv) == v8);
 #endif
 
-	PRINT_TESTCASE_NAME("Shared Pointer");
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_unique_ptr(GVariant& gv)
+bool test_gvariant_compund_types_unique_ptr(GVariant& gv)
 {
-	bool result = true;
+	bool result = false;
 
 	//unique pointer
 	//TODO: boost::any does not support Not Copyable types, see if this can be fixed
@@ -430,13 +417,12 @@ void test_gvariant_compund_types_unique_ptr(GVariant& gv)
 	gv = GVariant::create<std::unique_ptr<T>>(std::move(v8));
 	result = result && (GVariant::cast<std::unique_ptr<T>>(gv) == v8);
 #endif
-	PRINT_TESTCASE_NAME("Unique Pointer");
-	PRINT_RESULT("Not Supported");
+	return result;
 }
 
-void test_gvariant_compund_types_lvalue_ref(GVariant& gv)
+bool test_gvariant_compund_types_lvalue_ref(GVariant& gv)
 {
-	bool result = true;
+	bool result = false;
 #if 0
 	int a1 = 123;
 	int& a2 = a1;
@@ -450,13 +436,10 @@ void test_gvariant_compund_types_lvalue_ref(GVariant& gv)
 	a1 = 789;
 	result = result && (GVariant::cast<int&>(gv) == a1);
 #endif
-
-	PRINT_TESTCASE_NAME("LValue reference");
-
-	PRINT_RESULT("Not Supported");
+	return result;
 }
 
-void test_gvariant_compund_types_rvalue_ref(GVariant& gv)
+bool test_gvariant_compund_types_rvalue_ref(GVariant& gv)
 {
 	bool result = true;
 	int&& a1 = 123;
@@ -469,15 +452,10 @@ void test_gvariant_compund_types_rvalue_ref(GVariant& gv)
 	gv = GVariant::create(a2);
 	result = result && (GVariant::cast<int>(gv) == a2);
 
-	PRINT_TESTCASE_NAME("RValue reference");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_member_variable_pointer(GVariant& gv)
+bool test_gvariant_compund_types_member_variable_pointer(GVariant& gv)
 {
 	bool result = true;
 	RGB brown = { 255, 128, 0 };
@@ -488,16 +466,10 @@ void test_gvariant_compund_types_member_variable_pointer(GVariant& gv)
 	brown.*red_ptr = 20;
 	gv = GVariant::create<unsigned char RGB::*>(red_ptr);
 	result = result && (brown.*GVariant::cast<unsigned char RGB::*>(gv) == 20);
-
-	PRINT_TESTCASE_NAME("Pointer to object member variable");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_member_function_pointer(GVariant& gv)
+bool test_gvariant_compund_types_member_function_pointer(GVariant& gv)
 {
 	bool result = true;
 
@@ -547,15 +519,10 @@ void test_gvariant_compund_types_member_function_pointer(GVariant& gv)
 	gv = GVariant::create<common_non_virtual_func_ptr>(common_non_virtual_func);
 	result = result && ((dc.*GVariant::cast<common_non_virtual_func_ptr>(gv))() == 66);
 
-	PRINT_TESTCASE_NAME("Pointer to object member function");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_class(GVariant& gv)
+bool test_gvariant_compund_types_class(GVariant& gv)
 {
 	bool result = true;
 
@@ -612,30 +579,20 @@ void test_gvariant_compund_types_class(GVariant& gv)
 	nmc.set_number(42);
 	result = result && (GVariant::cast<const non_moveable_class*>(gv)->get_number() == 42);
 
-	PRINT_TESTCASE_NAME("Pointer to object member variable");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_function(GVariant& gv)
+bool test_gvariant_compund_types_function(GVariant& gv)
 {
 	bool result = true;
 	auto f1 = []()->int {return 345; };
 	gv = GVariant::create(f1);
 	result = result && (GVariant::cast<decltype(f1)>(gv)() == 345);
 
-	PRINT_TESTCASE_NAME("function object");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_enum(GVariant& gv)
+bool test_gvariant_compund_types_enum(GVariant& gv)
 {
 	bool result = true;
 	enum BgColor
@@ -648,16 +605,10 @@ void test_gvariant_compund_types_enum(GVariant& gv)
 	BgColor v1 = BgColor::black;
 	gv = GVariant::create(v1);
 	result = result && (GVariant::cast<BgColor >(gv) == BgColor::black);
-
-	PRINT_TESTCASE_NAME("Enum");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_union(GVariant& gv)
+bool test_gvariant_compund_types_union(GVariant& gv)
 {
 	bool result = true;
 	union id
@@ -671,16 +622,10 @@ void test_gvariant_compund_types_union(GVariant& gv)
 
 	gv = GVariant::create(v1);
 	result = result && (GVariant::cast<id>(gv).receiver_id == v1.sender_id);
-
-	PRINT_TESTCASE_NAME("Union");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_GVariant(GVariant& gv)
+bool test_gvariant_compund_types_GVariant(GVariant& gv)
 {
 	bool result = true;
 
@@ -693,31 +638,20 @@ void test_gvariant_compund_types_GVariant(GVariant& gv)
 	gv = GVariant::create(gv2);
 	result = result && (GVariant::cast<int>(gv2) == 4);
 
-	PRINT_TESTCASE_NAME("GVariant inside GVariant");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_string(GVariant& gv)
+bool test_gvariant_compund_types_string(GVariant& gv)
 {
 	bool result = true;
 
 	std::string  v1 = "Test str";
 	gv = GVariant::create(v1);
 	result = result && (GVariant::cast<std::string>(gv) == v1);
-
-	PRINT_TESTCASE_NAME("string");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_wstring(GVariant& gv)
+bool test_gvariant_compund_types_wstring(GVariant& gv)
 {
 	bool result = true;
 
@@ -725,15 +659,10 @@ void test_gvariant_compund_types_wstring(GVariant& gv)
 	gv = GVariant::create(v1);
 	result = result && (GVariant::cast<std::wstring>(gv) == v1);
 
-	PRINT_TESTCASE_NAME("wstring");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_vector(GVariant& gv)
+bool test_gvariant_compund_types_vector(GVariant& gv)
 {
 	bool result = true;
 
@@ -745,16 +674,10 @@ void test_gvariant_compund_types_vector(GVariant& gv)
 	result = result && (GVariant::cast<std::vector<uint64>>(gv)[0] ==123);
 	result = result && (GVariant::cast<std::vector<uint64>>(gv)[1] ==456);
 	result = result && (GVariant::cast<std::vector<uint64>>(gv)[2] ==789);
-
-	PRINT_TESTCASE_NAME("std::vector");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_list(GVariant& gv)
+bool test_gvariant_compund_types_list(GVariant& gv)
 {
 	bool result = true;
 
@@ -776,16 +699,10 @@ void test_gvariant_compund_types_list(GVariant& gv)
 	result = result && (*itr == 789);
 	itr++;
 	result = result && (itr == v.end());
-
-	PRINT_TESTCASE_NAME("std::list");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_map(GVariant& gv)
+bool test_gvariant_compund_types_map(GVariant& gv)
 {
 	bool result = true;
 	std::map < uint64, glm::vec4> boundingrects;
@@ -796,16 +713,10 @@ void test_gvariant_compund_types_map(GVariant& gv)
 	result = result && (GVariant::cast<std::map < uint64, glm::vec4>>(gv)[123] == glm::vec4(1));
 	result = result && (GVariant::cast<std::map < uint64, glm::vec4>>(gv)[456] == glm::vec4(2));
 	result = result && (GVariant::cast<std::map < uint64, glm::vec4>>(gv)[789] == glm::vec4(3));
-
-	PRINT_TESTCASE_NAME("std::map");
-
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
-void test_gvariant_compund_types_tuple(GVariant& gv)
+bool test_gvariant_compund_types_tuple(GVariant& gv)
 {
 	bool result = true;
 
@@ -817,15 +728,12 @@ void test_gvariant_compund_types_tuple(GVariant& gv)
 	result = result && (std::get<1>(GVariant::cast<decltype(circle)>(gv)) == glm::vec2(123, 456));
 	result = result && (std::get<2>(GVariant::cast<decltype(circle)>(gv)) == "Circle1");
 
-	PRINT_TESTCASE_NAME("std::tuple");
-	if (result)
-		PRINT_RESULT("SUCCESS");
-	else
-		PRINT_RESULT("FAILED");
+	return result;
 }
 
+
 #if 1
-void GFRAMEWORK_TEST_API run_variant_testcases()
+void run_variant_testcases()
 {
 	cout << "==========================" << endl;
 	cout << "Startig GVariant testcases" << endl;
@@ -1644,3 +1552,82 @@ void GFRAMEWORK_TEST_API run_variant_testcases()
 #endif
 }
 #endif
+namespace 
+{
+	GVariant gv;
+	char* \U000000AF = "cat"; // supported
+}
+#define GTEST_FUNDEMENTAL_TYPE( SUITE, CATEGORY, TYPE ) \
+	TEST(SUITE##$$$##CATEGORY, TYPE ) { \
+		EXPECT_EQ(test_gvariant_fundemental_types<TYPE >(gv), true); \
+	}
+
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, void)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, nullptr_t)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, bool)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, int8)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, uint8)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, char)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, char16_t)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, char32_t)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, int16)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, uint16)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, int32)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, uint32)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, int64)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, uint64)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, float32)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, float64)
+GTEST_FUNDEMENTAL_TYPE(GVariantTest, FundementalTypes, float80)
+
+#define GTEST_COMPOUND_TYPE( SUITE, CATEGORY, TYPE ) \
+	TEST(SUITE##$$$##CATEGORY, TYPE ) { \
+		EXPECT_EQ(test_gvariant_compund_types_##TYPE(gv), true); \
+	}
+
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, raw_pointer)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, one_dim_array)
+GTEST_COMPOUND_TYPE(DISABLED_GVariantTest, CompoundTypes, multi_dim_array)
+GTEST_COMPOUND_TYPE(DISABLED_GVariantTest, CompoundTypes, shared_ptr)
+GTEST_COMPOUND_TYPE(DISABLED_GVariantTest, CompoundTypes, unique_ptr)
+GTEST_COMPOUND_TYPE(DISABLED_GVariantTest, CompoundTypes, lvalue_ref)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, rvalue_ref)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, member_variable_pointer)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, member_function_pointer)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, class)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, function)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, enum)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, union)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, GVariant)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, string)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, wstring)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, vector)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, list)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, map)
+GTEST_COMPOUND_TYPE(GVariantTest, CompoundTypes, tuple)
+
+#define GTEST_GPROPERTY_TYPE( SUITE, CATEGORY, PROP_TYPE ) \
+	TEST(SUITE##$$$##CATEGORY, PROP_TYPE ) { \
+		EXPECT_EQ( (test_gvariant_gproperty_types<PROP_TYPE, PROP_TYPE::type>(gv)), true); \
+	}
+
+
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GBoolProperty)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GCharProperty)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GInt8Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GUint8Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GInt16Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GUint16Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GInt32Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GUint32Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GInt64Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GUint64Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GFloatProperty)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GDoubleProperty)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GVec2Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GVec3Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GVec4Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GMat2Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GMat3Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GMat4Property)
+GTEST_GPROPERTY_TYPE(GVariantTest, GProperty, GObjectPointerProperty)

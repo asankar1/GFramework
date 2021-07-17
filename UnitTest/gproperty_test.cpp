@@ -32,7 +32,7 @@ namespace property_test {
 	};
 }
 
-void GFRAMEWORK_TEST_API run_property_testcases()
+void run_property_testcases()
 {
 	cout << "===========================" << endl;
 	cout << "Startig GProperty testcases" << endl;
