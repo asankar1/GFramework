@@ -17,25 +17,45 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: windows-latest
-    strategy:
-      matrix:
-        build_config: [Release, Debug]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    - name: Checkout submodule third_party/lua
-      run: git submodule update --init third_party/lua
-    - name: Checkout submodule third_party/glm
-      run: git submodule update --init third_party/glm
+    - uses: actions/checkout@v2
 
-    - name: Configure CMake for ${{ matrix.build_config }}
+    - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build_vs2015_${{ matrix.build_config }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -G "Visual Studio 16 2019" -A x64 -T v140
+      run: cmake -B ${{github.workspace}}/build_vs2015 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "Visual Studio 16 2019" -A x64 -T v140
 
-    - name: Building ${{ matrix.build_config }}
+    - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build_vs2015_${{ matrix.build_config }} --config ${{ matrix.build_config }} --target install
+      run: cmake --build ${{github.workspace}}/build_vs2015 -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/output/build_vs2015/ --config ${{env.BUILD_TYPE}} --target install
+      
+    - name: Run Unit test
+      # Invoke unit test
+      run: cd ${{github.workspace}}/output/build_vs2015/test/${{env.BUILD_TYPE}} && gframework_shared_test --gtest_output="xml:${{github.workspace}}/Reports/Windows_VS2015_${{env.BUILD_TYPE}}_Report.xml"
+      
+    - name: Verify New or Changed report files
+      uses: tj-actions/verify-changed-files@v7.1
+      id: verify-changed-files
+      with:
+          files: |
+             ${{github.workspace}}/Reports
+  
+    - name: setup git config to commit the reports
+      if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
+      run: |
+          echo "Changed files: ${{ steps.verify_changed_files.outputs.changed_files }}"
+          # setup the username and email. I tend to use 'GitHub Actions Bot' with no email by default
+          cd ${{github.workspace}}
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
 
+    - name: commit the reports
+      if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
+      run: |
+          # Stage the file, commit and push
+          cd ${{github.workspace}}
+          git add Reports/*.xml
+          git commit -m "Updated auto-generated unit test reports"
+          git push origin ci_setup
     

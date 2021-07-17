@@ -24,4 +24,6 @@ To build this project you need
   * glm math library 0.9.8
   * Lua 5.3.4
   * Doxygen generator
-	
+
+## Build status
+[![CMake](https://github.com/asankar1/GFramework/actions/workflows/cmake.yml/badge.svg?branch=ci_setup)](https://github.com/asankar1/GFramework/actions/workflows/cmake.yml)
