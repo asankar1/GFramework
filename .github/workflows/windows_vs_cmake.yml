@@ -31,13 +31,13 @@ jobs:
       run: git submodule update --init third_party/glm
 
     - name: Configure CMake for GFramework with configuration ${{ matrix.build_config }}
-      run: cmake -B ${{github.workspace}}/build_${{ matrix.build_toolset }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -G "Visual Studio 16 2019" -A x64 -T ${{ matrix.build_toolset }}"
+      run: cmake -B ${{github.workspace}}/build_${{ matrix.build_toolset }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -G "Visual Studio 16 2019" -A x64 -T ${{ matrix.build_toolset }}
 
     - name: Build GFramework with configuration ${{ matrix.build_config }}
       run: cmake --build ${{github.workspace}}/build_${{ matrix.build_toolset }} --config ${{ matrix.build_config }} --target install
       
     - name: Configure CMake for Unit test with configuration ${{ matrix.build_config }}
-      run: cmake UnitTest -B ${{github.workspace}}/UnitTest/build_${{ matrix.build_toolset }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/UnitTest/output/build_${{ matrix.build_toolset }}/ -G "Visual Studio 16 2019" -A x64 -T ${{ matrix.build_toolset }}"
+      run: cmake UnitTest -B ${{github.workspace}}/UnitTest/build_${{ matrix.build_toolset }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/UnitTest/output/build_${{ matrix.build_toolset }}/ -G "Visual Studio 16 2019" -A x64 -T ${{ matrix.build_toolset }}
 
     - name: Build Unit test with configuration ${{ matrix.build_config }}
       run: cmake --build ${{github.workspace}}/UnitTest/build_${{ matrix.build_toolset }} --config ${{ matrix.build_config }} --target install      
