@@ -19,9 +19,14 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Checkout submodule third_party/lua
+      run: git submodule update --init third_party/lua
+    - name: Checkout submodule third_party/glm
+      run: git submodule update --init third_party/glm
 
-    - name: Configure CMake
+    - name: Configure CMake for ${{ matrix.build_config }}
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build_vs2015 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/output/build_vs2015/ -G "Visual Studio 16 2019" -A x64 -T v140
