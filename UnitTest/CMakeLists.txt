@@ -133,8 +133,8 @@ target_compile_definitions(gframework_shared_test PUBLIC GFRAMEWORK_TEST_API=)
 set_property(TARGET gframework_static_test PROPERTY CXX_STANDARD 14)
 set_property(TARGET gframework_shared_test PROPERTY CXX_STANDARD 14)
 
-set_property(TARGET gframework_static_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
-set_property(TARGET gframework_shared_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
+set_property(TARGET gframework_static_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/$(Configuration))
+set_property(TARGET gframework_shared_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/$(Configuration))
 
 install	(	TARGETS gframework_static_test gframework_shared_test
 			CONFIGURATIONS Debug

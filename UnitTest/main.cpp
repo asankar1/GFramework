@@ -119,7 +119,7 @@ namespace {
         }
 
         void OnTestSuiteEnd(const TestSuite& test_suite) override {
-            fprintf(stdout, "%s[---RESULT---]%s Pass: %d, Fail: %d, Skip: %d, Time: %d\n", \
+            fprintf(stdout, "%s[---RESULT---]%s Pass: %d, Fail: %d, Skip: %d, Time: %d ms\n", \
                     GetColor(Color::Cyan), GetColor(Color::Reset), test_suite.successful_test_count(), test_suite.failed_test_count(), \
                     test_suite.skipped_test_count(), test_suite.elapsed_time());
             fprintf(stdout, "\n");
@@ -198,6 +198,7 @@ namespace {
     };  // class CustomPrinter
 }  // namespace
 
+void variant_test();
 int main(int argc, char** argv)
 {
     InitGoogleTest(&argc, argv);
