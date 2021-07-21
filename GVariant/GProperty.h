@@ -77,6 +77,8 @@ namespace GFramework
 
 		bool operator==(const GArithmeticProperty<T>& rhs) { return (value == rhs.value); }
 
+		operator T() const { return getValue(); }
+
 		virtual void set(GVariant& _value);
 
 		void setValue(T _value);
