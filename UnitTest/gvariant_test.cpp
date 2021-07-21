@@ -457,7 +457,7 @@ public:
 	bool operator==(const Color& rhs) { return (this->r == rhs.r && this->g == rhs.g && this->b == rhs.b && this->a == rhs.a); }
 };
 
-class STLTest : public ::testing::Test {
+class GVariantTest$$CompoundTypes : public ::testing::Test {
 protected:
 	void SetUp() override {
 		intVector.push_back(11);
@@ -476,10 +476,17 @@ protected:
 	}
 
 protected:
+	string str = "Default test string";
+	wstring wstr = L"olé";
+	int arr1[5] = { 1,2,3,4,5 };
+	int arr2[2][5] = { { 1,2,3,4,5 }, { 1,2,3,4,5 } };
+	glm::vec3 arr3[3] = { glm::vec3(1),glm::vec3(2), glm::vec3(3) };
 	std::vector<int> intVector;
 	std::list<float> floatList;
 	std::map < std::string,  double> stringDoubleMap;
 	std::tuple<bool, int, std::string > boolIntStringTuple;
+	Color red{ 255,0,0,255 };
+	std::shared_ptr<Color> green = std::make_shared<Color>(0, 255, 0, 255);
 };
 
 GVariant gv;
@@ -492,34 +499,31 @@ GVariant gv;
 #define GTEST_GVARIANT( SUITE, TYPE ) GTEST_GVARIANT2(SUITE, TYPE, TYPE)
 
 
-GTEST_GVARIANT(GVariantTest, void)
-GTEST_GVARIANT(GVariantTest, nullptr_t)
-GTEST_GVARIANT(GVariantTest, bool)
-GTEST_GVARIANT(GVariantTest, int8)
-GTEST_GVARIANT(GVariantTest, uint8)
-GTEST_GVARIANT(GVariantTest, char)
-GTEST_GVARIANT(GVariantTest, char16_t)
-GTEST_GVARIANT(GVariantTest, char32_t)
-GTEST_GVARIANT(GVariantTest, int16)
-GTEST_GVARIANT(GVariantTest, uint16)
-GTEST_GVARIANT(GVariantTest, int32)
-GTEST_GVARIANT(GVariantTest, uint32)
-GTEST_GVARIANT(GVariantTest, int64)
-GTEST_GVARIANT(GVariantTest, uint64)
-GTEST_GVARIANT(GVariantTest, float32)
-GTEST_GVARIANT(GVariantTest, float64)
-GTEST_GVARIANT(GVariantTest, float80)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, void)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, nullptr_t)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, bool)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int8)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint8)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, char)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, char16_t)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, char32_t)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int16)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint16)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int32)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint32)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int64)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint64)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, float32)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, float64)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, float80)
 
-TEST(GVariantTest, One_Dimensional_Array) {
-	int arr1[] = { 1,2,3,4,5 };
-	int arr2[][5] = { { 1,2,3,4,5 }, { 1,2,3,4,5 } };
-	glm::vec3 arr3[] = { glm::vec3(1),glm::vec3(2), glm::vec3(3) };
+TEST_F(GVariantTest$$CompoundTypes, One_Dimensional_Array) {
 	EXPECT_EQ(true, dataType<decltype(arr1)>::variant_test(gv, arr1));
 	//EXPECT_EQ(true, dataType<decltype(arr2)>::variant_test(gv, arr2)); //Must give compilation error
 	EXPECT_EQ(true, dataType<decltype(arr3)>::variant_test(gv, arr3));
 }
 
-TEST(GVariantTest, FunctionObject) {
+TEST_F(GVariantTest$$CompoundTypes, FunctionObject) {
 	bool result = true;
 	std::function<int()> f1 = []()->int {return 345; };
 	EXPECT_EQ(true, dataType<decltype(f1)>::variant_test(gv, f1, 345));
@@ -533,85 +537,77 @@ TEST(GVariantTest, FunctionObject) {
 	EXPECT_EQ(true, dataType<decltype(f3)>::variant_test(gv, f3, 48));
 }
 
-TEST(GVariantTest, Class) {
-	bool result = true;
-	Color red{255,0,0,255};
+TEST_F(GVariantTest$$CompoundTypes, Class) {
 	EXPECT_EQ(true, dataType<Color>::variant_test(gv, red));
 }
 
-TEST(GVariantTest, SharedPtr) {
-	bool result = true;
-	std::shared_ptr<Color> green = std::make_shared<Color>(0,255,0,255);
+TEST_F(GVariantTest$$CompoundTypes, SharedPtr) {
 	EXPECT_EQ(true, dataType< std::shared_ptr<Color> >::variant_test(gv, green));
 }
 
-TEST(GVariantTest, string) {
-	bool result = true;
-	string str = "Default test string";
+TEST_F(GVariantTest$$CompoundTypes, string) {
 	EXPECT_EQ(true, dataType< string >::variant_test(gv, str));
 }
 
-TEST(GVariantTest, wstring) {
-	bool result = true;
-	wstring str = L"olé";
-	EXPECT_EQ(true, dataType< wstring >::variant_test(gv, str));
+TEST_F(GVariantTest$$CompoundTypes, wstring) {
+	EXPECT_EQ(true, dataType< wstring >::variant_test(gv, wstr));
 }
 
 
 //STL Container types
-TEST_F(STLTest, Vector) {
+TEST_F(GVariantTest$$CompoundTypes, Vector) {
 	EXPECT_EQ(true, dataType< std::vector<int>>::variant_test(gv, intVector));
 }
 
-TEST_F(STLTest, List) {
+TEST_F(GVariantTest$$CompoundTypes, List) {
 	EXPECT_EQ(true, dataType< std::list<float>>::variant_test(gv, floatList));
 }
 
-TEST_F(STLTest, Map) {
+TEST_F(GVariantTest$$CompoundTypes, Map) {
 	bool result = dataType< std::map < std::string, double> >::variant_test(gv, stringDoubleMap);
 	EXPECT_EQ(true, result);
 }
 
-TEST_F(STLTest, Tuple) {
+TEST_F(GVariantTest$$CompoundTypes, Tuple) {
 	bool result = dataType< std::tuple<bool, int, std::string >  >::variant_test(gv, boolIntStringTuple);
 	EXPECT_EQ(true, result);
 }
 
-TEST(DISABLED_GVariantTest, Multi_Dim_Array) {
+TEST(DISABLED_GVariantTest$$CompoundTypes, Multi_Dim_Array) {
 	bool result = false;
 	EXPECT_EQ(true, result);
 }
 
-TEST(DISABLED_GVariantTest, unique_ptr) {
+TEST(DISABLED_GVariantTest$$CompoundTypes, unique_ptr) {
 	bool result = false;
 	EXPECT_EQ(true, result);
 }
 
-TEST(DISABLED_GVariantTest, lvalue_ref) {
+TEST(DISABLED_GVariantTest$$CompoundTypes, lvalue_ref) {
 	bool result = false;
 	EXPECT_EQ(true, result);
 }
 
 //GProperty types
-GTEST_GVARIANT(GVariantTest, GBoolProperty)
-GTEST_GVARIANT(GVariantTest, GCharProperty)
-GTEST_GVARIANT(GVariantTest, GInt8Property)
-GTEST_GVARIANT(GVariantTest, GUint8Property)
-GTEST_GVARIANT(GVariantTest, GInt16Property)
-GTEST_GVARIANT(GVariantTest, GUint16Property)
-GTEST_GVARIANT(GVariantTest, GInt32Property)
-GTEST_GVARIANT(GVariantTest, GUint32Property)
-GTEST_GVARIANT(GVariantTest, GInt64Property)
-GTEST_GVARIANT(GVariantTest, GUint64Property)
-GTEST_GVARIANT(GVariantTest, GFloatProperty)
-GTEST_GVARIANT(GVariantTest, GDoubleProperty)
-GTEST_GVARIANT(GVariantTest, GVec2Property)
-GTEST_GVARIANT(GVariantTest, GVec3Property)
-GTEST_GVARIANT(GVariantTest, GVec4Property)
-GTEST_GVARIANT(GVariantTest, GMat2Property)
-GTEST_GVARIANT(GVariantTest, GMat3Property)
-GTEST_GVARIANT(GVariantTest, GMat4Property)
-GTEST_GVARIANT(GVariantTest, GObjectPointerProperty)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GBoolProperty)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GCharProperty)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt8Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint8Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt16Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint16Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt32Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint32Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt64Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint64Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GFloatProperty)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GDoubleProperty)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GVec2Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GVec3Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GVec4Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GMat2Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GMat3Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GMat4Property)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, GObjectPointerProperty)
 
 
 void variant_test()
