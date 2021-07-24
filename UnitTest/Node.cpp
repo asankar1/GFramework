@@ -44,17 +44,15 @@ namespace GFrameworkTest
 {
 	void NodeFileInfo()
 	{
-		std::cout << "NodeFileInfo\n";
 	}
+
 	Node::Node(const char *_name, NodeSharedPtr& _parent) : GObject(_name)
 	{	
 		parent.setValue(_parent);
-		cout << "Node '" << getName() << "' constructed." << endl;
 	}
 
 	Node::~Node()
 	{
-		cout << "Node '" << getName() << "' destroyed." << endl;
 	}
 
 	void Node::setPosition(const glm::vec3& _pos)
@@ -83,7 +81,7 @@ namespace GFrameworkTest
 
 	void Node::initialize()
 	{
-		cout << "Node '" << getName() << "' initialized." << endl;
+
 	}
 
 	GMetaclass* Node::getMetaclass() const

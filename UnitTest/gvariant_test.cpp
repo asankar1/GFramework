@@ -589,26 +589,29 @@ TEST(DISABLED_GVariantTest$$CompoundTypes, lvalue_ref) {
 }
 
 //GProperty types
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GBoolProperty)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GCharProperty)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt8Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint8Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt16Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint16Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt32Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint32Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GInt64Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GUint64Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GFloatProperty)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GDoubleProperty)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GVec2Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GVec3Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GVec4Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GMat2Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GMat3Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GMat4Property)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, GObjectPointerProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GBoolProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GCharProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt8Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint8Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt16Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint16Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt32Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint32Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt64Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint64Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GFloatProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GDoubleProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GVec2Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GVec3Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GVec4Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GMat2Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GMat3Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GMat4Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GObjectPointerProperty)
 
+
+//Serialization test
+//GTEST_GSERIALIZATION(GVariantTest$$FundementalTypes, int8)
 
 void variant_test()
 {

@@ -1,5 +1,8 @@
 #include <cassert>
 #include <iostream>
+
+#include <gtest/gtest.h>
+
 #include <GFramework/GVariant/GVariant.h>
 #include <GFramework/GReflection/GReflection.h>
 #include <Node.h>
@@ -23,6 +26,282 @@ using namespace GFrameworkTest;
 > 
 */
 
+class GReflectionTest : public ::testing::Test {
+protected:
+	void SetUp() override {
+
+		auto GFrameworkTest = GMetaNamespaceList::_global()._namespace("GFrameworkTest");
+		auto GFramework = GMetaNamespaceList::_global()._namespace("GFramework");
+		objectmeta = GFramework.getMetaclass("GObject");// GMetaclassList::instance().getMetaclass("GObject");
+		nodemeta = GFrameworkTest.getMetaclass("Node");// GMetaclassList::instance().getMetaclass("node");
+		spheremeta = GFrameworkTest.getMetaclass("sphere");// GMetaclassList::instance().getMetaclass("sphere");
+		np = NodeSharedPtr(NULL);
+		parent = make_shared<Node>("GrandParentNode", np);
+		n = Node("ParentNode", parent);
+		sphere_parent = make_shared<sphere>("SphereParentNode", np, 321);
+		s = sphere("SphereNode", parent);
+	}
+protected:
+	GMetaclass* objectmeta;
+	GMetaclass* nodemeta;
+	GMetaclass* spheremeta;
+	NodeSharedPtr np;
+	NodeSharedPtr parent;
+	Node n;
+	SphereSharedPtr sphere_parent;
+	sphere s;
+	std::vector<std::string> f_list;
+};
+
+#if 1 
+TEST_F(GReflectionTest, CallNamespaceFuntion)
+{
+	GMetaNamespace nm = GMetaNamespaceList::_global()._namespace("GFrameworkTest");
+	GMetafunction* fn = nm.getMetaFunction("NodeFileInfo");
+	EXPECT_NE(fn, nullptr);
+	std::vector<GVariant> args;
+	fn->invoke(args);
+}
+
+
+TEST_F(GReflectionTest, CallNestedNamespaceFuntion)
+{
+	GMetaNamespace nm1 = GMetaNamespaceList::_global()._namespace("GFrameworkTest");
+	GMetaNamespace nm2 = nm1._namespace("sphere_func");
+	GMetafunction* fn = nm2.getMetaFunction("getSphereVolume");
+	EXPECT_NE(fn, nullptr);
+	std::vector<GVariant> args;
+	GVariant sv = GVariant::ref<sphere>(s);
+	args.push_back(sv);
+	GVariant r = fn->invoke(args);
+	EXPECT_EQ(GVariant::cast<float>(r), (4.0f / 3.0f * 3.14f));
+}
+
+TEST_F(GReflectionTest, ListConstructors)
+{
+	GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructorsList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		std::cout << *it << ": " << GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructor((*it).c_str())->getPrototype() << endl;
+	}
+	f_list.clear();
+}
+
+TEST_F(GReflectionTest, CallDefaultConstructor)
+{
+	GMetaconstructor* cons1 = GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructor("DefaultCons");
+	std::vector<GVariant> args;
+	sphere* sphere1 = cons1->invoke<sphere>(args);
+	EXPECT_NE(sphere1, nullptr);
+	sphere1->about();
+}
+
+TEST_F(GReflectionTest, CallNonDefaultConstructor)
+{
+	GMetaconstructor* cons1 = GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere")->getConstructor("Cons1");
+	std::vector<GVariant> args;
+	args.push_back(GVariant::create<unsigned int>(73));
+	sphere* sphere1 = cons1->invoke<sphere>(args);
+	EXPECT_NE(sphere1, nullptr);
+	auto* sphere2 = cons1->invoke(args);
+	EXPECT_NE(sphere2, nullptr);
+	EXPECT_EQ(sphere1->getRadius(), 73);
+}
+
+TEST_F(GReflectionTest, ListClassStaticFunctions)
+{
+	GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getStaticFunctionsList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getStaticFunction((*it).c_str())->getReturntype();
+		cout << " " << *it << " ";
+		cout << GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getStaticFunction((*it).c_str())->getPrototype() << endl;
+	}
+	f_list.clear();
+}
+
+TEST_F(GReflectionTest, ListBaseClassPublicMemberFunctions)
+{
+	GMetaNamespaceList::_global()._namespace("GFramework").getMetaclass("GObject")->getFunctionsList(f_list);
+	for (auto it = f_list.cbegin(); it != f_list.cend(); ++it) {
+		cout << *it << endl;
+	}
+	f_list.clear();
+}
+
+TEST_F(GReflectionTest, ListDerivedClassPublicMemberFunctions)
+{
+
+}
+
+
+TEST_F(GReflectionTest, Invoke_static_function_returning_void_and_taking_void_arguments)
+{
+	auto sf = objectmeta->getStaticFunction("about");
+	vector<GVariant> args;
+	GVariant r = sf->invoke(args);
+	EXPECT_EQ(r.empty(), true);
+}
+
+//TODO: count is removed from GObject class for cleaning it, so add an alternate function in another class to test it
+/*cout << "\nInvoke static function returning non-void and taking void arguments:" << endl;
+{
+	auto sf = objectmeta->getStaticFunction("count");
+	vector<GVariant> args;
+	GVariant r = sf->invoke(args);
+	assert(GVariant::cast<unsigned int>(r) == 112233);
+}*/
+
+//TODO: add is removed from GObject class for cleaning it, so add an alternate function in another class to test it
+/*cout << "\nInvoke static function returning non-void and taking non-void arguments:" << endl;
+{
+	auto sf = objectmeta->getStaticFunction("add");
+	vector<GVariant> args;
+	args.push_back((int)23);
+	args.push_back((int)27);
+	GVariant r = sf->invoke(args);
+	assert(GVariant::cast<int>(r) == 50);
+}*/
+
+//TODO: updateMagicNumber is removed from GObject class for cleaning it, so add an alternate function in another class to test it
+/*cout << "\nInvoke static function returning void and taking non-void arguments:" << endl;
+{
+	auto sf = objectmeta->getStaticFunction("updateMagicNumber");
+	vector<GVariant> args;
+	args.push_back(23);
+	GVariant r = sf->invoke(args);
+}*/
+
+
+TEST_F(GReflectionTest, InvokeMemberFunctionReturningVoidAndTakingConstantReferenceArguments)
+{
+	auto f = objectmeta->getPublicMemberFunction("rename");
+	vector<GVariant> args;
+	string name = "ParentNode-Renamed";
+	const string& re = name;
+	GVariant g;
+	g = GVariant::create<const string&>(re);
+	args.push_back(g);
+	GVariant r = f->invoke(&n, args);
+}
+
+TEST_F(GReflectionTest, InvokeMemberFunctionReturningConstantReferenceAndTakingVoidArguments)
+{
+	auto f1 = objectmeta->getPublicMemberFunction("getObjectId");
+	vector<GVariant> argsF1;
+	GVariant r = f1->invoke(&n, argsF1);
+
+	EXPECT_EQ(GVariant::cast<const unsigned int&>(r) > 0, true);
+}
+
+// call function taking void arguments and return void 
+TEST_F(GReflectionTest, CallMemberFunctionTakingVoid_ArgumentsAndReturnVoid)
+{
+	auto m = nodemeta->getPublicMemberFunction("about");
+	std::vector<GVariant> args;
+	GVariant v = m->invoke(&n, args);
+}
+
+// call function taking void arguments but return a value
+TEST_F(GReflectionTest, CallMemberFunctionTakingVoidArgumentsButReturnValue)
+{
+	auto m = spheremeta->getPublicMemberFunction("getRadius");
+	std::vector<GVariant> args;
+	GVariant rv = m->invoke(&s, args);
+	unsigned int r = GVariant::cast<unsigned int>(rv);
+	EXPECT_EQ(r, 1);
+}
+
+// call function taking non-void arguments and return void
+TEST_F(GReflectionTest, CallMemberFunctionTakingNonvoidArgumentsAndReturnVoid)
+{
+	auto m1 = spheremeta->getPublicMemberFunction("setRadius");
+	std::vector<GVariant> args1;
+	args1.push_back(7u);
+	GVariant r = m1->invoke(&s, args1);
+
+	auto m2 = spheremeta->getPublicMemberFunction("getRadius");
+	std::vector<GVariant> args2;
+	GVariant rv = m2->invoke(&s, args2);
+	EXPECT_EQ(GVariant::cast<unsigned int>(rv), 7u);
+}
+
+// call function taking void arguments but return a shared pointer
+TEST_F(GReflectionTest, CallFunctionTakingVoidArgumentsButReturnSharedPointer)
+{
+	auto* m = spheremeta->getPublicMemberFunction("getParent");
+	std::vector<GVariant> args;
+	GVariant rv = m->invoke(&s, args);
+	Node* r = GVariant::cast<Node*>(rv);
+	EXPECT_EQ(r->getName(), "GrandParentNode");
+}
+
+// call function taking shared pointer arguments but return void
+TEST_F(GReflectionTest, CallMemberFunctionTakingSharedPointerArgumentsButReturnVoid)
+{
+	auto m1 = spheremeta->getPublicMemberFunction("setParent");
+	std::vector<GVariant> args1;
+	args1.push_back(static_pointer_cast<Node>(sphere_parent));
+	//		args1.push_back(sphereParent);
+	GVariant rv1 = m1->invoke(&s, args1);
+
+	auto m2 = spheremeta->getPublicMemberFunction("getParent");
+	std::vector<GVariant> args2;
+	GVariant rv2 = m2->invoke(&s, args2);
+	Node* r2 = GVariant::cast<Node*>(rv2);
+	EXPECT_EQ(r2->getObjectId(), sphere_parent->getObjectId());
+}
+
+//call a function of base class
+TEST_F(GReflectionTest, CallNonvirtualPublicMemberFunctionOfBaseClass)
+{
+	auto m = spheremeta->getPublicMemberFunction("setPosition");
+	std::vector<GVariant> args;
+	glm::vec3 pos(1.0f, 2.0f, 3.0f);
+	args.push_back(GVariant::create<const glm::vec3&>(pos));
+	GVariant r = m->invoke(&s, args);
+	glm::vec3 p = s.getPosition();
+	EXPECT_EQ(p, glm::vec3(1.0f, 2.0f, 3.0f));
+}
+
+//call a function of base class
+TEST_F(GReflectionTest, CallVirtualPublicMemberFunctionUsingBaseClassPointerWithDerivedClassInstance)
+{
+	auto m1 = nodemeta->getPublicMemberFunction("about");
+	std::vector<GVariant> args;
+	Node* np1 = new sphere(27);
+	m1->invoke(np1, args);
+}
+
+//TODO: see ifthis is possible
+//cout << "\nForcefully call a virtual public member function of base class pointer with derived class instance:" << endl;
+/*{
+
+	auto m1 = nodemeta->getPublicMemberFunction("about");
+	std::vector<GVariant> args;
+	Node* np1 = new sphere(27);
+	m1->invoke(np1, args); //Should invoke the Node::about() instead of sphere::about
+
+}*/
+
+TEST_F(GReflectionTest, ListThePropertiesOfNodeClass)
+{
+	std::vector<string> props;
+	nodemeta->getPropertiesList(props);
+	for (auto p : props)
+	{
+		cout << "Property: " << p << endl;
+	}
+}
+
+TEST_F(GReflectionTest, SetPublicPropertyOfClass)
+{
+	auto pv = nodemeta->getProperty("visibility");
+	n.visibility = true;
+	GVariant v = false;
+	pv->set(&n, v);
+	EXPECT_EQ(n.visibility.getValue(), false);
+}
+
+#else
 void run_reflection_testcases()
 {
 	cout << "=============================" << endl;
@@ -388,4 +667,4 @@ void run_reflection_testcases()
 	}
 #endif
 }
-
+#endif
