@@ -59,7 +59,13 @@ namespace GFrameworkTest
 		* Prints the information about the sphere
 		* \return void
 		*/
-		virtual void about();
+		virtual void about() override;
+
+		/**
+		* Reset the radius to default
+		* \return void
+		*/
+		virtual void reset() override;
 
 		virtual GMetaclass* getMetaclass() const;
 	protected:
@@ -67,7 +73,7 @@ namespace GFrameworkTest
 		void reconstruct();
 
 	private:
-		GUint32Property radius; /*!< Radius of the sphere*/
+		GUint32Property radius = 123; /*!< Radius of the sphere*/
 
 		DECLARE_META_FRIEND(sphere);
 	};

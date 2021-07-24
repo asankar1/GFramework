@@ -81,6 +81,11 @@ namespace GFrameworkTest
 		cout << "Radius: " << radius.getValue() << endl;
 	}
 
+	void sphere::reset()
+	{
+		radius = 0;
+	}
+
 	GMetaclass* sphere::getMetaclass() const
 	{
 		return GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere");

@@ -208,7 +208,6 @@ namespace {
     };  // class CustomPrinter
 }  // namespace
 
-void variant_test();
 int main(int argc, char** argv)
 {
     InitGoogleTest(&argc, argv);
