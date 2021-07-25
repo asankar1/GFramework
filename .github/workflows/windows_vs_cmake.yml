@@ -78,5 +78,5 @@ jobs:
           git pull
           git add UnitTest/Reports/*.xml
           git commit -m "Updated auto-generated unit test reports"
-          git push origin ci_setup
+          git push origin integration
     
