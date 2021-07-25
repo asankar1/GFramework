@@ -72,7 +72,7 @@ jobs:
       id: verify-changed-files
       with:
           files: |
-             ${{github.workspace}}/UnitTest/Reports
+             ${{github.workspace}}/UnitTest
   
     - name: setup git config to commit the reports
       if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
@@ -89,7 +89,8 @@ jobs:
           # Stage the file, commit and push
           cd ${{github.workspace}}
           git pull
-          git add UnitTest/Reports/*.xml
+          git add UnitTest/Reports/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Report.xml
+          git add UnitTest/Coverage/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Coverage.xml
           git commit -m "Updated auto-generated unit test reports"
           git push origin integration
     
