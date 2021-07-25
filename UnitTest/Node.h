@@ -64,6 +64,12 @@ namespace GFrameworkTest
 		virtual void about();
 
 		/**
+		* Reset the position to default
+		* \return void
+		*/
+		virtual void reset();
+
+		/**
 		* Reassign the parent node
 		* \param _parent as shared pointer for any Node object
 		* \return void

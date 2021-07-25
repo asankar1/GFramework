@@ -3,7 +3,7 @@ name: CMake
 on: 
   push:
     branches:
-      - ci_setup
+      - integration
 
 
 env:
@@ -75,6 +75,7 @@ jobs:
       run: |
           # Stage the file, commit and push
           cd ${{github.workspace}}
+          git pull
           git add UnitTest/Reports/*.xml
           git commit -m "Updated auto-generated unit test reports"
           git push origin ci_setup

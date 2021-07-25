@@ -87,7 +87,6 @@ namespace GFramework
 
 	void GObject::rename(const std::string& _name)
 	{
-		cout << "Old name '" << name.getValue() << "' renamed to new name '" << _name << "'!" << endl;
 		name.setValue(_name);
 	}
 

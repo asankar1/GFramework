@@ -43,7 +43,7 @@ namespace GFrameworkTest
 
 	sphere::sphere()
 	{
-		cout << "Sphere constructed with default constructor" << endl;
+
 	}
 
 	sphere::sphere(unsigned int rad)
@@ -54,18 +54,15 @@ namespace GFrameworkTest
 	sphere::sphere(const char *_name, NodeSharedPtr& _parent, unsigned int _radius) : Node(_name, _parent)
 	{
 		radius.setValue(_radius);
-		cout << "Sphere '" << getName() << "' constructed with radius " << radius.getValue() << endl;
 	}
 
 	sphere::~sphere()
 	{
-		cout << "Sphere '" << getName() << "' destroyed." << endl;
 	}
 
 	void sphere::setRadius(unsigned int _radius)
 	{
 		radius.setValue(_radius);
-		cout << "Sphere '" << getName() << "' radius changed to " << radius.getValue() << endl;
 		reconstruct();
 	}
 
@@ -84,6 +81,11 @@ namespace GFrameworkTest
 		cout << "Radius: " << radius.getValue() << endl;
 	}
 
+	void sphere::reset()
+	{
+		radius = 0;
+	}
+
 	GMetaclass* sphere::getMetaclass() const
 	{
 		return GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("sphere");
@@ -91,6 +93,6 @@ namespace GFrameworkTest
 
 	void sphere::reconstruct()
 	{
-		cout << "Sphere node reconstructed!\n";
+
 	}
 }

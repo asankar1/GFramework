@@ -73,9 +73,11 @@ namespace GFramework
 	public:
 		GArithmeticProperty(T v = std::numeric_limits<T>::min());
 		
-		bool operator==(const T& rhs) { return (value == rhs); }
+		bool operator==(const T& rhs) const { return (value == rhs); }
 
-		bool operator==(const GArithmeticProperty<T>& rhs) { return (value == rhs.value); }
+		bool operator==(const GArithmeticProperty<T>& rhs) const { return (value == rhs.value); }
+
+		operator T() const { return getValue(); }
 
 		virtual void set(GVariant& _value);
 
@@ -105,9 +107,11 @@ namespace GFramework
 	public:
 		GStringProperty(const std::string v = "");
 
-		bool operator==(const std::string& rhs) { return (value == rhs); }
+		bool operator==(const std::string& rhs) const { return (value == rhs); }
 
-		bool operator==(const GStringProperty& rhs) { return (value == rhs.value); }
+		bool operator==(const GStringProperty& rhs) const { return (value == rhs.value); }
+
+		operator std::string () const { return getValue(); }
 
 		virtual void set(GVariant& _value);
 
@@ -139,9 +143,11 @@ namespace GFramework
 	public:
 		GGlmProperty(T v = T());
 
-		bool operator==(const T& rhs) { return (value == rhs); }
+		bool operator==(const T& rhs) const { return (value == rhs); }
 
-		bool operator==(const GGlmProperty<T>& rhs) { return (value == rhs.value); }
+		bool operator==(const GGlmProperty<T>& rhs) const { return (value == rhs.value); }
+
+		operator T() const { return getValue(); }
 
 		virtual void set(GVariant& _value);
 
@@ -188,9 +194,9 @@ namespace GFramework
 			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 		}
 		
-		bool operator==(const std::shared_ptr<T> rhs) { return (value == rhs); }
+		bool operator==(const std::shared_ptr<T> rhs) const { return (value == rhs); }
 
-		bool operator==(const GPointerProperty<T>& rhs) { return (value == rhs.value); }
+		bool operator==(const GPointerProperty<T>& rhs) const { return (value == rhs.value); }
 
 		virtual unsigned int getObjectId() const
 		{

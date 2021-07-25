@@ -4,6 +4,7 @@
 #endif
 #include <typeindex>
 #include <vector>
+#include <cctype>   //isupper, islower
 #include <map>
 #include "gtest/gtest.h"
 #include "gvariant_test.h"
@@ -90,8 +91,13 @@ namespace {
         }
 
         void OnTestSuiteStart(const TestSuite& test_suite) override {
+            std::string suitname(test_suite.name());
+            auto pos = suitname.find("$$");
+            if (pos != std::string::npos) {
+                suitname = suitname.replace(pos, 2, "::");
+            }
             fprintf(stdout, "\n");
-            fprintf(stdout, "%s[ TEST SUITE ]%s %s ( %d tests )\n", GetColor(Color::Cyan) , GetColor(Color::Reset), test_suite.name(), test_suite.test_to_run_count() );
+            fprintf(stdout, "%s[ TEST SUITE ]%s %s ( %d tests )\n", GetColor(Color::Cyan) , GetColor(Color::Reset), suitname.c_str(), test_suite.test_to_run_count() );
             fflush(stdout);
         }
 
@@ -101,25 +107,41 @@ namespace {
             const char* fail = "[====FAIL====]";
             const char* skip = "[    SKIP    ]";
             const char* result = pass;
+            auto test_name = test_info.name();
+            std::string pretty_test_name = "";
+            pretty_test_name += test_name;
+#if 0   //TODO: to be improved
+            for (int i = 1; i < strlen(test_name); i++)
+            {
+                if (std::isupper(test_name[i]))
+                {
+                    if (std::islower(test_name[i-1]))
+                    {
+                        pretty_test_name += ' ';
+                    }
+                }
+                pretty_test_name += test_name[i];
+            }
+#endif
             if (test_info.result()->Failed()){
                 result = fail;
-                fprintf(stdout, "%s%s%s Test: %s :: %s (%d ms)\n", GetColor(Color::Red),result, GetColor(Color::Reset), test_info.test_case_name(), test_info.name(), test_info.result()->elapsed_time());
+                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Red),result, GetColor(Color::Reset), pretty_test_name.c_str(), test_info.result()->elapsed_time());
             }
             else if (test_info.result()->Skipped()){
                 result = skip;
-                fprintf(stdout, "%s%s%s Test: %s :: %s (%d ms)\n", GetColor(Color::Yellow), result, GetColor(Color::Reset), test_info.test_case_name(), test_info.name(), test_info.result()->elapsed_time());
+                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Yellow), result, GetColor(Color::Reset), pretty_test_name.c_str(), test_info.result()->elapsed_time());
             }
             else
             {
                 result = pass;
-                fprintf(stdout, "%s%s%s Test: %s :: %s (%d ms)\n", GetColor(Color::Green), result, GetColor(Color::Reset), test_info.test_case_name(), test_info.name(), test_info.result()->elapsed_time());
+                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Green), result, GetColor(Color::Reset), pretty_test_name.c_str(), test_info.result()->elapsed_time());
             }
             
             fflush(stdout);
         }
 
         void OnTestSuiteEnd(const TestSuite& test_suite) override {
-            fprintf(stdout, "%s[---RESULT---]%s Pass: %d, Fail: %d, Skip: %d, Time: %d\n", \
+            fprintf(stdout, "%s[---RESULT---]%s Pass: %d, Fail: %d, Skip: %d, Time: %d ms\n", \
                     GetColor(Color::Cyan), GetColor(Color::Reset), test_suite.successful_test_count(), test_suite.failed_test_count(), \
                     test_suite.skipped_test_count(), test_suite.elapsed_time());
             fprintf(stdout, "\n");
@@ -150,7 +172,7 @@ namespace {
             if (disabled_test_count)
             {
                 fprintf(stdout, "\n");
-                fprintf(stdout, "%sDISABLED TESTES COUNT: %d%s\n", GetColor(Color::Yellow), disabled_test_count, GetColor(Color::Yellow));
+                fprintf(stdout, "%sDISABLED TESTES COUNT: %d%s\n", GetColor(Color::Yellow), disabled_test_count, GetColor(Color::Reset));
             }
 
             const int failed_test_count = unit_test.failed_test_count();
@@ -166,12 +188,17 @@ namespace {
                     if (!test_suite.should_run() || (test_suite.failed_test_count() == 0)) {
                         continue;
                     }
+                    std::string suitname(test_suite.name());
+                    auto pos = suitname.find("$$");
+                    if (pos != std::string::npos) {
+                        suitname = suitname.replace(pos, 2, "::");
+                    }
                     for (int j = 0; j < test_suite.total_test_count(); ++j) {
                         const TestInfo& test_info = *test_suite.GetTestInfo(j);
                         if (!test_info.should_run() || !test_info.result()->Failed()) {
                             continue;
                         }
-                        fprintf(stdout, "%s%d) %s :: %s%s", GetColor(Color::Red), ++index, test_suite.name(), test_info.name(), GetColor(Color::Reset));
+                        fprintf(stdout, "%s%d) %s::%s%s", GetColor(Color::Red), ++index, suitname.c_str(), test_info.name(), GetColor(Color::Reset));
                         printf("\n");
                     }
                 }

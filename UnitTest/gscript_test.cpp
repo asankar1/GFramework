@@ -1,5 +1,8 @@
 #include <string>
 #include <iostream>
+
+#include <gtest/gtest.h>
+
 #include <GFramework/GVariant/GVariant.h>
 #include <sphere.h>
 #include "gscript_test.h"
@@ -110,6 +113,50 @@ int load_namespace(lua_State *L)
 	return 1;
 }
 
+class GScriptTest : public ::testing::Test {
+protected:
+	void SetUp() override {
+		//st.create_metatable("sphere");
+		st.create_metatable("new");
+		/*st.add_integer_to_metatable("new", "count3", 3);
+		st.add_integer_to_metatable("new", "count8", 8);
+		st.add_integer_to_metatable("new", "count1", 1);*/
+		//st.add_metatable_to_metatable("new", "sphere", "sphere");
+
+		lua_State* L = st.L;
+		int error = luaL_loadfile(L, "../script.lua");
+		if (error) // if non-0, then an error
+		{
+			// the top of the stack should be the error string
+			if (lua_isstring(L, lua_gettop(L)))
+			{
+				// get the top of the stack as the error and pop it off
+				string str = lua_tostring(L, lua_gettop(L));
+				lua_pop(L, 1);
+				cout << str;
+			}
+		}
+		else
+		{
+			// if not an error, then the top of the stack will be the function to call to run the file
+			int result = lua_pcall(L, 0, LUA_MULTRET, 0); // once again, returns non-0 on error, you should probably add a little check
+			switch (result)
+			{
+			case LUA_ERRRUN:
+				cout << "Below runtime error occured!\n";
+				cout << lua_tostring(L, -1) << endl;
+				lua_pop(L, 1);
+				break;
+			}
+		}
+	}
+
+protected:
+	GLuaState st;
+};
+
+#if 1
+#else
 void run_script_testcases()
 {
 	GLuaState st;
@@ -223,3 +270,4 @@ void run_script_testcases()
 	}
 #endif
 }
+#endif

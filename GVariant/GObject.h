@@ -103,7 +103,7 @@ namespace GFramework
 		void unSubscribeDeletionNotification(GPointerPropertyInterface* _observer);
 
 		static void about() {
-			std::cout << "This is the base object!" << std::endl;
+
 		}
 
 		/**

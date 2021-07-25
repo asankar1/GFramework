@@ -1,4 +1,7 @@
 #include <fstream>
+
+#include <gtest/gtest.h>
+
 #include <GFramework/GReflection/GReflection.h>
 #include <GFramework/GSerialization/GStringSerializer.h>
 #include "gserialization_test.h""
@@ -29,7 +32,7 @@ public:
 	Color() {}
 	Color(uint8 _r, uint8 _g, uint8 _b, uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
 	uint8 r=0, g=0, b=0, a=0;
-	bool operator==(const Color& rhs) { return (this->r == rhs.r && this->g == rhs.g && this->b == rhs.b && this->a == rhs.a); }
+	bool operator==(const Color& rhs) const { return (this->r == rhs.r && this->g == rhs.g && this->b == rhs.b && this->a == rhs.a); }
 };
 namespace GFramework {
 	class GColorProperty : public GPropertyInterface
@@ -37,7 +40,9 @@ namespace GFramework {
 	public:
 		GColorProperty(Color v = Color()) : value(v) {}
 
-		bool operator==(const Color& rhs) { return (value == rhs); }
+		bool operator==(const Color& rhs) const { return (value == rhs); }
+
+		bool operator==(const GColorProperty& rhs) const { return (value == rhs.value); }
 
 		virtual void set(GVariant& _value)
 		{
@@ -143,94 +148,94 @@ public:
 		return GMetaNamespaceList::_global().getMetaclass("SerializationTestClass");
 	}
 
-	GVec2Property  get_gvec2property_private() const { return gvec2property_private; };
-	GVec3Property  get_gvec3property_private() const { return gvec3property_private; };
-	GVec4Property  get_gvec4property_private() const { return gvec4property_private; };
-	GMat2Property  get_gmat2property_private() const { return gmat2property_private; };
-	GMat3Property  get_gmat3property_private() const { return gmat3property_private; };
-	GMat4Property  get_gmat4property_private() const { return gmat4property_private; };
-	GBoolProperty  get_gboolproperty_private() const { return gboolproperty_private; };
-	GCharProperty  get_gcharproperty_private() const { return gcharproperty_private; };
-	GInt8Property  get_gint8property_private() const { return gint8property_private; };
-	GUint8Property  get_guint8property_private() const { return guint8property_private; };
-	GInt16Property  get_gint16property_private() const { return gint16property_private; };
-	GUint16Property  get_guint16property_private()const { return guint16property_private; };
-	GInt32Property  get_gint32property_private() const { return gint32property_private; };
-	GUint32Property  get_guint32property_private() const { return guint32property_private; };
-	GInt64Property  get_gint64property_private() const { return gint64property_private; };
-	GUint64Property  get_guint64property_private() const { return guint64property_private; };
-	GFloatProperty  get_gfloatproperty_private() const { return gfloatproperty_private; };
-	GDoubleProperty  get_gdoubleproperty_private() const { return gdoubleproperty_private; };
-	GStringProperty  get_gstringproperty_private() const { return gstringproperty_private; };
-	GObjectPointerProperty  get_gobjectpointerproperty_private() const { return gobjectpointerproperty_private; };
-	GColorProperty  get_gcolorproperty_private() const { return gcolorproperty_private; };
+	GVec2Property  get_gvec2PropertyPrivate() const { return gvec2PropertyPrivate; };
+	GVec3Property  get_gvec3PropertyPrivate() const { return gvec3PropertyPrivate; };
+	GVec4Property  get_gvec4PropertyPrivate() const { return gvec4PropertyPrivate; };
+	GMat2Property  get_gmat2PropertyPrivate() const { return gmat2PropertyPrivate; };
+	GMat3Property  get_gmat3PropertyPrivate() const { return gmat3PropertyPrivate; };
+	GMat4Property  get_gmat4PropertyPrivate() const { return gmat4PropertyPrivate; };
+	GBoolProperty  get_gboolPropertyPrivate() const { return gboolPropertyPrivate; };
+	GCharProperty  get_gcharPropertyPrivate() const { return gcharPropertyPrivate; };
+	GInt8Property  get_gint8PropertyPrivate() const { return gint8PropertyPrivate; };
+	GUint8Property  get_guint8PropertyPrivate() const { return guint8PropertyPrivate; };
+	GInt16Property  get_gint16PropertyPrivate() const { return gint16PropertyPrivate; };
+	GUint16Property  get_guint16PropertyPrivate()const { return guint16PropertyPrivate; };
+	GInt32Property  get_gint32PropertyPrivate() const { return gint32PropertyPrivate; };
+	GUint32Property  get_guint32PropertyPrivate() const { return guint32PropertyPrivate; };
+	GInt64Property  get_gint64PropertyPrivate() const { return gint64PropertyPrivate; };
+	GUint64Property  get_guint64PropertyPrivate() const { return guint64PropertyPrivate; };
+	GFloatProperty  get_gfloatPropertyPrivate() const { return gfloatPropertyPrivate; };
+	GDoubleProperty  get_gdoublePropertyPrivate() const { return gdoublePropertyPrivate; };
+	GStringProperty  get_gstringPropertyPrivate() const { return gstringPropertyPrivate; };
+	GObjectPointerProperty  get_gobjectpointerPropertyPrivate() const { return gobjectpointerPropertyPrivate; };
+	GColorProperty  get_gcolorPropertyPrivate() const { return gcolorPropertyPrivate; };
 
-	void set_gvec2property_private(GVec2Property  v) { gvec2property_private = v; };
-	void set_gvec3property_private(GVec3Property  v) { gvec3property_private = v; };
-	void set_gvec4property_private(GVec4Property  v) { gvec4property_private = v; };
-	void set_gmat2property_private(GMat2Property  v) { gmat2property_private = v; };
-	void set_gmat3property_private(GMat3Property  v) { gmat3property_private = v; };
-	void set_gmat4property_private(GMat4Property  v) { gmat4property_private = v; };
-	void set_gboolproperty_private(GBoolProperty  v) { gboolproperty_private = v; };
-	void set_gcharproperty_private(GCharProperty  v) { gcharproperty_private = v; };
-	void set_gint8property_private(GInt8Property  v) { gint8property_private = v; };
-	void set_guint8property_private(GUint8Property  v) { guint8property_private = v; };
-	void set_gint16property_private(GInt16Property  v) { gint16property_private = v; };
-	void set_guint16property_private(GUint16Property  v) { guint16property_private = v; };
-	void set_gint32property_private(GInt32Property  v) { gint32property_private = v; };
-	void set_guint32property_private(GUint32Property  v) { guint32property_private = v; };
-	void set_gint64property_private(GInt64Property  v) { gint64property_private = v; };
-	void set_guint64property_private(GUint64Property  v) { guint64property_private = v; };
-	void set_gfloatproperty_private(GFloatProperty  v) { gfloatproperty_private = v; };
-	void set_gdoubleproperty_private(GDoubleProperty  v) { gdoubleproperty_private = v; };
-	void set_gstringproperty_private(GStringProperty  v) { gstringproperty_private = v; };
-	void set_gobjectpointerproperty_private(GObjectPointerProperty   v) { gobjectpointerproperty_private = v; };
-	void set_gcolorproperty_private(GColorProperty   v) { gcolorproperty_private = v; };
+	void set_gvec2PropertyPrivate(GVec2Property  v) { gvec2PropertyPrivate = v; };
+	void set_gvec3PropertyPrivate(GVec3Property  v) { gvec3PropertyPrivate = v; };
+	void set_gvec4PropertyPrivate(GVec4Property  v) { gvec4PropertyPrivate = v; };
+	void set_gmat2PropertyPrivate(GMat2Property  v) { gmat2PropertyPrivate = v; };
+	void set_gmat3PropertyPrivate(GMat3Property  v) { gmat3PropertyPrivate = v; };
+	void set_gmat4PropertyPrivate(GMat4Property  v) { gmat4PropertyPrivate = v; };
+	void set_gboolPropertyPrivate(GBoolProperty  v) { gboolPropertyPrivate = v; };
+	void set_gcharPropertyPrivate(GCharProperty  v) { gcharPropertyPrivate = v; };
+	void set_gint8PropertyPrivate(GInt8Property  v) { gint8PropertyPrivate = v; };
+	void set_guint8PropertyPrivate(GUint8Property  v) { guint8PropertyPrivate = v; };
+	void set_gint16PropertyPrivate(GInt16Property  v) { gint16PropertyPrivate = v; };
+	void set_guint16PropertyPrivate(GUint16Property  v) { guint16PropertyPrivate = v; };
+	void set_gint32PropertyPrivate(GInt32Property  v) { gint32PropertyPrivate = v; };
+	void set_guint32PropertyPrivate(GUint32Property  v) { guint32PropertyPrivate = v; };
+	void set_gint64PropertyPrivate(GInt64Property  v) { gint64PropertyPrivate = v; };
+	void set_guint64PropertyPrivate(GUint64Property  v) { guint64PropertyPrivate = v; };
+	void set_gfloatPropertyPrivate(GFloatProperty  v) { gfloatPropertyPrivate = v; };
+	void set_gdoublePropertyPrivate(GDoubleProperty  v) { gdoublePropertyPrivate = v; };
+	void set_gstringPropertyPrivate(GStringProperty  v) { gstringPropertyPrivate = v; };
+	void set_gobjectpointerPropertyPrivate(GObjectPointerProperty   v) { gobjectpointerPropertyPrivate = v; };
+	void set_gcolorPropertyPrivate(GColorProperty   v) { gcolorPropertyPrivate = v; };
 	
 public:
-	GVec2Property gvec2property_public;
-	GVec3Property gvec3property_public;
-	GVec4Property gvec4property_public;
-	GMat2Property gmat2property_public;
-	GMat3Property gmat3property_public;
-	GMat4Property gmat4property_public;
-	GBoolProperty gboolproperty_public;
-	GCharProperty gcharproperty_public;
-	GInt8Property gint8property_public;
-	GUint8Property guint8property_public;
-	GInt16Property gint16property_public;
-	GUint16Property guint16property_public;
-	GInt32Property gint32property_public;
-	GUint32Property guint32property_public;
-	GInt64Property gint64property_public;
-	GUint64Property guint64property_public;
-	GFloatProperty gfloatproperty_public;
-	GDoubleProperty gdoubleproperty_public;
-	GStringProperty gstringproperty_public;
-	GObjectPointerProperty gobjectpointerproperty_public;
-	GColorProperty gcolorproperty_public;
+	GVec2Property gvec2PropertyPublic;
+	GVec3Property gvec3PropertyPublic;
+	GVec4Property gvec4PropertyPublic;
+	GMat2Property gmat2PropertyPublic;
+	GMat3Property gmat3PropertyPublic;
+	GMat4Property gmat4PropertyPublic;
+	GBoolProperty gboolPropertyPublic;
+	GCharProperty gcharPropertyPublic;
+	GInt8Property gint8PropertyPublic;
+	GUint8Property guint8PropertyPublic;
+	GInt16Property gint16PropertyPublic;
+	GUint16Property guint16PropertyPublic;
+	GInt32Property gint32PropertyPublic;
+	GUint32Property guint32PropertyPublic;
+	GInt64Property gint64PropertyPublic;
+	GUint64Property guint64PropertyPublic;
+	GFloatProperty gfloatPropertyPublic;
+	GDoubleProperty gdoublePropertyPublic;
+	GStringProperty gstringPropertyPublic;
+	GObjectPointerProperty gobjectpointerPropertyPublic;
+	GColorProperty gcolorPropertyPublic;
 private:
-	GVec2Property gvec2property_private;
-	GVec3Property gvec3property_private;
-	GVec4Property gvec4property_private;
-	GMat2Property gmat2property_private;
-	GMat3Property gmat3property_private;
-	GMat4Property gmat4property_private;
-	GBoolProperty gboolproperty_private;
-	GCharProperty gcharproperty_private;
-	GInt8Property gint8property_private;
-	GUint8Property guint8property_private;
-	GInt16Property gint16property_private;
-	GUint16Property guint16property_private;
-	GInt32Property gint32property_private;
-	GUint32Property guint32property_private;
-	GInt64Property gint64property_private;
-	GUint64Property guint64property_private;
-	GFloatProperty gfloatproperty_private;
-	GDoubleProperty gdoubleproperty_private;
-	GStringProperty gstringproperty_private;
-	GObjectPointerProperty gobjectpointerproperty_private;
-	GColorProperty gcolorproperty_private;
+	GVec2Property gvec2PropertyPrivate;
+	GVec3Property gvec3PropertyPrivate;
+	GVec4Property gvec4PropertyPrivate;
+	GMat2Property gmat2PropertyPrivate;
+	GMat3Property gmat3PropertyPrivate;
+	GMat4Property gmat4PropertyPrivate;
+	GBoolProperty gboolPropertyPrivate;
+	GCharProperty gcharPropertyPrivate;
+	GInt8Property gint8PropertyPrivate;
+	GUint8Property guint8PropertyPrivate;
+	GInt16Property gint16PropertyPrivate;
+	GUint16Property guint16PropertyPrivate;
+	GInt32Property gint32PropertyPrivate;
+	GUint32Property guint32PropertyPrivate;
+	GInt64Property gint64PropertyPrivate;
+	GUint64Property guint64PropertyPrivate;
+	GFloatProperty gfloatPropertyPrivate;
+	GDoubleProperty gdoublePropertyPrivate;
+	GStringProperty gstringPropertyPrivate;
+	GObjectPointerProperty gobjectpointerPropertyPrivate;
+	GColorProperty gcolorPropertyPrivate;
 
 };
 
@@ -238,48 +243,48 @@ BEGIN_DEFINE_META(SerializationTestClass)
 GMetaNamespaceList::_global()
 .define<SerializationTestClass>("SerializationTestClass")
 .baseMetaclass("GObject", { "GFramework" })
-.property("gvec2property_private", &SerializationTestClass::get_gvec2property_private, &SerializationTestClass::set_gvec2property_private)
-.property("gvec3property_private", &SerializationTestClass::get_gvec3property_private, &SerializationTestClass::set_gvec3property_private)
-.property("gvec4property_private", &SerializationTestClass::get_gvec4property_private, &SerializationTestClass::set_gvec4property_private)
-.property("gmat2property_private", &SerializationTestClass::get_gmat2property_private, &SerializationTestClass::set_gmat2property_private)
-.property("gmat3property_private", &SerializationTestClass::get_gmat3property_private, &SerializationTestClass::set_gmat3property_private)
-.property("gmat4property_private", &SerializationTestClass::get_gmat4property_private, &SerializationTestClass::set_gmat4property_private)
-.property("gboolproperty_private", &SerializationTestClass::get_gboolproperty_private, &SerializationTestClass::set_gboolproperty_private)
-.property("gcharproperty_private", &SerializationTestClass::get_gcharproperty_private, &SerializationTestClass::set_gcharproperty_private)
-.property("gint8property_private", &SerializationTestClass::get_gint8property_private, &SerializationTestClass::set_gint8property_private)
-.property("guint8property_private", &SerializationTestClass::get_guint8property_private, &SerializationTestClass::set_guint8property_private)
-.property("gint16property_private", &SerializationTestClass::get_gint16property_private, &SerializationTestClass::set_gint16property_private)
-.property("guint16property_private", &SerializationTestClass::get_guint16property_private, &SerializationTestClass::set_guint16property_private)
-.property("gint32property_private", &SerializationTestClass::get_gint32property_private, &SerializationTestClass::set_gint32property_private)
-.property("guint32property_private", &SerializationTestClass::get_guint32property_private, &SerializationTestClass::set_guint32property_private)
-.property("gint64property_private", &SerializationTestClass::get_gint64property_private, &SerializationTestClass::set_gint64property_private)
-.property("guint64property_private", &SerializationTestClass::get_guint64property_private, &SerializationTestClass::set_guint64property_private)
-.property("gfloatproperty_private", &SerializationTestClass::get_gfloatproperty_private, &SerializationTestClass::set_gfloatproperty_private)
-.property("gdoubleproperty_private", &SerializationTestClass::get_gdoubleproperty_private, &SerializationTestClass::set_gdoubleproperty_private)
-.property("gstringproperty_private", &SerializationTestClass::get_gstringproperty_private, &SerializationTestClass::set_gstringproperty_private)
-.property("gobjectpointerproperty_private", &SerializationTestClass::get_gobjectpointerproperty_private, &SerializationTestClass::set_gobjectpointerproperty_private)
-.property("gcolorproperty_private", &SerializationTestClass::get_gcolorproperty_private, &SerializationTestClass::set_gcolorproperty_private)
-.property("gvec2property_public", &SerializationTestClass::gvec2property_public)
-.property("gvec3property_public", &SerializationTestClass::gvec3property_public)
-.property("gvec4property_public", &SerializationTestClass::gvec4property_public)
-.property("gmat2property_public", &SerializationTestClass::gmat2property_public)
-.property("gmat3property_public", &SerializationTestClass::gmat3property_public)
-.property("gmat4property_public", &SerializationTestClass::gmat4property_public)
-.property("gboolproperty_public", &SerializationTestClass::gboolproperty_public)
-.property("gcharproperty_public", &SerializationTestClass::gcharproperty_public)
-.property("gint8property_public", &SerializationTestClass::gint8property_public)
-.property("guint8property_public", &SerializationTestClass::guint8property_public)
-.property("gint16property_public", &SerializationTestClass::gint16property_public)
-.property("guint16property_public", &SerializationTestClass::guint16property_public)
-.property("gint32property_public", &SerializationTestClass::gint32property_public)
-.property("guint32property_public", &SerializationTestClass::guint32property_public)
-.property("gint64property_public", &SerializationTestClass::gint64property_public)
-.property("guint64property_public", &SerializationTestClass::guint64property_public)
-.property("gfloatproperty_public", &SerializationTestClass::gfloatproperty_public)
-.property("gdoubleproperty_public", &SerializationTestClass::gdoubleproperty_public)
-.property("gstringproperty_public", &SerializationTestClass::gstringproperty_public)
-.property("gobjectpointerproperty_public", &SerializationTestClass::gobjectpointerproperty_public)
-.property("gcolorproperty_public", &SerializationTestClass::gcolorproperty_public)
+.property("gvec2PropertyPrivate", &SerializationTestClass::get_gvec2PropertyPrivate, &SerializationTestClass::set_gvec2PropertyPrivate)
+.property("gvec3PropertyPrivate", &SerializationTestClass::get_gvec3PropertyPrivate, &SerializationTestClass::set_gvec3PropertyPrivate)
+.property("gvec4PropertyPrivate", &SerializationTestClass::get_gvec4PropertyPrivate, &SerializationTestClass::set_gvec4PropertyPrivate)
+.property("gmat2PropertyPrivate", &SerializationTestClass::get_gmat2PropertyPrivate, &SerializationTestClass::set_gmat2PropertyPrivate)
+.property("gmat3PropertyPrivate", &SerializationTestClass::get_gmat3PropertyPrivate, &SerializationTestClass::set_gmat3PropertyPrivate)
+.property("gmat4PropertyPrivate", &SerializationTestClass::get_gmat4PropertyPrivate, &SerializationTestClass::set_gmat4PropertyPrivate)
+.property("gboolPropertyPrivate", &SerializationTestClass::get_gboolPropertyPrivate, &SerializationTestClass::set_gboolPropertyPrivate)
+.property("gcharPropertyPrivate", &SerializationTestClass::get_gcharPropertyPrivate, &SerializationTestClass::set_gcharPropertyPrivate)
+.property("gint8PropertyPrivate", &SerializationTestClass::get_gint8PropertyPrivate, &SerializationTestClass::set_gint8PropertyPrivate)
+.property("guint8PropertyPrivate", &SerializationTestClass::get_guint8PropertyPrivate, &SerializationTestClass::set_guint8PropertyPrivate)
+.property("gint16PropertyPrivate", &SerializationTestClass::get_gint16PropertyPrivate, &SerializationTestClass::set_gint16PropertyPrivate)
+.property("guint16PropertyPrivate", &SerializationTestClass::get_guint16PropertyPrivate, &SerializationTestClass::set_guint16PropertyPrivate)
+.property("gint32PropertyPrivate", &SerializationTestClass::get_gint32PropertyPrivate, &SerializationTestClass::set_gint32PropertyPrivate)
+.property("guint32PropertyPrivate", &SerializationTestClass::get_guint32PropertyPrivate, &SerializationTestClass::set_guint32PropertyPrivate)
+.property("gint64PropertyPrivate", &SerializationTestClass::get_gint64PropertyPrivate, &SerializationTestClass::set_gint64PropertyPrivate)
+.property("guint64PropertyPrivate", &SerializationTestClass::get_guint64PropertyPrivate, &SerializationTestClass::set_guint64PropertyPrivate)
+.property("gfloatPropertyPrivate", &SerializationTestClass::get_gfloatPropertyPrivate, &SerializationTestClass::set_gfloatPropertyPrivate)
+.property("gdoublePropertyPrivate", &SerializationTestClass::get_gdoublePropertyPrivate, &SerializationTestClass::set_gdoublePropertyPrivate)
+.property("gstringPropertyPrivate", &SerializationTestClass::get_gstringPropertyPrivate, &SerializationTestClass::set_gstringPropertyPrivate)
+.property("gobjectpointerPropertyPrivate", &SerializationTestClass::get_gobjectpointerPropertyPrivate, &SerializationTestClass::set_gobjectpointerPropertyPrivate)
+.property("gcolorPropertyPrivate", &SerializationTestClass::get_gcolorPropertyPrivate, &SerializationTestClass::set_gcolorPropertyPrivate)
+.property("gvec2PropertyPublic", &SerializationTestClass::gvec2PropertyPublic)
+.property("gvec3PropertyPublic", &SerializationTestClass::gvec3PropertyPublic)
+.property("gvec4PropertyPublic", &SerializationTestClass::gvec4PropertyPublic)
+.property("gmat2PropertyPublic", &SerializationTestClass::gmat2PropertyPublic)
+.property("gmat3PropertyPublic", &SerializationTestClass::gmat3PropertyPublic)
+.property("gmat4PropertyPublic", &SerializationTestClass::gmat4PropertyPublic)
+.property("gboolPropertyPublic", &SerializationTestClass::gboolPropertyPublic)
+.property("gcharPropertyPublic", &SerializationTestClass::gcharPropertyPublic)
+.property("gint8PropertyPublic", &SerializationTestClass::gint8PropertyPublic)
+.property("guint8PropertyPublic", &SerializationTestClass::guint8PropertyPublic)
+.property("gint16PropertyPublic", &SerializationTestClass::gint16PropertyPublic)
+.property("guint16PropertyPublic", &SerializationTestClass::guint16PropertyPublic)
+.property("gint32PropertyPublic", &SerializationTestClass::gint32PropertyPublic)
+.property("guint32PropertyPublic", &SerializationTestClass::guint32PropertyPublic)
+.property("gint64PropertyPublic", &SerializationTestClass::gint64PropertyPublic)
+.property("guint64PropertyPublic", &SerializationTestClass::guint64PropertyPublic)
+.property("gfloatPropertyPublic", &SerializationTestClass::gfloatPropertyPublic)
+.property("gdoublePropertyPublic", &SerializationTestClass::gdoublePropertyPublic)
+.property("gstringPropertyPublic", &SerializationTestClass::gstringPropertyPublic)
+.property("gobjectpointerPropertyPublic", &SerializationTestClass::gobjectpointerPropertyPublic)
+.property("gcolorPropertyPublic", &SerializationTestClass::gcolorPropertyPublic)
 ;
 END_DEFINE_META(SerializationTestClass)
 
@@ -305,16 +310,186 @@ END_DEFINE_META(Square)*/
 #define SETUP_PUBLIC_PROPERTY(PROP, VALUE) \
 		auto PROP##_assigner = [&]() {write_obj->PROP## = VALUE; }; \
 		PROP##_assigner(); \
-		auto PROP##_verifier = [&](SerializationTestClass* read_obj) {assert(((SerializationTestClass*)read_obj)->PROP## == VALUE); }; 
+		auto PROP##_verifier = [&](SerializationTestClass* read_obj)->bool {return (((SerializationTestClass*)read_obj)->PROP## == VALUE); }; 
 
 #define SETUP_PRIVATE_PROPERTY(PROP, VALUE) \
 		auto PROP##_assigner = [&]() {write_obj->set_##PROP##(VALUE); }; \
 		PROP##_assigner(); \
-		auto PROP##_verifier = [&](SerializationTestClass* read_obj) {assert(((SerializationTestClass*)read_obj)->get_##PROP##() == VALUE); }; 
+		auto PROP##_verifier = [&](SerializationTestClass* read_obj)->bool {return (((SerializationTestClass*)read_obj)->get_##PROP##() == VALUE); }; 
 
 #define VERIFY_PROPERTY(PROP, VALUE) \
 		PROP##_verifier(VALUE); 
 
+class GSerialization$$GPropertyTypes : public ::testing::Test {
+protected:
+	void SetUp() override {
+		//setup public properties
+		SETUP_PUBLIC_PROPERTY(gvec2PropertyPublic, vec2_val);
+		SETUP_PUBLIC_PROPERTY(gvec3PropertyPublic, vec3_val);
+		SETUP_PUBLIC_PROPERTY(gvec4PropertyPublic, vec4_val);
+		SETUP_PUBLIC_PROPERTY(gmat2PropertyPublic, mat2_val);
+		SETUP_PUBLIC_PROPERTY(gmat3PropertyPublic, mat3_val);
+		SETUP_PUBLIC_PROPERTY(gmat4PropertyPublic, mat4_val);
+		SETUP_PUBLIC_PROPERTY(gboolPropertyPublic, bool_val);
+		SETUP_PUBLIC_PROPERTY(gcharPropertyPublic, char_val);
+		SETUP_PUBLIC_PROPERTY(gint8PropertyPublic, int8_val);
+		SETUP_PUBLIC_PROPERTY(guint8PropertyPublic, uint8_val);
+		SETUP_PUBLIC_PROPERTY(gint16PropertyPublic, int16_val);
+		SETUP_PUBLIC_PROPERTY(guint16PropertyPublic, uint16_val);
+		SETUP_PUBLIC_PROPERTY(gint32PropertyPublic, int32_val);
+		SETUP_PUBLIC_PROPERTY(guint32PropertyPublic, uint32_val);
+		SETUP_PUBLIC_PROPERTY(gint64PropertyPublic, int64_val);
+		SETUP_PUBLIC_PROPERTY(guint64PropertyPublic, uint64_val);
+		SETUP_PUBLIC_PROPERTY(gfloatPropertyPublic, float_val);
+		SETUP_PUBLIC_PROPERTY(gstringPropertyPublic, string_val);
+		SETUP_PUBLIC_PROPERTY(gdoublePropertyPublic, double_val);
+		SETUP_PUBLIC_PROPERTY(gobjectpointerPropertyPublic, gobject_ptr);
+		SETUP_PUBLIC_PROPERTY(gcolorPropertyPublic, blue);
+
+		//setup private properties
+		SETUP_PRIVATE_PROPERTY(gvec2PropertyPrivate, vec2_val);
+		SETUP_PRIVATE_PROPERTY(gvec3PropertyPrivate, vec3_val);
+		SETUP_PRIVATE_PROPERTY(gvec4PropertyPrivate, vec4_val);
+		SETUP_PRIVATE_PROPERTY(gmat2PropertyPrivate, mat2_val);
+		SETUP_PRIVATE_PROPERTY(gmat3PropertyPrivate, mat3_val);
+		SETUP_PRIVATE_PROPERTY(gmat4PropertyPrivate, mat4_val);
+		SETUP_PRIVATE_PROPERTY(gboolPropertyPrivate, bool_val);
+		SETUP_PRIVATE_PROPERTY(gcharPropertyPrivate, char_val);
+		SETUP_PRIVATE_PROPERTY(gint8PropertyPrivate, int8_val);
+		SETUP_PRIVATE_PROPERTY(guint8PropertyPrivate, uint8_val);
+		SETUP_PRIVATE_PROPERTY(gint16PropertyPrivate, int16_val);
+		SETUP_PRIVATE_PROPERTY(guint16PropertyPrivate, uint16_val);
+		SETUP_PRIVATE_PROPERTY(gint32PropertyPrivate, int32_val);
+		SETUP_PRIVATE_PROPERTY(guint32PropertyPrivate, uint32_val);
+		SETUP_PRIVATE_PROPERTY(gint64PropertyPrivate, int64_val);
+		SETUP_PRIVATE_PROPERTY(guint64PropertyPrivate, uint64_val);
+		SETUP_PRIVATE_PROPERTY(gfloatPropertyPrivate, float_val);
+		SETUP_PRIVATE_PROPERTY(gdoublePropertyPrivate, double_val);
+		SETUP_PRIVATE_PROPERTY(gstringPropertyPrivate, string_val);
+		SETUP_PRIVATE_PROPERTY(gobjectpointerPropertyPrivate, gobject_ptr);
+		SETUP_PRIVATE_PROPERTY(gcolorPropertyPrivate, blue);
+		
+		//setup String out serializer and stream
+		out_text = make_shared<ofstream>();
+		out_text->open(filename, ios_base::out);
+		if (!out_text->is_open())
+		{
+			cout << endl << "Unable to open file:" << filename << endl << endl;
+			return;
+		}
+		stringSer.open(out_text);
+		stringSer << write_obj;
+		stringSer.close();
+
+
+		//setup String out deserializer and stream
+		in_text = make_shared<ifstream>();
+		in_text->open(filename, ios_base::in);
+		if (!in_text->is_open())
+		{
+			cout << endl << "Unable to open file:" << filename << endl << endl;
+			return;
+		}
+		stringDeSer.open(in_text);
+		stringDeSer >> &read_obj;
+		ptr = (SerializationTestClass*)read_obj.get();
+		stringDeSer.close();
+	}
+
+	void TearDown() override {
+		out_text->close();
+		in_text->close();
+	}
+
+protected:
+	shared_ptr<SerializationTestClass> write_obj = make_shared<SerializationTestClass>();
+	GObjectSharedPtr read_obj = nullptr;
+	SerializationTestClass* ptr = nullptr;
+
+	glm::vec2 vec2_val = glm::vec2(1, 2);
+	glm::vec3 vec3_val = glm::vec3(3, 4, 5);
+	glm::vec4 vec4_val = glm::vec4(6, 7, 8, 9);
+	glm::mat2 mat2_val = glm::mat2();
+	glm::mat3 mat3_val = glm::mat3();
+	glm::mat4 mat4_val = glm::mat4();
+	bool bool_val = true;
+	char char_val = 'A';
+	int8 int8_val = 123;
+	uint8 uint8_val = 456;
+	int16 int16_val = 123;
+	uint16 uint16_val = 456;
+	int32 int32_val = 123;
+	uint32 uint32_val = 456;
+	int64 int64_val = 123;
+	uint64 uint64_val = 456;
+	float float_val = 3.14f;
+	double double_val = 3.14;
+	string string_val = "default string value";
+	GObjectSharedPtr gobject_ptr = GObjectSharedPtr(nullptr);
+	Color blue = { 0, 0, 255, 255 };
+
+	std::shared_ptr<ofstream> out_text;
+	std::shared_ptr<ifstream> in_text;
+	string filename = "ser_test.txt";
+	GStringSerializer stringSer;
+	GStringDeserializer stringDeSer;
+};
+
+#define GTEST_GREFLECTION_PUBLIC(type) \
+	TEST_F(GSerialization$$GPropertyTypes, type) { \
+		EXPECT_EQ(std::static_pointer_cast<SerializationTestClass>(read_obj)->type, write_obj->type); \
+	}
+
+#define GTEST_GREFLECTION_PRIVATE(type) \
+	TEST_F(GSerialization$$GPropertyTypes, type) { \
+		EXPECT_EQ(std::static_pointer_cast<SerializationTestClass>(read_obj)->get_##type##(), write_obj->get_##type##()); \
+	}
+
+GTEST_GREFLECTION_PUBLIC(gvec2PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gvec3PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gvec4PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gmat2PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gmat3PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gmat4PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gboolPropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gcharPropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gint8PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(guint8PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gint16PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(guint16PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gint32PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(guint32PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gint64PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(guint64PropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gfloatPropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gstringPropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gdoublePropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gobjectpointerPropertyPublic)
+GTEST_GREFLECTION_PUBLIC(gcolorPropertyPublic)
+
+GTEST_GREFLECTION_PRIVATE(gvec2PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gvec3PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gvec4PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gmat2PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gmat3PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gmat4PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gboolPropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gcharPropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gint8PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(guint8PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gint16PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(guint16PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gint32PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(guint32PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gint64PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(guint64PropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gfloatPropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gstringPropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gdoublePropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gobjectpointerPropertyPrivate)
+GTEST_GREFLECTION_PRIVATE(gcolorPropertyPrivate)
+
+#if 0
 void run_serialization_testcases()
 {
 	cout << "================================" << endl;
@@ -355,63 +530,63 @@ void run_serialization_testcases()
 
 
 		
-		//auto assigner = [&]() {write_obj->gvec2property_public = vec2_val; };
-		//auto verifier = [&](SerializationTestClass* read_obj) {assert(((SerializationTestClass*)read_obj)->gvec2property_public == vec2_val); };
+		//auto assigner = [&]() {write_obj->gvec2PropertyPublic = vec2_val; };
+		//auto verifier = [&](SerializationTestClass* read_obj) {assert(((SerializationTestClass*)read_obj)->gvec2PropertyPublic == vec2_val); };
 
-		SETUP_PUBLIC_PROPERTY(gvec2property_public, vec2_val);
-		SETUP_PUBLIC_PROPERTY(gvec3property_public, vec3_val);
-		SETUP_PUBLIC_PROPERTY(gvec4property_public, vec4_val);
-		SETUP_PUBLIC_PROPERTY(gmat2property_public, mat2_val);
-		SETUP_PUBLIC_PROPERTY(gmat3property_public, mat3_val);
-		SETUP_PUBLIC_PROPERTY(gmat4property_public, mat4_val);
-		SETUP_PUBLIC_PROPERTY(gboolproperty_public, bool_val);
-		SETUP_PUBLIC_PROPERTY(gcharproperty_public, char_val);
-		SETUP_PUBLIC_PROPERTY(gint8property_public, int8_val);
-		SETUP_PUBLIC_PROPERTY(guint8property_public, uint8_val);
-		SETUP_PUBLIC_PROPERTY(gint16property_public, int16_val);
-		SETUP_PUBLIC_PROPERTY(guint16property_public, uint16_val);
-		SETUP_PUBLIC_PROPERTY(gint32property_public, int32_val);
-		SETUP_PUBLIC_PROPERTY(guint32property_public, uint32_val);
-		SETUP_PUBLIC_PROPERTY(gint64property_public, int64_val);
-		SETUP_PUBLIC_PROPERTY(guint64property_public, uint64_val);
-		SETUP_PUBLIC_PROPERTY(gfloatproperty_public, float_val);
-		SETUP_PUBLIC_PROPERTY(gstringproperty_public, string_val);
-		SETUP_PUBLIC_PROPERTY(gdoubleproperty_public, double_val);
-		SETUP_PUBLIC_PROPERTY(gobjectpointerproperty_public, gobject_ptr);
-		SETUP_PUBLIC_PROPERTY(gcolorproperty_public, blue);
+		SETUP_PUBLIC_PROPERTY(gvec2PropertyPublic, vec2_val);
+		SETUP_PUBLIC_PROPERTY(gvec3PropertyPublic, vec3_val);
+		SETUP_PUBLIC_PROPERTY(gvec4PropertyPublic, vec4_val);
+		SETUP_PUBLIC_PROPERTY(gmat2PropertyPublic, mat2_val);
+		SETUP_PUBLIC_PROPERTY(gmat3PropertyPublic, mat3_val);
+		SETUP_PUBLIC_PROPERTY(gmat4PropertyPublic, mat4_val);
+		SETUP_PUBLIC_PROPERTY(gboolPropertyPublic, bool_val);
+		SETUP_PUBLIC_PROPERTY(gcharPropertyPublic, char_val);
+		SETUP_PUBLIC_PROPERTY(gint8PropertyPublic, int8_val);
+		SETUP_PUBLIC_PROPERTY(guint8PropertyPublic, uint8_val);
+		SETUP_PUBLIC_PROPERTY(gint16PropertyPublic, int16_val);
+		SETUP_PUBLIC_PROPERTY(guint16PropertyPublic, uint16_val);
+		SETUP_PUBLIC_PROPERTY(gint32PropertyPublic, int32_val);
+		SETUP_PUBLIC_PROPERTY(guint32PropertyPublic, uint32_val);
+		SETUP_PUBLIC_PROPERTY(gint64PropertyPublic, int64_val);
+		SETUP_PUBLIC_PROPERTY(guint64PropertyPublic, uint64_val);
+		SETUP_PUBLIC_PROPERTY(gfloatPropertyPublic, float_val);
+		SETUP_PUBLIC_PROPERTY(gstringPropertyPublic, string_val);
+		SETUP_PUBLIC_PROPERTY(gdoublePropertyPublic, double_val);
+		SETUP_PUBLIC_PROPERTY(gobjectpointerPropertyPublic, gobject_ptr);
+		SETUP_PUBLIC_PROPERTY(gcolorPropertyPublic, blue);
 		
-		/*auto gobjectpointerproperty_public_assigner = [&]() {write_obj->gobjectpointerproperty_public = gobject_ptr; };
-		gobjectpointerproperty_public_assigner();
-		auto gobjectpointerproperty_public_verifier = [&](SerializationTestClass* read_obj) {
-			assert(((SerializationTestClass*)read_obj)->gobjectpointerproperty_public == gobject_ptr); 
+		/*auto gobjectpointerPropertyPublic_assigner = [&]() {write_obj->gobjectpointerPropertyPublic = gobject_ptr; };
+		gobjectpointerPropertyPublic_assigner();
+		auto gobjectpointerPropertyPublic_verifier = [&](SerializationTestClass* read_obj) {
+			assert(((SerializationTestClass*)read_obj)->gobjectpointerPropertyPublic == gobject_ptr); 
 		};*/
 
 		//TODO: find a way to use assignment operator for the GObjectPointer
-		//write_obj->gobjectpointerproperty_public.setValue(gobject_ptr);
+		//write_obj->gobjectpointerPropertyPublic.setValue(gobject_ptr);
 
-		SETUP_PRIVATE_PROPERTY(gvec2property_private, vec2_val);
-		SETUP_PRIVATE_PROPERTY(gvec3property_private, vec3_val);
-		SETUP_PRIVATE_PROPERTY(gvec4property_private, vec4_val);
-		SETUP_PRIVATE_PROPERTY(gmat2property_private, mat2_val);
-		SETUP_PRIVATE_PROPERTY(gmat3property_private, mat3_val);
-		SETUP_PRIVATE_PROPERTY(gmat4property_private, mat4_val);
-		SETUP_PRIVATE_PROPERTY(gboolproperty_private, bool_val);
-		SETUP_PRIVATE_PROPERTY(gcharproperty_private, char_val);
-		SETUP_PRIVATE_PROPERTY(gint8property_private, int8_val);
-		SETUP_PRIVATE_PROPERTY(guint8property_private, uint8_val);
-		SETUP_PRIVATE_PROPERTY(gint16property_private, int16_val);
-		SETUP_PRIVATE_PROPERTY(guint16property_private, uint16_val);
-		SETUP_PRIVATE_PROPERTY(gint32property_private, int32_val);
-		SETUP_PRIVATE_PROPERTY(guint32property_private, uint32_val);
-		SETUP_PRIVATE_PROPERTY(gint64property_private, int64_val);
-		SETUP_PRIVATE_PROPERTY(guint64property_private, uint64_val);
-		SETUP_PRIVATE_PROPERTY(gfloatproperty_private, float_val);
-		SETUP_PRIVATE_PROPERTY(gdoubleproperty_private, double_val);
-		SETUP_PRIVATE_PROPERTY(gstringproperty_private, string_val);
-		SETUP_PRIVATE_PROPERTY(gobjectpointerproperty_private, gobject_ptr);
-		SETUP_PRIVATE_PROPERTY(gcolorproperty_private, blue);
+		SETUP_PRIVATE_PROPERTY(gvec2PropertyPrivate, vec2_val);
+		SETUP_PRIVATE_PROPERTY(gvec3PropertyPrivate, vec3_val);
+		SETUP_PRIVATE_PROPERTY(gvec4PropertyPrivate, vec4_val);
+		SETUP_PRIVATE_PROPERTY(gmat2PropertyPrivate, mat2_val);
+		SETUP_PRIVATE_PROPERTY(gmat3PropertyPrivate, mat3_val);
+		SETUP_PRIVATE_PROPERTY(gmat4PropertyPrivate, mat4_val);
+		SETUP_PRIVATE_PROPERTY(gboolPropertyPrivate, bool_val);
+		SETUP_PRIVATE_PROPERTY(gcharPropertyPrivate, char_val);
+		SETUP_PRIVATE_PROPERTY(gint8PropertyPrivate, int8_val);
+		SETUP_PRIVATE_PROPERTY(guint8PropertyPrivate, uint8_val);
+		SETUP_PRIVATE_PROPERTY(gint16PropertyPrivate, int16_val);
+		SETUP_PRIVATE_PROPERTY(guint16PropertyPrivate, uint16_val);
+		SETUP_PRIVATE_PROPERTY(gint32PropertyPrivate, int32_val);
+		SETUP_PRIVATE_PROPERTY(guint32PropertyPrivate, uint32_val);
+		SETUP_PRIVATE_PROPERTY(gint64PropertyPrivate, int64_val);
+		SETUP_PRIVATE_PROPERTY(guint64PropertyPrivate, uint64_val);
+		SETUP_PRIVATE_PROPERTY(gfloatPropertyPrivate, float_val);
+		SETUP_PRIVATE_PROPERTY(gdoublePropertyPrivate, double_val);
+		SETUP_PRIVATE_PROPERTY(gstringPropertyPrivate, string_val);
+		SETUP_PRIVATE_PROPERTY(gobjectpointerPropertyPrivate, gobject_ptr);
+		SETUP_PRIVATE_PROPERTY(gcolorPropertyPrivate, blue);
 		//TODO: find a way to test the below
-		//write_obj->set_gobjectpointerproperty_private(gobject_ptr);
+		//write_obj->set_gobjectpointerPropertyPrivate(gobject_ptr);
 
 		//Text serialization
 		auto out_text = make_shared<ofstream>();
@@ -443,52 +618,52 @@ void run_serialization_testcases()
 		tds.close();
 		in_text->close();
 		auto ptr = (SerializationTestClass*)read_obj.get();
-		//assert(((SerializationTestClass*)read_obj.get())->gvec2property_public == vec2_val);
-		VERIFY_PROPERTY(gvec2property_public, ptr);
-		VERIFY_PROPERTY(gvec3property_public, ptr);
-		VERIFY_PROPERTY(gvec4property_public, ptr);
-		VERIFY_PROPERTY(gmat2property_public, ptr);
-		VERIFY_PROPERTY(gmat3property_public, ptr);
-		VERIFY_PROPERTY(gmat4property_public, ptr);
-		VERIFY_PROPERTY(gboolproperty_public, ptr);
-		VERIFY_PROPERTY(gcharproperty_public, ptr);
-		VERIFY_PROPERTY(gint8property_public, ptr);
-		VERIFY_PROPERTY(guint8property_public, ptr);
-		VERIFY_PROPERTY(gint16property_public, ptr);
-		VERIFY_PROPERTY(guint16property_public, ptr);
-		VERIFY_PROPERTY(gint32property_public, ptr);
-		VERIFY_PROPERTY(guint32property_public, ptr);
-		VERIFY_PROPERTY(gint64property_public, ptr);
-		VERIFY_PROPERTY(guint64property_public, ptr);
-		VERIFY_PROPERTY(gfloatproperty_public, ptr);
-		VERIFY_PROPERTY(gdoubleproperty_public, ptr);
-		VERIFY_PROPERTY(gstringproperty_public, ptr);
+		//assert(((SerializationTestClass*)read_obj.get())->gvec2PropertyPublic == vec2_val);
+		VERIFY_PROPERTY(gvec2PropertyPublic, ptr);
+		VERIFY_PROPERTY(gvec3PropertyPublic, ptr);
+		VERIFY_PROPERTY(gvec4PropertyPublic, ptr);
+		VERIFY_PROPERTY(gmat2PropertyPublic, ptr);
+		VERIFY_PROPERTY(gmat3PropertyPublic, ptr);
+		VERIFY_PROPERTY(gmat4PropertyPublic, ptr);
+		VERIFY_PROPERTY(gboolPropertyPublic, ptr);
+		VERIFY_PROPERTY(gcharPropertyPublic, ptr);
+		VERIFY_PROPERTY(gint8PropertyPublic, ptr);
+		VERIFY_PROPERTY(guint8PropertyPublic, ptr);
+		VERIFY_PROPERTY(gint16PropertyPublic, ptr);
+		VERIFY_PROPERTY(guint16PropertyPublic, ptr);
+		VERIFY_PROPERTY(gint32PropertyPublic, ptr);
+		VERIFY_PROPERTY(guint32PropertyPublic, ptr);
+		VERIFY_PROPERTY(gint64PropertyPublic, ptr);
+		VERIFY_PROPERTY(guint64PropertyPublic, ptr);
+		VERIFY_PROPERTY(gfloatPropertyPublic, ptr);
+		VERIFY_PROPERTY(gdoublePropertyPublic, ptr);
+		VERIFY_PROPERTY(gstringPropertyPublic, ptr);
 		//TODO: find a way to use assignment operator for the GObjectPointer
-		//assert(ptr->gobjectpointerproperty_public.getValue() == gobject_ptr);
-		VERIFY_PROPERTY(gobjectpointerproperty_public, ptr);
-		VERIFY_PROPERTY(gcolorproperty_public, ptr);
+		//assert(ptr->gobjectpointerPropertyPublic.getValue() == gobject_ptr);
+		VERIFY_PROPERTY(gobjectpointerPropertyPublic, ptr);
+		VERIFY_PROPERTY(gcolorPropertyPublic, ptr);
 
-		VERIFY_PROPERTY(gvec2property_private, ptr);
-		VERIFY_PROPERTY(gvec3property_private, ptr);
-		VERIFY_PROPERTY(gvec4property_private, ptr);
-		VERIFY_PROPERTY(gmat2property_private, ptr);
-		VERIFY_PROPERTY(gmat3property_private, ptr);
-		VERIFY_PROPERTY(gmat4property_private, ptr);
-		VERIFY_PROPERTY(gboolproperty_private, ptr);
-		VERIFY_PROPERTY(gcharproperty_private, ptr);
-		VERIFY_PROPERTY(gint8property_private, ptr);
-		VERIFY_PROPERTY(guint8property_private, ptr);
-		VERIFY_PROPERTY(gint16property_private, ptr);
-		VERIFY_PROPERTY(guint16property_private, ptr);
-		VERIFY_PROPERTY(gint32property_private, ptr);
-		VERIFY_PROPERTY(guint32property_private, ptr);
-		VERIFY_PROPERTY(gint64property_private, ptr);
-		VERIFY_PROPERTY(guint64property_private, ptr);
-		VERIFY_PROPERTY(gfloatproperty_private, ptr);
-		VERIFY_PROPERTY(gdoubleproperty_private, ptr);
-		VERIFY_PROPERTY(gstringproperty_private, ptr);
-		VERIFY_PROPERTY(gobjectpointerproperty_private, ptr);
-		VERIFY_PROPERTY(gcolorproperty_private, ptr);
+		VERIFY_PROPERTY(gvec2PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gvec3PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gvec4PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gmat2PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gmat3PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gmat4PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gboolPropertyPrivate, ptr);
+		VERIFY_PROPERTY(gcharPropertyPrivate, ptr);
+		VERIFY_PROPERTY(gint8PropertyPrivate, ptr);
+		VERIFY_PROPERTY(guint8PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gint16PropertyPrivate, ptr);
+		VERIFY_PROPERTY(guint16PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gint32PropertyPrivate, ptr);
+		VERIFY_PROPERTY(guint32PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gint64PropertyPrivate, ptr);
+		VERIFY_PROPERTY(guint64PropertyPrivate, ptr);
+		VERIFY_PROPERTY(gfloatPropertyPrivate, ptr);
+		VERIFY_PROPERTY(gdoublePropertyPrivate, ptr);
+		VERIFY_PROPERTY(gstringPropertyPrivate, ptr);
+		VERIFY_PROPERTY(gobjectpointerPropertyPrivate, ptr);
+		VERIFY_PROPERTY(gcolorPropertyPrivate, ptr);
 	}
 #endif
 #if 0
@@ -613,3 +788,4 @@ void run_serialization_testcases()
 #endif
 	//osphere1_ptr.reset();
 }
+#endif
