@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="56" failures="0" disabled="4" errors="0" time="0" timestamp="2021-07-17T12:27:14.402" name="AllTests">
+  <testsuite name="GVariantTest$$$FundementalTypes" tests="17" failures="0" disabled="0" skipped="0" errors="0" time="0" timestamp="2021-07-17T12:27:14.402">
+    <testcase name="void" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="nullptr_t" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="bool" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="int8" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="uint8" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="char" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="char16_t" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="char32_t" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="int16" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="uint16" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="int32" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="uint32" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="int64" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="uint64" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="float32" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="float64" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+    <testcase name="float80" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$FundementalTypes" />
+  </testsuite>
+  <testsuite name="GVariantTest$$$CompoundTypes" tests="16" failures="0" disabled="0" skipped="0" errors="0" time="0" timestamp="2021-07-17T12:27:14.402">
+    <testcase name="raw_pointer" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="one_dim_array" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="rvalue_ref" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="member_variable_pointer" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="member_function_pointer" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="class" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="function" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="enum" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="union" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.402" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="GVariant" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="string" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="wstring" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="vector" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="list" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="map" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$CompoundTypes" />
+    <testcase name="tuple" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$CompoundTypes" />
+  </testsuite>
+  <testsuite name="DISABLED_GVariantTest$$$CompoundTypes" tests="4" failures="0" disabled="4" skipped="0" errors="0" time="0" timestamp="1970-01-01T00:00:00.000">
+    <testcase name="multi_dim_array" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="DISABLED_GVariantTest$$$CompoundTypes" />
+    <testcase name="shared_ptr" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="DISABLED_GVariantTest$$$CompoundTypes" />
+    <testcase name="unique_ptr" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="DISABLED_GVariantTest$$$CompoundTypes" />
+    <testcase name="lvalue_ref" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="DISABLED_GVariantTest$$$CompoundTypes" />
+  </testsuite>
+  <testsuite name="GVariantTest$$$GProperty" tests="19" failures="0" disabled="0" skipped="0" errors="0" time="0" timestamp="2021-07-17T12:27:14.403">
+    <testcase name="GBoolProperty" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GCharProperty" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GInt8Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GUint8Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GInt16Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GUint16Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GInt32Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GUint32Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GInt64Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GUint64Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GFloatProperty" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GDoubleProperty" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GVec2Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GVec3Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GVec4Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GMat2Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GMat3Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GMat4Property" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+    <testcase name="GObjectPointerProperty" status="run" result="completed" time="0" timestamp="2021-07-17T12:27:14.403" classname="GVariantTest$$$GProperty" />
+  </testsuite>
+</testsuites>

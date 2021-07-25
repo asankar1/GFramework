@@ -1,951 +1,619 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
+#include <list>
+#include <array>
+#include <stack>
+#include <map>
 #include <cassert>
 #include <limits>
 #include <cmath>
 #include <array>
+#include <functional>
 
+#include <gtest/gtest.h>
+
+#include <GFramework/GVariant/GTypes.h>
 #include <GFramework/GVariant/GVariant.h>
+#include <GFramework/GVariant/GObject.h>
+
 #include "gvariant_test.h"
-#ifndef Q_MOC_RUN
-#include <boost/core/typeinfo.hpp>
-#include <boost/variant.hpp>
-#include <boost/function.hpp>
-#endif
+
 
 using namespace std;
 using namespace GFramework;
 
-/*	Notes:
-	> using boost::get<T>() is preferred, simply using the GVariant may give issues
-	> Definig a base class in the variant's templaes can accept derived class. But that base class SHOULD NOT be an abstract class; But base class pointer is acceptable.
-	> if a reference is added in the variant template, then that variant can be ONLY initialized. Reassignment is not possible.
-	> variants are not automatically casted to the actual type
-	> cout can automatically resolve the variant type without explicit get<T>.
-	> passing direct POD types to a function taking variant arguments works but automatic type cast is not as expected. For ex, 'true' is printed as 1;
-*/
+template<typename T>
+struct is_vector : std::false_type {};
 
-int int_array[3] = { 1, 2, 3 };
+template<typename T>
+struct is_vector<std::vector<T>> : std::true_type {};
 
-enum unscoped_enum_type {
-	unscoped_type1 = -1,
-	unscoped_type2,
-	unscoped_type3
-};
+template<typename T>
+struct is_list : std::false_type {};
 
-enum class scoped_enum_type {
-	scoped_type1 = -11,
-	scoped_type2,
-	scoped_type3
-};
+template<typename T>
+struct is_list<std::list<T>> : std::true_type {};
 
-struct RGB {
-	unsigned char red;
-	unsigned char green;
-	unsigned char blue;
-};
+template<typename T>
+struct is_stack : std::false_type {};
 
-union Color {
-	unsigned char channel[3];
-	RGB rgb;
-};
+template<typename T, typename C>
+struct is_stack<std::stack<T, C>> : std::true_type {};
 
-int add(int a, int b) {
-	return a + b;
-}
+template<typename T>
+struct is_map : std::false_type {};
 
-int sub(int a, int b) {
-	return a - b;
-}
+template<class K, class T, class C, class A>
+struct is_map<std::map<K, T, C, A>> : std::true_type {};
 
-class simple_class {
+template<typename T>
+struct is_tuple : std::false_type {};
 
-};
+template<class... Types>
+struct is_tuple<std::tuple<Types...>> : std::true_type {};
 
-class abstract_class {
-public:
-	virtual void initialize() = 0;
-};
+template<typename T>
+struct is_function_object : std::false_type {};
 
-class interface_class {
-protected:
-	interface_class() {}
-};
+template<typename T>
+struct is_function_object<std::function<T>> : std::true_type {};
 
-class non_copyable_class {
-public:
-	non_copyable_class() {}
-	non_copyable_class(const non_copyable_class &) = delete;
-	non_copyable_class & operator=(const non_copyable_class &) = delete;
-	int get_number()const {
-		return number;
-	}
-	void set_number(int n) {
-		number = n;
-	}
-private:
-	int number = 14;
-};
+template<typename T, typename U = T>
+typename T::DUMMY_TYPE
+gvariant_arithmetic_test(GVariant);
 
-class non_moveable_class {
-public:
-	non_moveable_class() {}
-	non_moveable_class(non_moveable_class&&) = delete;
-	int get_number() const {
-		return number;
-	}
-	void set_number(int n) {
-		number = n;
-	}
-private:
-	int number = 27;
-};
+template<typename T, typename U = T>
+typename T::DUMMY_TYPE
+gvariant_floatingpoint_test(GVariant);
 
-class base_class {
-public:
-	static float get_static_PI() {
-		return 3.14f;
-	}
+template<typename T>
+typename T::DUMMY_TYPE
+gvariant_class_test(GVariant, T);
 
-	virtual int get_virtual_id() {
-		return 11;
-	}
-
-	int base_only_func() {
-		return 33;
-	}
-
-	int common_non_virtual_func() {
-		return 55;
-	}
-};
-
-class derived_class : public base_class {
-public:
-	virtual int get_virtual_id() override {
-		return 22;
-	}
-
-	int derive_only_func() {
-		return 44;
-	}
-
-	int common_non_virtual_func() {
-		return 66;
-	}
-
-	int lref_qualified_member_func() & {
-		return 77;
-	}
-
-	int rref_qualified_member_func() && {
-		return 88;
-	}
-};
-
-void process_base_class(base_class* bc) {
-
-}
-
-typedef int(*non_member_func_ptr(float));
-
-typedef int(base_class::*virtual_member_func_ptr(void));
-
-typedef int(derived_class::*nonvirtual_member_func_ptr(void));
-
-void GFRAMEWORK_TEST_API run_variant_testcases()
+template<typename T>
+bool gvariant_pointer_test(GVariant gv, T v1)
 {
-	/*
-	std::cout << endl << "Starting test cases for 'Variant'..." << endl << endl;
-	NodeSharedPtr grant_parent_node_sharedptr(std::make_shared<Node>("grant_parent", NodeSharedPtr()));
-	SphereSharedPtr parent_node_sharedptr(std::make_shared<sphere>("parent_node", grant_parent_node_sharedptr, 32));
-	sphere sphere_node("sphere_node", static_pointer_cast<Node>(parent_node_sharedptr), 64);
-	*/
+	bool result = true;
 
-	cout << "==========================" << endl;
-	cout << "Startig GVariant testcases" << endl;
-	cout << "==========================" << endl;
+	//raw pointer
+	T* v6 = &v1;
+	gv = GVariant::create<T*>(v6);
+	result = result && (GVariant::cast<T*>(gv) == v6);
+	result = result && (*GVariant::cast<T*>(gv) == v1);
+	return result;
+}
 
-	//fundamental types
+template<typename T>
+bool gvariant_reference_test(GVariant gv, T v1)
+{
+	bool result = true;
+
+	//lvalue reference
+	T& v2 = v1;
+	gv = GVariant::create<T>(v2);
+	result = result && (GVariant::cast<T>(gv) == v2);
+
+	//const lvalue
+	const T v3 = v1;
+	gv = GVariant::create<T>(v3);
+	result = result && (GVariant::cast<T>(gv) == v3);
+
+	//const lvalue reference
+	const T& v4 = v1;
+	gv = GVariant::create<T>(v4);
+	result = result && (GVariant::cast<T>(gv) == v4);
+
+	//rvalue
+	auto ret_rvalue = [v1]()->T {T v = v1; return v; };
+	gv = GVariant::create<T>(ret_rvalue());
+	result = result && (GVariant::cast<T>(gv) == ret_rvalue());
+
+	//rvalue reference
+	T&& v5 = std::move(v1);
+	gv = GVariant::create<T>(v5);
+	result = result && (GVariant::cast<T>(gv) == v5);
+
+	result = result && gvariant_pointer_test<T>(gv, v1);
+
+	return result;
+}
+
+template<typename T, typename U = T>
+typename std::enable_if<std::is_arithmetic<U>::value, bool>::type
+gvariant_arithmetic_test(GVariant gv)
+{
+	bool result = true;
+
+	//constexpr range
+	gv = GVariant::create<T>(numeric_limits<U>::min());
+	result = result && (GVariant::cast<T>(gv) == numeric_limits<U>::min());
+
+	gv = GVariant::create<T>(numeric_limits<U>::lowest());
+	result = result && (GVariant::cast<T>(gv) == numeric_limits<U>::lowest());
+
+	gv = GVariant::create<T>(numeric_limits<U>::max());
+	result = result && (GVariant::cast<T>(gv) == numeric_limits<U>::max());
+
+	//lvalue
+	T v1 = numeric_limits<U>::min();
+	gv = GVariant::create<T>(v1);
+	result = result && (GVariant::cast<T>(gv) == v1);
+
+	result = result && gvariant_reference_test<T>(gv, v1);
+
+	return result;
+}
+
+template<typename T, typename U = T>
+typename std::enable_if<std::is_floating_point<U>::value, bool>::type
+gvariant_floatingpoint_test(GVariant gv)
+{
+	bool result = true;
+
+	result = result && gvariant_arithmetic_test<T, U>(gv);
+
+	if (numeric_limits<U>::has_infinity)
 	{
-		cout << "Testing GVariant for fundemental types: ";
-		GVariant gv;
+		gv = GVariant::create<T>(numeric_limits<U>::infinity());
+		result = result && (GVariant::cast<T>(gv) == numeric_limits<U>::infinity());
+	}
 
-		gv = 2;
-		//char c = (int)gv;
-		char c = GVariant::cast<int>(gv);
-		gv = (int)3;
-		GVariant gv2(gv);
-		vector<GVariant> args;
-		args.push_back(gv2);
-		GVariant gv3(3U);
-		args.push_back((int)5);
+	if (numeric_limits<U>::has_quiet_NaN)
+	{
+		gv = GVariant::create<T>(numeric_limits<U>::quiet_NaN());
+		result = result && (std::isnan((U)GVariant::cast<T>(gv))); //NaN is always != Nan, use std::isnan
+	}
 
-		/*string name = "ParentNode-Renamed";
-		vector<GVariant> args1;
-		const string& re = name;
-		GVariant g;
-		g = GVariant::create<const string&>(re);
-		args1.push_back(g);
-		const string& tt = GVariant::cast<const string&>(g);
-		const string& tt2 = (const string&)g;*/
-		{
-			int i = 23;
-			vector<GVariant> args1;
-			const int& re = i;
-			GVariant g;
-			g = GVariant::create<const int&>(re);
-			args1.push_back(g);
-			const int& tt = GVariant::cast<const int&>(g);
-			const int& tt2 = (const int&)g;
-		}
-#if 1
-		//explicit type specification
-		gv = GVariant::create<void>();
+	if (numeric_limits<U>::has_signaling_NaN)
+	{
+		gv = GVariant::create<T>(numeric_limits<U>::signaling_NaN());
+		result = result && (std::isnan((U)GVariant::cast<T>(gv))); //NaN is always != Nan, use std::isnan
+	}
 
-		//gv = GVariant::create<int>();
+	if (numeric_limits<U>::has_denorm)
+	{
+		gv = GVariant::create<T>(numeric_limits<U>::denorm_min());
+		result = result && (GVariant::cast<T>(gv) == numeric_limits<U>::denorm_min());
+	}
 
+	return result;
+}
+
+template<typename T>
+typename std::enable_if<std::is_class<T>::value, bool>::type
+gvariant_class_test(GVariant gv, T t)
+{
+	bool result = true;
+
+	result = result && gvariant_reference_test<T>(gv, t);
+
+	return result;
+}
+
+template<typename T, typename = void>
+struct dataType {};
+
+template<typename T>
+struct dataType <T, typename std::enable_if< std::is_void<T>::value >::type>
+{
+	static bool variant_test(GVariant gv)
+	{
+		bool result = true;
+		int i = 23;
+
+		//raw void pointer
+		void* v6 = static_cast<void*>(&i);
+		gv = GVariant::create<void*>(v6);
+		result = result && (GVariant::cast<void*>(gv) == v6);
+		result = result && (*(static_cast<int*>(GVariant::cast<void*>(gv))) == i);
+
+		return result;
+	}
+};
+
+template<typename T>
+struct dataType <T, typename std::enable_if< std::is_null_pointer<T>::value >::type>
+{
+	static bool variant_test(GVariant gv)
+	{
+		bool result = true;
+		
+		//raw null pointer
 		gv = GVariant::create<nullptr_t>(nullptr);
-		assert(GVariant::cast<nullptr_t>(gv) == nullptr);
+		result = result && (GVariant::cast<nullptr_t>(gv) == nullptr);
 
-		gv = GVariant::create<bool>(numeric_limits<bool>::max());
-		assert(GVariant::cast<bool>(gv) == numeric_limits<bool>::max());
-
-		gv = GVariant::create<char>(numeric_limits<char>::max());
-		assert(GVariant::cast<char>(gv) == numeric_limits<char>::max());
-
-		gv = GVariant::create<signed char>(numeric_limits<signed char>::min());
-		assert(GVariant::cast<signed char>(gv) == numeric_limits<signed char>::min());
-
-		gv = GVariant::create<unsigned char>(numeric_limits<unsigned char>::max());
-		assert(GVariant::cast<unsigned char>(gv) == numeric_limits<unsigned char>::max());
-
-		gv = GVariant::create<wchar_t>(numeric_limits<wchar_t>::max());
-		assert(GVariant::cast<wchar_t>(gv) == numeric_limits<wchar_t>::max());
-
-		gv = GVariant::create<char16_t>(numeric_limits<char16_t>::min());
-		assert(GVariant::cast<char16_t>(gv) == numeric_limits<char16_t>::min());
-
-		gv = GVariant::create<char32_t>(numeric_limits<char32_t>::min());
-		assert(GVariant::cast<char32_t>(gv) == numeric_limits<char32_t>::min());
-
-		gv = GVariant::create<short>(numeric_limits<short>::min());
-		assert(GVariant::cast<short>(gv) == numeric_limits<short>::min());
-
-		gv = GVariant::create<unsigned short>(numeric_limits<unsigned short>::max());
-		assert(GVariant::cast<unsigned short>(gv) == numeric_limits<unsigned short>::max());
-
-		gv = GVariant::create<int>(numeric_limits<int>::min());
-		assert(GVariant::cast<int>(gv) == numeric_limits<int>::min());
-
-		gv = GVariant::create<unsigned int>(numeric_limits<unsigned int>::max());
-		assert(GVariant::cast<unsigned int>(gv) == numeric_limits<unsigned int>::max());
-
-		gv = GVariant::create<long>(numeric_limits<long>::min());
-		assert(GVariant::cast<long>(gv) == numeric_limits<long>::min());
-
-		gv = GVariant::create<unsigned long>(numeric_limits<unsigned long>::max());
-		assert(GVariant::cast<unsigned long>(gv) == numeric_limits<unsigned long>::max());
-
-		gv = GVariant::create<long long>(numeric_limits<long long>::min());
-		assert(GVariant::cast<long long>(gv) == numeric_limits<long long>::min());
-
-		gv = GVariant::create<unsigned long long>(numeric_limits<unsigned long long>::max());
-		assert(GVariant::cast<unsigned long long>(gv) == numeric_limits<unsigned long long>::max());
-
-		gv = GVariant::create<unscoped_enum_type>(unscoped_type2);
-		assert(GVariant::cast<unscoped_enum_type>(gv) == unscoped_type2);
-
-		gv = GVariant::create<scoped_enum_type>(scoped_enum_type::scoped_type3);
-		assert(GVariant::cast<scoped_enum_type>(gv) == scoped_enum_type::scoped_type3);
-
-		gv = GVariant::create<float>(numeric_limits<float>::max());
-		assert(GVariant::cast<float>(gv) == numeric_limits<float>::max());
-
-		gv = GVariant::create<float>(numeric_limits<float>::quiet_NaN());
-		assert(isnan(GVariant::cast<float>(gv)));
-
-		gv = GVariant::create<float>(numeric_limits<float>::signaling_NaN());
-		assert(isnan(GVariant::cast<float>(gv)));
-
-		gv = GVariant::create<float>(numeric_limits<float>::infinity());
-		assert(isinf(GVariant::cast<float>(gv)));
-		
-		gv = GVariant::create<double>(numeric_limits<double>::max());
-		assert(GVariant::cast<double>(gv) == numeric_limits<double>::max());
-
-		gv = GVariant::create<double>(numeric_limits<double>::quiet_NaN());
-		assert(isnan(GVariant::cast<double>(gv)));
-
-		gv = GVariant::create<double>(numeric_limits<double>::signaling_NaN());
-		assert(isnan(GVariant::cast<double>(gv)));
-
-		gv = GVariant::create<double>(numeric_limits<double>::infinity());
-		assert(isinf(GVariant::cast<double>(gv)));
-
-		gv = GVariant::create<long double>(numeric_limits<long double>::max());
-		assert(GVariant::cast<long double>(gv) == numeric_limits<long double>::max());
-
-		gv = GVariant::create<long double>(numeric_limits<long double>::quiet_NaN());
-		assert(isnan(GVariant::cast<long double>(gv)));
-
-		gv = GVariant::create<long double>(numeric_limits<long double>::signaling_NaN());
-		assert(isnan(GVariant::cast<long double>(gv)));
-
-		gv = GVariant::create<long double>(numeric_limits<long double>::infinity());
-		assert(isinf(GVariant::cast<long double>(gv)));
-
-		gv = GVariant::create<std::string>("TestStr");
-		assert(GVariant::cast<std::string>(gv) == std::string("TestStr"));
-
-		std::string another_str = "AnotherStr";
-		gv = GVariant::create<std::string>(another_str);
-		another_str = "modified";
-		assert(GVariant::cast<std::string>(gv) == std::string("AnotherStr"));
-#endif
-		cout << "Ok" << endl;
+		return result;
 	}
+};
 
-	//compound type - reference(lvalue and rvalue)
-	{
-		#define CHECK_LVALUE_REFERENCE_TYPE(TYPE) {	TYPE val = numeric_limits<TYPE>::max(); gv = GVariant::create<TYPE&>(val); \
-													val = numeric_limits<TYPE>::min(); assert(GVariant::cast<TYPE&>(gv) == numeric_limits<TYPE>::min()); }
-		#define CHECK_CONST_LVALUE_REFERENCE_TYPE(TYPE) {	TYPE val = numeric_limits<TYPE>::max(); gv = GVariant::create<const TYPE&>(val); \
-													val = numeric_limits<TYPE>::min(); assert(GVariant::cast<const TYPE&>(gv) == numeric_limits<TYPE>::min()); }
-
-		#define CHECK_RVALUE_REFERENCE_TYPE(TYPE) {	TYPE val = numeric_limits<TYPE>::max(); gv = GVariant::create<TYPE&&>(std::move(val)); \
-													assert(GVariant::cast<TYPE&&>(gv) == numeric_limits<TYPE>::max()); }
-		#define CHECK_CONST_RVALUE_REFERENCE_TYPE(TYPE) {	TYPE val = numeric_limits<TYPE>::max(); gv = GVariant::create<const TYPE&&>(std::move(val)); \
-													assert(GVariant::cast<const TYPE&&>(gv) == numeric_limits<TYPE>::max()); }
-		
-		cout << "Testing GVariant for fundemental type references: ";
-		GVariant gv;
-#if 1
-		CHECK_LVALUE_REFERENCE_TYPE(bool);
-		CHECK_LVALUE_REFERENCE_TYPE(char);
-		CHECK_LVALUE_REFERENCE_TYPE(signed char);
-		CHECK_LVALUE_REFERENCE_TYPE(unsigned char);
-		CHECK_LVALUE_REFERENCE_TYPE(wchar_t);
-		CHECK_LVALUE_REFERENCE_TYPE(char16_t);
-		CHECK_LVALUE_REFERENCE_TYPE(char32_t);
-		CHECK_LVALUE_REFERENCE_TYPE(short);
-		CHECK_LVALUE_REFERENCE_TYPE(unsigned short);
-		CHECK_LVALUE_REFERENCE_TYPE(int);
-		CHECK_LVALUE_REFERENCE_TYPE(unsigned int);
-		CHECK_LVALUE_REFERENCE_TYPE(long);
-		CHECK_LVALUE_REFERENCE_TYPE(unsigned long);
-		CHECK_LVALUE_REFERENCE_TYPE(long long);
-		CHECK_LVALUE_REFERENCE_TYPE(unsigned long long);
-		CHECK_LVALUE_REFERENCE_TYPE(float);
-		CHECK_LVALUE_REFERENCE_TYPE(float);
-		CHECK_LVALUE_REFERENCE_TYPE(float);
-		CHECK_LVALUE_REFERENCE_TYPE(float);
-		CHECK_LVALUE_REFERENCE_TYPE(double);
-		CHECK_LVALUE_REFERENCE_TYPE(double);
-		CHECK_LVALUE_REFERENCE_TYPE(double);
-		CHECK_LVALUE_REFERENCE_TYPE(double);
-		CHECK_LVALUE_REFERENCE_TYPE(long double);
-		CHECK_LVALUE_REFERENCE_TYPE(long double);
-		CHECK_LVALUE_REFERENCE_TYPE(long double);
-		CHECK_LVALUE_REFERENCE_TYPE(long double);
-		std::string str = "TestStr";
-		gv = GVariant::create<std::string&>(str);
-		str = "modified";
-		assert(GVariant::cast<std::string&>(gv) == std::string("modified"));
-
-		CHECK_RVALUE_REFERENCE_TYPE(bool);
-		CHECK_RVALUE_REFERENCE_TYPE(char);
-		CHECK_RVALUE_REFERENCE_TYPE(signed char);
-		CHECK_RVALUE_REFERENCE_TYPE(unsigned char);
-		CHECK_RVALUE_REFERENCE_TYPE(wchar_t);
-		CHECK_RVALUE_REFERENCE_TYPE(char16_t);
-		CHECK_RVALUE_REFERENCE_TYPE(char32_t);
-		CHECK_RVALUE_REFERENCE_TYPE(short);
-		CHECK_RVALUE_REFERENCE_TYPE(unsigned short);
-		CHECK_RVALUE_REFERENCE_TYPE(int);
-		CHECK_RVALUE_REFERENCE_TYPE(unsigned int);
-		CHECK_RVALUE_REFERENCE_TYPE(long);
-		CHECK_RVALUE_REFERENCE_TYPE(unsigned long);
-		CHECK_RVALUE_REFERENCE_TYPE(long long);
-		CHECK_RVALUE_REFERENCE_TYPE(unsigned long long);
-		CHECK_RVALUE_REFERENCE_TYPE(float);
-		CHECK_RVALUE_REFERENCE_TYPE(float);
-		CHECK_RVALUE_REFERENCE_TYPE(float);
-		CHECK_RVALUE_REFERENCE_TYPE(float);
-		CHECK_RVALUE_REFERENCE_TYPE(double);
-		CHECK_RVALUE_REFERENCE_TYPE(double);
-		CHECK_RVALUE_REFERENCE_TYPE(double);
-		CHECK_RVALUE_REFERENCE_TYPE(double);
-		CHECK_RVALUE_REFERENCE_TYPE(long double);
-		CHECK_RVALUE_REFERENCE_TYPE(long double);
-		CHECK_RVALUE_REFERENCE_TYPE(long double);
-		CHECK_RVALUE_REFERENCE_TYPE(long double);
-		str = "TestStr";
-		gv = GVariant::create<std::string&&>(std::move(str));
-		assert(GVariant::cast<std::string&&>(gv) == std::string("TestStr"));
-
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(bool);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(char);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(signed char);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(unsigned char);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(wchar_t);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(char16_t);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(char32_t);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(short);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(unsigned short);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(int);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(unsigned int);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(long);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(unsigned long);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(long long);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(unsigned long long);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(long double);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(long double);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(long double);
-		CHECK_CONST_LVALUE_REFERENCE_TYPE(long double);
-		str = "TestStr";
-		const std::string& str_ref = str;
-		gv = GVariant::create<const std::string&>(str_ref);
-		str = "modified";
-		assert(GVariant::cast<const std::string&>(gv) == std::string("modified"));
-
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(bool);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(char);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(signed char);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(unsigned char);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(wchar_t);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(char16_t);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(char32_t);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(short);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(unsigned short);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(int);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(unsigned int);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(long);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(unsigned long);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(long long);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(unsigned long long);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(float);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(double);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(long double);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(long double);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(long double);
-		CHECK_CONST_RVALUE_REFERENCE_TYPE(long double);
-		str = "TestStr";
-		gv = GVariant::create<const std::string&&>(std::move(str));
-		assert(GVariant::cast<const std::string&&>(gv) == std::string("TestStr"));
-#endif
-		cout << "Ok" << endl;
-	}
-
-	//compound types - pointers
-	{
-#define CHECK_POINTER_TYPE(TYPE) { TYPE val = numeric_limits<TYPE>::max(); gv = GVariant::create<TYPE*>(&val); assert(*GVariant::cast<TYPE*>(gv) == val); }
-
-		cout << "Testing GVariant for fundemental type pointers: ";
-		GVariant gv;
-		void* void_ptr = nullptr;
-#if 1
-		//explicit type specification
-		gv = GVariant::create<void*>(void_ptr);
-		assert(GVariant::cast<void*>(gv) == nullptr);
-
-		gv = GVariant::create<nullptr_t*>(nullptr);
-		assert(GVariant::cast<nullptr_t*>(gv) == nullptr);
-
-		CHECK_POINTER_TYPE(bool);
-		CHECK_POINTER_TYPE(char);
-		CHECK_POINTER_TYPE(signed char);
-		CHECK_POINTER_TYPE(unsigned char);
-		CHECK_POINTER_TYPE(wchar_t);
-		CHECK_POINTER_TYPE(char16_t);
-		CHECK_POINTER_TYPE(char32_t);
-		CHECK_POINTER_TYPE(short);
-		CHECK_POINTER_TYPE(unsigned short);
-		CHECK_POINTER_TYPE(int);
-		CHECK_POINTER_TYPE(unsigned int);
-		CHECK_POINTER_TYPE(long);
-		CHECK_POINTER_TYPE(unsigned long);
-		CHECK_POINTER_TYPE(long long);
-		CHECK_POINTER_TYPE(unsigned long long);
-		CHECK_POINTER_TYPE(float);
-		CHECK_POINTER_TYPE(float);
-		CHECK_POINTER_TYPE(float);
-		CHECK_POINTER_TYPE(float);
-		CHECK_POINTER_TYPE(double);
-		CHECK_POINTER_TYPE(double);
-		CHECK_POINTER_TYPE(double);
-		CHECK_POINTER_TYPE(double);
-		CHECK_POINTER_TYPE(long double);
-		CHECK_POINTER_TYPE(long double);
-		CHECK_POINTER_TYPE(long double);
-		CHECK_POINTER_TYPE(long double);
-
-		CHECK_POINTER_TYPE(const bool);
-		CHECK_POINTER_TYPE(const char);
-		CHECK_POINTER_TYPE(const signed char);
-		CHECK_POINTER_TYPE(const unsigned char);
-		CHECK_POINTER_TYPE(const wchar_t);
-		CHECK_POINTER_TYPE(const char16_t);
-		CHECK_POINTER_TYPE(const char32_t);
-		CHECK_POINTER_TYPE(const short);
-		CHECK_POINTER_TYPE(const unsigned short);
-		CHECK_POINTER_TYPE(const int);
-		CHECK_POINTER_TYPE(const unsigned int);
-		CHECK_POINTER_TYPE(const long);
-		CHECK_POINTER_TYPE(const unsigned long);
-		CHECK_POINTER_TYPE(const long long);
-		CHECK_POINTER_TYPE(const unsigned long long);
-		CHECK_POINTER_TYPE(const float);
-		CHECK_POINTER_TYPE(const float);
-		CHECK_POINTER_TYPE(const float);
-		CHECK_POINTER_TYPE(const float);
-		CHECK_POINTER_TYPE(const double); 
-		CHECK_POINTER_TYPE(const double);
-		CHECK_POINTER_TYPE(const double);
-		CHECK_POINTER_TYPE(const double);
-		CHECK_POINTER_TYPE(const long double);
-		CHECK_POINTER_TYPE(const long double);
-		CHECK_POINTER_TYPE(const long double);
-		CHECK_POINTER_TYPE(const long double);
-#endif
-		cout << "Ok" << endl;
-	}
-
-	//objects - value and reference 
-	{
-		cout << "Testing GVariant for class types and references: ";
-		GVariant gv;
-		RGB brown = { 255, 128, 0 };
-
-		//lvalue
-		gv = GVariant::create<RGB>(brown);
-		brown.blue = 32;
-		assert(GVariant::cast<RGB>(gv).red == 255);
-		assert(GVariant::cast<RGB>(gv).green == 128);
-		assert(GVariant::cast<RGB>(gv).blue == 0);
-
-		//rvalue
-		gv = GVariant::create<RGB>({ 255, 128, 0 });
-		assert(GVariant::cast<RGB>(gv).red == 255);
-		assert(GVariant::cast<RGB>(gv).green == 128);
-		assert(GVariant::cast<RGB>(gv).blue == 0);
-
-		//lvalue reference
-		gv = GVariant::create<RGB&>(brown);
-		brown.blue = 0;
-		assert(GVariant::cast<RGB&>(gv).red == 255);
-		assert(GVariant::cast<RGB&>(gv).green == 128);
-		assert(GVariant::cast<RGB&>(gv).blue == 0);
-
-		//rvalue reference
-		gv = GVariant::create<RGB&&>({ 255, 128, 0 });
-		assert(GVariant::cast<RGB&&>(gv).red == 255);
-		assert(GVariant::cast<RGB&&>(gv).green == 128);
-		assert(GVariant::cast<RGB&&>(gv).blue == 0);
-		cout << "Ok" << endl;
-	}
-
-	//pointers to objects
-	{
-		cout << "Testing GVariant for class type pointers: ";
-		GVariant gv;
-		RGB brown = { 255, 128, 0 };
-		RGB* brown_ptr = &brown;
-		const RGB* const_brown_ptr = &brown;
-
-		//non const pointer
-		gv = GVariant::create<RGB*>(brown_ptr);
-		brown.blue = 32;
-		assert(GVariant::cast<RGB*>(gv)->red == 255);
-		assert(GVariant::cast<RGB*>(gv)->green == 128);
-		assert(GVariant::cast<RGB*>(gv)->blue == 32);
-
-		//const pointer
-		gv = GVariant::create<const RGB*>(const_brown_ptr);
-		brown.blue = 64;
-		assert(GVariant::cast<const RGB*>(gv)->red == 255);
-		assert(GVariant::cast<const RGB*>(gv)->green == 128);
-		assert(GVariant::cast<const RGB*>(gv)->blue == 64);
-		cout << "Ok" << endl;
-	}
-
-	//pointers to functions
-	{
-		cout << "Testing GVariant for pointer to non-class functions: ";
-		GVariant gv;
-		typedef int(*func_ptr)(int, int);
-		func_ptr f = add;
-		
-		//function pointer
-		gv = GVariant::create<func_ptr>(f);
-		assert(GVariant::cast<func_ptr>(gv)(3,2) == 5);
-
-		//pointer to function pointer
-		gv = GVariant::create<func_ptr*>(&f);
-		assert((*GVariant::cast<func_ptr*>(gv))(3, 2) == 5);
-		f = sub;
-		assert((*GVariant::cast<func_ptr*>(gv))(3, 2) == 1);
-		cout << "Ok" << endl;
-	}
-
-	//pointer to object public members
-	{
-		cout << "Testing GVariant for pointer to class members data: ";
-		GVariant gv;
-		RGB brown = { 255, 128, 0 };
-		RGB* brown_ptr = &brown;
-		const RGB* const_brown_ptr = &brown;
-
-		unsigned char  RGB::* red_ptr = &RGB::red;
-		brown.*red_ptr = 20;
-		gv = GVariant::create<unsigned char RGB::*>(red_ptr);
-		assert(brown.*GVariant::cast<unsigned char RGB::*>(gv) == 20);
-		cout << "Ok" << endl;
-	}
-
-	//pointer to object public member functions
-	{
-		cout << "Testing GVariant for pointer to class member functions: ";
-		GVariant gv;
-		base_class bc;
-		derived_class dc;
-		base_class& dbc = dc;
-
-		//general member function
-		typedef int (derived_class::* general_func_ptr)(void);
-		general_func_ptr derive_only_func_ptr = &derived_class::derive_only_func;
-		gv = GVariant::create<general_func_ptr>(derive_only_func_ptr);
-		assert((dc.*GVariant::cast<general_func_ptr>(gv))() == 44);
-
-		//lvalue ref qualified member function
-		typedef int (derived_class::* lvalue_ref_qualified_func_ptr)(void)&;
-		lvalue_ref_qualified_func_ptr lref_qualified_member_func_ptr = &derived_class::lref_qualified_member_func;
-		gv = GVariant::create<lvalue_ref_qualified_func_ptr>(lref_qualified_member_func_ptr);
-		assert((dc.*GVariant::cast<lvalue_ref_qualified_func_ptr>(gv))() == 77);
-
-		//rvalue ref qualified member function
-		typedef int (derived_class::* rvalue_ref_qualified_func_ptr)(void)&&;
-		rvalue_ref_qualified_func_ptr rref_qualified_member_func_ptr = &derived_class::rref_qualified_member_func;
-		gv = GVariant::create<rvalue_ref_qualified_func_ptr>(rref_qualified_member_func_ptr);
-		assert((std::move(dc).*GVariant::cast<rvalue_ref_qualified_func_ptr>(gv))() == 88);
-
-		//virtual member function
-		typedef int (derived_class::* derived_virtual_func_ptr)(void);
-		typedef int (base_class::* base_virtual_func_ptr)(void);
-		derived_virtual_func_ptr derived_virtual_func = &derived_class::get_virtual_id;
-		base_virtual_func_ptr base_virtual_func = &base_class::get_virtual_id;
-		
-		gv = GVariant::create<base_virtual_func_ptr>(base_virtual_func);
-		assert((bc.*GVariant::cast<base_virtual_func_ptr>(gv))() == 11);
-
-		gv = GVariant::create<derived_virtual_func_ptr>(derived_virtual_func);
-		assert((dc.*GVariant::cast<derived_virtual_func_ptr>(gv))() == 22);
-
-		gv = GVariant::create<base_virtual_func_ptr>(base_virtual_func);
-		assert((dbc.*GVariant::cast<base_virtual_func_ptr>(gv))() == 22);
-
-		gv = GVariant::create<base_virtual_func_ptr>(base_virtual_func);
-		assert((dc.*GVariant::cast<base_virtual_func_ptr>(gv))() == 22);
-
-		//non virtual function
-		typedef int (derived_class::* common_non_virtual_func_ptr)(void);
-		common_non_virtual_func_ptr common_non_virtual_func = &derived_class::common_non_virtual_func;
-		gv = GVariant::create<common_non_virtual_func_ptr>(common_non_virtual_func);
-		assert((dc.*GVariant::cast<common_non_virtual_func_ptr>(gv))() == 66);
-		cout << "Ok" << endl;
-	}
-
-	//array types
-	{
-		cout << "Testing GVariant for array types: ";
-		GVariant gv;
-
-		gv = GVariant::create<int[]>(int_array);
-		assert(GVariant::cast<int*>(gv)[0] == 1);
-		assert(GVariant::cast<int*>(gv)[1] == 2);
-		assert(GVariant::cast<int*>(gv)[2] == 3);
-		cout << "Ok" << endl;
-	}
-
-	//class types
-	{
-		cout << "Testing GVariant for pointer class objects: ";
-		GVariant gv;
-		non_copyable_class ncc;
-		non_moveable_class nmc;
-
-		//gv = GVariant::create<non_copyable_class>(ncc); //expected compile error
-
-		gv = GVariant::create<non_copyable_class&>(ncc);
-		ncc.set_number(17);
-		assert(GVariant::cast<non_copyable_class&>(gv).get_number() == 17);
-
-		gv = GVariant::create<const non_copyable_class&>(ncc);
-		ncc.set_number(22);
-		assert(GVariant::cast<const non_copyable_class&>(gv).get_number() == 22);
-
-		gv = GVariant::create<non_copyable_class&&>(std::move(ncc));
-		ncc.set_number(17);
-		assert(GVariant::cast<non_copyable_class&&>(gv).get_number() == 17);
-
-		gv = GVariant::create<non_copyable_class&&>(non_copyable_class());
-		assert(GVariant::cast<non_copyable_class&&>(gv).get_number() == 14);
-
-		gv = GVariant::create<const non_copyable_class&&>(std::move(ncc));
-		ncc.set_number(17);
-		assert(GVariant::cast<const non_copyable_class&&>(gv).get_number() == 17);
-
-		gv = GVariant::create<const non_copyable_class&&>(non_copyable_class());
-		assert(GVariant::cast<const non_copyable_class&&>(gv).get_number() == 14);
-
-		gv = GVariant::create<non_copyable_class*>(&ncc);
-		ncc.set_number(37);
-		assert(GVariant::cast<non_copyable_class*>(gv)->get_number() == 37);
-
-		gv = GVariant::create<const non_copyable_class*>(&ncc);
-		ncc.set_number(42);
-		assert(GVariant::cast<const non_copyable_class*>(gv)->get_number() == 42);
-
-		//gv = GVariant::create<non_moveable_class>(nmc); //expected compile error
-
-		gv = GVariant::create<non_moveable_class&>(nmc);
-		nmc.set_number(17);
-		assert(GVariant::cast<non_moveable_class&>(gv).get_number() == 17);
-
-		gv = GVariant::create<const non_moveable_class&>(nmc);
-		nmc.set_number(22);
-		assert(GVariant::cast<const non_moveable_class&>(gv).get_number() == 22);
-
-		gv = GVariant::create<non_moveable_class*>(&nmc);
-		nmc.set_number(37);
-		assert(GVariant::cast<non_moveable_class*>(gv)->get_number() == 37);
-
-		gv = GVariant::create<const non_moveable_class*>(&nmc);
-		nmc.set_number(42);
-		assert(GVariant::cast<const non_moveable_class*>(gv)->get_number() == 42);
-		cout << "Ok" << endl;
-	}
-
-#if 0
-	//string types
-	{
-		//std::string
-		gv = string("NodeA");
-		std::cout << "std::string: " << GVariant::cast<std::string>(gv) << endl;
-
-		//std::string reference
-		string str = string("NodeA");
-		string& str_ref = str;
-		gv = GVariant::ref<string>(str_ref);
-		string& new_ref = gv;
-		std::cout << "std::string reference: " << new_ref << endl;
-		new_ref = string("modifed NodeA");
-		std::cout << "std::string reference modified: " << str << endl;
-	}
-
-	//pointer
-	{
-		float i = 2.0f;
-		float* ip = &i;
-		gv = ip;
-		float* ipc = GVariant::cast<float*>(gv);
-		std::cout << "value of int pointer: " << *ipc << endl;
-		i = 33;
-		assert(*ipc == 33.0f);
-		std::cout << "value of int pointer: " << *ipc << endl;
-	}
-
-	//GVariant inside GVariant
-	{
-		int i = 4;
-		GVariant gv2 = i;
-		gv = gv2;
-		assert(GVariant::cast<int>(gv) == 4);
-	}
-
-	//const pointer
-	{
-		int i = 2;
-		const int* ip = &i;
-		gv = ip;
-		const int* ipc = GVariant::cast<const int*>(gv);
-		std::cout << "value of const int pointer: " << *ipc << endl;
-		i = 33;
-		std::cout << "value of const int pointer: " << *ipc << endl;
-	}
-
-	//array
-	{
-		int i[3];
-		i[0] = 0;
-		i[1] = 1;
-		i[2] = 2;
-		
-		gv = i;
-
-		i[0] = 10;
-		i[1] = 11;
-		i[2] = 12;
-
-		int* ipc = GVariant::cast<int*>(gv);
-		assert(*(ipc+0) == 10);
-		assert(*(ipc+1) == 11);
-		assert(*(ipc+2) == 12);
-	}
-
-	//reference
-	{
-		float i = 2.0f;
-		float& ip = i;
-		gv = GVariant::ref<float>(ip);
-		float& ipc = GVariant::cast<float&>(gv);
-		std::cout << "value of float reference: " << ipc << endl;
-		i = 33;
-		assert(ipc == 33.0f);
-		std::cout << "value of float reference: " << ipc << endl;
-	}
-
-	//const reference
-	{
-		float i = 2.0f;
-		const float& ip = i;
-		gv = GVariant::ref<const float>(ip);
-		const float& ipc = GVariant::cast<const float&>(gv);
-		std::cout << "value of const float reference: " << ipc << endl;
-		i = 33.0f;
-		assert(ipc == 33.0f);
-		std::cout << "value of const float reference: " << ipc << endl;
-
-	}
-
-	//class object
-	{
-		boost::any a = sphere_node;
-		gv = sphere_node;
-		assert(GVariant::cast<sphere>(gv).getRadius() == 64);
-	}
-
-	//class object reference
-	{
-		sphere& sref = sphere_node;
-		gv = GVariant::ref<sphere>(sref);
-		sphere_node.setRadius(96);
-		assert(GVariant::cast<sphere&>(gv).getRadius() == 96);
-		sphere_node.setRadius(64);
-	}
-
-	//class object const reference
-	{
-		const sphere& sref = sphere_node;
-		gv = GVariant::ref<const sphere>(sref);
-		sphere_node.setRadius(56);
-		assert(GVariant::cast<const sphere&>(gv).getRadius() == 56);
-		sphere_node.setRadius(64);
-	}
-
-	//class object that cannot be copied
-	{
-		//TODO: design a test case to test how GVariant can store objects that cannot be copied
-	}
-
-	//class raw pointer
-	{
-		gv = parent_node_sharedptr.get();
-		parent_node_sharedptr->setRadius(73);
-		assert(GVariant::cast<sphere*>(gv)->getRadius() == 73);
-		parent_node_sharedptr->setRadius(32);
-	}
-
-	//class shared pointer
-	{
-		gv = parent_node_sharedptr;
-		assert(GVariant::cast<SphereSharedPtr>(gv)->getRadius() == 32);
-	}
-
-	//passing variant as argument to a function taking POD
-	GVariant a1, a2, a3;
-	a1 = true;
-	a2 = 10;
-	a3 = 3.14f;
-
-	//print_data(a1, a2, a3);
-
-
-	//passing direct POD types to a function taking variant arguments
-	//print_data(false, 10, 3.14);
-	string st("ss");
-	a3 = st;
-	std::cout << boost::core::demangled_name(a3.type()) << std::endl;
-	std::cout << typeid(st).name() << std::endl;
-
-	float i = 3.0;
-	gv = i;
-	// the below line throws exception if uncommented
-	//int f = boost::get<int>(gv);
-#endif
-	//rough();
-	
-}
-
-
-
-#if 0
-void tee(int i, float f, bool b)
+template<typename T>
+struct dataType <T, typename std::enable_if< std::is_integral<T>::value >::type>
 {
-	cout << i << "," << f << "," << b << endl;
-}
+	static bool variant_test(GVariant gv)
+	{
+		return gvariant_arithmetic_test<T>(gv);
+	}
+};
 
-
-template<typename FUNC, typename Array, std::size_t... I>
-ResultType<FUNC> helper(FUNC f, const Array& a, std::index_sequence<I...>)
+template<typename T>
+struct dataType <T, typename std::enable_if< std::is_floating_point<T>::value >::type>
 {
-	//tee(a[I]...);
-	return f(a[I]...);
-}
+	static bool variant_test(GVariant gv)
+	{
+		bool result = true;
+		
+		result = result && gvariant_arithmetic_test<T>(gv);
 
-template<typename FUNC, typename Array>
-ResultType<FUNC> metahelper(FUNC f, const Array& a)
+		result = result && gvariant_floatingpoint_test<T>(gv);
+
+		return result;
+	}
+};
+
+template<typename T>
+struct dataType <T, typename std::enable_if< std::is_array<T>::value >::type>
 {
-	return helper(f, a, std::make_index_sequence<Arity<FUNC>::value>());
-}
+	static_assert(std::rank<T>::value == 1, "Multi dimensional array is not supported");
 
-void rough()
+	static bool variant_test(GVariant gv, T t)
+	{
+		bool result = true;
+		gv = GVariant::create<T>(t);
+		result = result && (GVariant::cast<typename std::decay<T>::type>(gv)[0] == t[0]);
+		result = result && (GVariant::cast<typename std::decay<T>::type>(gv)[std::extent<T>::value-1] == t[std::extent<T>::value-1]);
+		return result;
+	}
+};
+
+template<typename T>
+struct dataType <T, typename std::enable_if< is_vector<T>::value >::type>
 {
-	//pr(doo);
-	//createCmd("foo", foo);
-	//ArgPrinter(doo);
-	//doo(1, 2, 3);
-	GVariant v1, v2, v3;
+	static bool variant_test(GVariant gv, T t)
+	{
+		bool result = true;
+		gv = GVariant::create<T>(t);
+		result = result && (GVariant::cast<T>(gv) == t);
+		if (t.size() > 0)
+			result = result && dataType<T::value_type>::variant_test(t[0]);
+		return result;
+	}
+};
 
-	double d = 9.0;
-	v1 = 2;
-	v2 = 3.14f;
-	v3 = true;
+template<typename T>
+struct dataType <T, typename std::enable_if< is_list<T>::value >::type>
+{
+	static bool variant_test(GVariant gv, T t)
+	{
+		bool result = true;
+		gv = GVariant::create<T>(t);
+		result = result && (GVariant::cast<T>(gv) == t);
+		if (t.size() > 0)
+			result = result && dataType<T::value_type>::variant_test(t.front());
+		return result;
+	}
+};
 
-	array<GVariant, 3> arr;
+template<typename T>
+struct dataType <T, typename std::enable_if< is_map<T>::value >::type>
+{
+	static bool variant_test(GVariant gv, T t)
+	{
+		bool result = true;
+		gv = GVariant::create<T>(t);
+		result = result && (GVariant::cast<T>(gv) == t);
+		if (t.size() > 0) {
+			result = result && dataType<T::value_type>::variant_test(t.begin()->first);
+			result = result && dataType<T::value_type>::variant_test(t.begin()->second);
+		}
+		return result;
+	}
+};
 
-	arr[0] = v1;
-	arr[1] = v2;
-	arr[2] = v3;
+template<class... Types>
+struct dataType <std::tuple<Types...>>
+{
+	static bool variant_test(GVariant gv, std::tuple<Types...> t)
+	{
+		bool result = true;
+		gv = GVariant::create<std::tuple<Types...>>(t);
+		result = result && (GVariant::cast<std::tuple<Types...>>(gv) == t);
+		result = result && forEachType<Types...>::variant_test(gv);
+		return result;
+	}
+private:
+	template<class U, class... Types>
+	struct forEachType
+	{
+		static bool variant_test(GVariant gv)
+		{
+			bool result = dataType<U>::variant_test(gv);
+			result = result && forEachType<Types...>::variant_test(gv);
+			return result;
+		}
+	};
 
-	//metahelper(tee, arr);
-	int h = v1;
+	template<class U>
+	struct forEachType<U>
+	{
+		static bool variant_test(GVariant gv)
+		{
+			return dataType<U>::variant_test(gv);
+		}
+	};
+};
 
-	tee(v1, v2, v3);
+
+template<typename T>
+struct dataType <T, typename std::enable_if< is_function_object<T>::value >::type>
+{
+	template<typename R>
+	static bool variant_test(GVariant gv, T t, R r)
+	{
+		bool result = true;
+
+		gv = GVariant::create(t);
+		result = result && ((GVariant::cast<T>(gv))() == r);
+
+		return result;
+	}
+};
+
+template<typename T>
+struct dataType <T, typename std::enable_if< is_shared_ptr<T>::value >::type>
+{
+	static bool variant_test(GVariant gv, T t)
+	{
+		bool result = true;
+		gv = GVariant::create(t);
+		result = result && ((GVariant::cast<T>(gv)) == t);
+
+		return result;
+	}
+};
+
+template<typename T>
+struct dataType <T, typename std::enable_if < std::is_class<T>::value && !	(	is_function_object<T>::value ||
+																				std::is_base_of<GPropertyInterface, T>::value ||
+																				is_vector<T>::value ||
+																				is_list<T>::value ||
+																				std::is_array<T>::value ||
+																				is_stack<T>::value ||
+																				is_map<T>::value ||
+																				is_tuple<T>::value ||
+																				is_shared_ptr<T>::value
+																			)>::type>
+{
+	static bool variant_test(GVariant gv, T t=T())
+	{
+		bool result = true;
+
+		gv = GVariant::create(t);
+		result = result && (GVariant::cast<T>(gv) == t);
+		result = gvariant_reference_test<T>(gv, t);
+
+		return result;
+	}
+};
+
+template<typename T>
+struct dataType <T, typename std::enable_if< std::is_base_of<GPropertyInterface, T>::value>::type>
+{
+	static bool variant_test(GVariant gv)
+	{
+		bool result = true;
+		T t;
+		result = result && gvariant_class_test<T>(gv, t);
+		result = result && dataType_internal<T::type>::variant_test(gv);
+		return result;
+	}
+private:
+	template<typename U, typename = void>
+	struct dataType_internal {};
+
+	template<typename U>
+	struct dataType_internal <U, typename std::enable_if< std::is_integral<U>::value >::type>
+	{
+		static bool variant_test(GVariant gv)
+		{
+			return gvariant_arithmetic_test<T, U>(gv);
+		}
+	};
+
+	template<typename U>
+	struct dataType_internal <U, typename std::enable_if< std::is_floating_point<U>::value >::type>
+	{
+		static bool variant_test(GVariant gv)
+		{
+			bool result = true;
+
+			result = result && gvariant_arithmetic_test<T, U>(gv);
+
+			result = result && gvariant_floatingpoint_test<T, U>(gv);
+
+			return result;
+		}
+	};
+
+	template<typename U>
+	struct dataType_internal <U, typename std::enable_if< std::is_class<U>::value >::type>
+	{
+		static bool variant_test(GVariant gv)
+		{
+			bool result = true;
+			U u;
+			result = result && gvariant_class_test<U>(gv, u);
+			return result;
+		}
+	};
+};
+
+class Color
+{
+public:
+	Color() {}
+	Color(uint8 _r, uint8 _g, uint8 _b, uint8 _a) : r(_r), g(_g), b(_b), a(_a) {}
+	uint8 r = 0, g = 0, b = 0, a = 0;
+	bool operator==(const Color& rhs) { return (this->r == rhs.r && this->g == rhs.g && this->b == rhs.b && this->a == rhs.a); }
+};
+
+class GVariantTest$$CompoundTypes : public ::testing::Test {
+protected:
+	void SetUp() override {
+		intVector.push_back(11);
+		intVector.push_back(12);
+		intVector.push_back(13);
+
+		floatList.push_back(1.1f);
+		floatList.push_back(2.2f);
+		floatList.push_back(3.3f);
+
+		stringDoubleMap["1.23"] = 1.23;
+		stringDoubleMap["4.56"] = 4.56;
+		stringDoubleMap["7.89"] = 7.89;
+
+		boolIntStringTuple = std::make_tuple(true, 768, "large number");
+	}
+
+protected:
+	string str = "Default test string";
+	wstring wstr = L"olé";
+	int arr1[5] = { 1,2,3,4,5 };
+	int arr2[2][5] = { { 1,2,3,4,5 }, { 1,2,3,4,5 } };
+	glm::vec3 arr3[3] = { glm::vec3(1),glm::vec3(2), glm::vec3(3) };
+	std::vector<int> intVector;
+	std::list<float> floatList;
+	std::map < std::string,  double> stringDoubleMap;
+	std::tuple<bool, int, std::string > boolIntStringTuple;
+	Color red{ 255,0,0,255 };
+	std::shared_ptr<Color> green = std::make_shared<Color>(0, 255, 0, 255);
+};
+
+GVariant gv;
+
+#define GTEST_GVARIANT2( SUITE, NAME, TYPE ) \
+	TEST(SUITE, NAME ) { \
+		EXPECT_EQ(true, dataType<TYPE>::variant_test(gv)); \
+	}
+
+#define GTEST_GVARIANT( SUITE, TYPE ) GTEST_GVARIANT2(SUITE, TYPE, TYPE)
+
+
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, void)
+GTEST_GVARIANT2(GVariantTest$$FundementalTypes, nullptrType, nullptr_t)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, bool)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int8)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint8)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, char)
+GTEST_GVARIANT2(GVariantTest$$FundementalTypes, char16Type, char16_t)
+GTEST_GVARIANT2(GVariantTest$$FundementalTypes, char32Type, char32_t)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int16)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint16)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int32)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint32)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, int64)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint64)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, float32)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, float64)
+GTEST_GVARIANT(GVariantTest$$FundementalTypes, float80)
+
+TEST_F(GVariantTest$$CompoundTypes, OneDimensionalArray) {
+	EXPECT_EQ(true, dataType<decltype(arr1)>::variant_test(gv, arr1));
+	//EXPECT_EQ(true, dataType<decltype(arr2)>::variant_test(gv, arr2)); //Must give compilation error
+	EXPECT_EQ(true, dataType<decltype(arr3)>::variant_test(gv, arr3));
+}
+
+TEST_F(GVariantTest$$CompoundTypes, FunctionObject) {
+	bool result = true;
+	std::function<int()> f1 = []()->int {return 345; };
+	EXPECT_EQ(true, dataType<decltype(f1)>::variant_test(gv, f1, 345));
+
+	int i = 23;
+	std::function<int()> f2 = [=]()->int {return i; };
+	EXPECT_EQ(true, dataType<decltype(f2)>::variant_test(gv, f2, i));
+
+	int j = 47;
+	std::function<int()> f3 = [&]()->int {return ++j; };
+	EXPECT_EQ(true, dataType<decltype(f3)>::variant_test(gv, f3, 48));
+}
+
+TEST_F(GVariantTest$$CompoundTypes, Class) {
+	EXPECT_EQ(true, dataType<Color>::variant_test(gv, red));
+}
+
+TEST_F(GVariantTest$$CompoundTypes, SharedPtr) {
+	EXPECT_EQ(true, dataType< std::shared_ptr<Color> >::variant_test(gv, green));
+}
+
+TEST_F(GVariantTest$$CompoundTypes, string) {
+	EXPECT_EQ(true, dataType< string >::variant_test(gv, str));
+}
+
+TEST_F(GVariantTest$$CompoundTypes, wstring) {
+	EXPECT_EQ(true, dataType< wstring >::variant_test(gv, wstr));
+}
+
+
+//STL Container types
+TEST_F(GVariantTest$$CompoundTypes, Vector) {
+	EXPECT_EQ(true, dataType< std::vector<int>>::variant_test(gv, intVector));
+}
+
+TEST_F(GVariantTest$$CompoundTypes, List) {
+	EXPECT_EQ(true, dataType< std::list<float>>::variant_test(gv, floatList));
+}
+
+TEST_F(GVariantTest$$CompoundTypes, Map) {
+	bool result = dataType< std::map < std::string, double> >::variant_test(gv, stringDoubleMap);
+	EXPECT_EQ(true, result);
+}
+
+TEST_F(GVariantTest$$CompoundTypes, Tuple) {
+	bool result = dataType< std::tuple<bool, int, std::string >  >::variant_test(gv, boolIntStringTuple);
+	EXPECT_EQ(true, result);
+}
+
+TEST(DISABLED_GVariantTest$$CompoundTypes, Multi_Dim_Array) {
+	bool result = false;
+	EXPECT_EQ(true, result);
+}
+
+TEST(DISABLED_GVariantTest$$CompoundTypes, unique_ptr) {
+	bool result = false;
+	EXPECT_EQ(true, result);
+}
+
+TEST(DISABLED_GVariantTest$$CompoundTypes, lvalue_ref) {
+	bool result = false;
+	EXPECT_EQ(true, result);
+}
+
+//GProperty types
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GBoolProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GCharProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt8Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint8Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt16Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint16Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt32Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint32Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GInt64Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GUint64Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GFloatProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GDoubleProperty)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GVec2Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GVec3Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GVec4Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GMat2Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GMat3Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GMat4Property)
+GTEST_GVARIANT(GVariantTest$$GPropertyTypes, GObjectPointerProperty)
+
+
+//Serialization test
+//GTEST_GSERIALIZATION(GVariantTest$$FundementalTypes, int8)
+
+void variant_test()
+{
 
 }
-#endif

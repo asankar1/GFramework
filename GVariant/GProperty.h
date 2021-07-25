@@ -20,7 +20,7 @@ namespace GFramework
 	void register_lua_script_functions(lua_State* L, std::vector<luaL_Reg>& GPropertiesList);
 
 	template <typename T>
-	struct GFRAMEWORK_API GPropertyUtility
+	struct GPropertyUtility
 	{
 		//static_assert(false, "This template must be specialized for each property type, this will be used by GReflection");
 		static GPropertyInterfaceSharedPtr create();
@@ -73,7 +73,11 @@ namespace GFramework
 	public:
 		GArithmeticProperty(T v = std::numeric_limits<T>::min());
 		
-		bool operator==(const T& rhs) { return (value == rhs); }
+		bool operator==(const T& rhs) const { return (value == rhs); }
+
+		bool operator==(const GArithmeticProperty<T>& rhs) const { return (value == rhs.value); }
+
+		operator T() const { return getValue(); }
 
 		virtual void set(GVariant& _value);
 
@@ -93,6 +97,9 @@ namespace GFramework
 
 	private:
 		T value;
+
+	public:
+		using type = decltype(value);
 	};
 
 	class GFRAMEWORK_API GStringProperty : public GPropertyInterface
@@ -100,7 +107,11 @@ namespace GFramework
 	public:
 		GStringProperty(const std::string v = "");
 
-		bool operator==(const std::string& rhs) { return (value == rhs); }
+		bool operator==(const std::string& rhs) const { return (value == rhs); }
+
+		bool operator==(const GStringProperty& rhs) const { return (value == rhs.value); }
+
+		operator std::string () const { return getValue(); }
 
 		virtual void set(GVariant& _value);
 
@@ -120,6 +131,10 @@ namespace GFramework
 
 	private:
 		std::string value;
+
+	public:
+		using type = decltype(value);
+
 	};
 
 	template <typename T>
@@ -128,7 +143,11 @@ namespace GFramework
 	public:
 		GGlmProperty(T v = T());
 
-		bool operator==(const T& rhs) { return (value == rhs); }
+		bool operator==(const T& rhs) const { return (value == rhs); }
+
+		bool operator==(const GGlmProperty<T>& rhs) const { return (value == rhs.value); }
+
+		operator T() const { return getValue(); }
 
 		virtual void set(GVariant& _value);
 
@@ -148,6 +167,9 @@ namespace GFramework
 
 	private:
 		T value;
+
+	public:
+		using type = decltype(value);
 	};
 
 	class  GPointerPropertyInterface : public GPropertyInterface
@@ -155,10 +177,10 @@ namespace GFramework
 	public:
 		virtual unsigned int getObjectId() const = 0;
 		virtual void subjectDeleted() = 0;
-		GPointerPropertyInterface(const GPointerPropertyInterface&) = delete;
-		GPointerPropertyInterface& operator=(const GPointerPropertyInterface&) = delete;
+		//GPointerPropertyInterface(const GPointerPropertyInterface&) = delete;
+		//GPointerPropertyInterface& operator=(const GPointerPropertyInterface&) = delete;
 		virtual GObjectSharedPtr getGObjectPointer() const = 0;
-		virtual void setGObjectPointer(GObjectSharedPtr) = 0;
+		virtual void setGObjectPointer(GObjectSharedPtr&) = 0;
 
 	protected:
 		GPointerPropertyInterface() {}
@@ -171,6 +193,10 @@ namespace GFramework
 		GPointerProperty(std::shared_ptr<T> v = std::shared_ptr<T>(nullptr)) : value(v) {
 			static_assert(std::is_base_of<GObject, T>::value, "Template argument T to GPointerProperty must be derived from Object class directly or indirectly!");
 		}
+		
+		bool operator==(const std::shared_ptr<T> rhs) const { return (value == rhs); }
+
+		bool operator==(const GPointerProperty<T>& rhs) const { return (value == rhs.value); }
 
 		virtual unsigned int getObjectId() const
 		{
@@ -210,9 +236,10 @@ namespace GFramework
 			}
 		}
 		
-		virtual void setGObjectPointer(GObjectSharedPtr v)
+		virtual void setGObjectPointer(GObjectSharedPtr & v)
 		{
-			value = std::dynamic_pointer_cast<T>(v);
+			GObjectSharedPtr test = v;
+			value = std::dynamic_pointer_cast<T>(test);
 			if (value != nullptr) {
 				objectId = value->getObjectId();
 			}
@@ -228,7 +255,8 @@ namespace GFramework
 		}
 
 		virtual GVariant get() const {
-			return GVariant::create < std::shared_ptr<T> >(value);
+			//return GVariant::create < std::shared_ptr<T> >(value);
+			return GVariant::create(value);
 		}
 
 		std::shared_ptr<T> getValue() const {
@@ -249,6 +277,7 @@ namespace GFramework
 			{
 				os << (uint32)0;
 			}
+			os << " ";
 			return os;
 		}
 
@@ -271,6 +300,7 @@ namespace GFramework
 			{
 				os << (uint32)0;
 			}
+			os << " ";
 			return os;
 		}
 		virtual std::istream& readASCIIValue(std::istream& is) {
@@ -285,6 +315,8 @@ namespace GFramework
 	private:
 		std::shared_ptr<T> value;
 		unsigned int objectId=0;
+	public:
+		using type = decltype(value);
 	};
 
 #if 0
@@ -304,7 +336,7 @@ namespace GFramework
 			float* pointer = glm::value_ptr(value);
 			for (unsigned int i = 0; i < size; i++)
 			{
-				is >> std::hex >> *((int32*)pointer + i);
+				is >> *((int32*)pointer + i);
 			}
 			return value;
 		}
@@ -326,7 +358,7 @@ namespace GFramework
 			float* pointer = glm::value_ptr(value);
 			for (unsigned int i = 0; i < size; i++)
 			{
-				is >> std::hex >> *((int32*)pointer + i);
+				is >> *((int32*)pointer + i);
 			}
 			return value;
 		}
@@ -348,7 +380,7 @@ namespace GFramework
 			float* pointer = glm::value_ptr(value);
 			for (unsigned int i = 0; i < size; i++)
 			{
-				is >> std::hex >> *((int32*)pointer + i);
+				is >> *((int32*)pointer + i);
 			}
 			return value;
 		}
@@ -370,7 +402,7 @@ namespace GFramework
 			float* pointer = glm::value_ptr(value);
 			for (unsigned int i = 0; i < size; i++)
 			{
-				is >> std::hex >> *((int32*)pointer + i);
+				is >> *((int32*)pointer + i);
 			}
 			return value;
 		}
@@ -392,7 +424,7 @@ namespace GFramework
 			float* pointer = glm::value_ptr(value);
 			for (unsigned int i = 0; i < size; i++)
 			{
-				is >> std::hex >> *((int32*)pointer + i);
+				is >> *((int32*)pointer + i);
 			}
 			return value;
 		}
@@ -414,7 +446,7 @@ namespace GFramework
 			float* pointer = glm::value_ptr(value);
 			for (unsigned int i = 0; i < size; i++)
 			{
-				is >> std::hex >> *((int32*)pointer + i);
+				is >> *((int32*)pointer + i);
 			}
 			return value;
 		}
@@ -759,7 +791,7 @@ namespace GFramework
 	{
 		typedef GObjectSharedPtr dataType;
 		typedef GObjectPointerProperty GPropertyType;
-		static GPropertyInterfaceSharedPtr create();
-		static GPropertyInterfaceSharedPtr create(dataType value);
+		static std::shared_ptr<GObjectPointerProperty> create();
+		static std::shared_ptr<GObjectPointerProperty> create(dataType value);
 	};
 }

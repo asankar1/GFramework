@@ -99,30 +99,70 @@ namespace GFramework
 		many(T t) : boost::any(t) {
 		}
 
-		template<typename T>
+		//TODO:see if non copyable types can be used, ex;unique_ptr
+		/*template<typename T>
+		many(T&& t) : boost::any(std::move(t)) {
+		}*/
+
+		/*template<typename T>
 		void operator=(T&& rhs) {
 			*this = create<T>(rhs);
 			return;
+		}*/
+
+		// Perfect forwarding of ValueType
+		template <class ValueType>
+		many& operator=(ValueType&& rhs)
+		{
+			//many(create<ValueType&&>(rhs)).swap(*this);
+			many(create(std::forward<ValueType>(rhs))).swap(*this);
+			return *this;
 		}
 
-		void operator=(many&& rhs) {
+		/*void operator=(many&& rhs) {
 			rhs.swap(*this);
 			return;
+		}*/
+
+		// move assignement
+		many& operator=(many&& rhs) BOOST_NOEXCEPT
+		{
+			rhs.swap(*this);
+			many().swap(rhs);
+			return *this;
 		}
 
 		template<typename T>
 		static many create(T t) {
 			typedef unknown_type type1;
 			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional<\
-								std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<typename std::remove_reference<T>::type>, type1>::type, type1>::type type2;
+				std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<typename std::remove_reference<T>::type>, type1>::type, type1>::type type2;
 			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
-								std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+				std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
 			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, typename std::conditional< \
-								std::is_array<T>::value, create_as_it_is<typename std::decay<T>::type>, type3 >::type, type3 >::type type4;
+				std::is_array<T>::value, create_as_it_is<typename std::decay<T>::type>, type3 >::type, type3 >::type type4;
 			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, create_as_it_is<T>, type4 >::type creater_type;
 
 			return creater_type::create_internal(t);
 		}
+
+		//TODO:see if non copyable types can be used, ex;unique_ptr
+		/*
+		template<typename T>
+		static
+			typename std::enable_if<!std::is_copy_constructible<T>::value, many>::type
+			create(T&& t) {
+			typedef unknown_type type1;
+			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional<\
+				std::is_lvalue_reference<T>::value, create_pointer_from_lvalue_reference<typename std::remove_reference<T>::type>, type1>::type, type1>::type type2;
+			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
+				std::is_rvalue_reference<T>::value, create_pointer_from_rvalue_reference<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+			typedef typename	std::conditional<std::is_same<unknown_type, type3>::value, typename std::conditional< \
+				std::is_array<T>::value, create_not_copyable<typename std::decay<T>::type>, type3 >::type, type3 >::type type4;
+			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, create_not_copyable<T>, type4 >::type creater_type;
+
+			return creater_type::create_internal(std::move(t));
+		}*/
 
 		template<typename T>
 		static many create() {
@@ -135,11 +175,11 @@ namespace GFramework
 		{
 			typedef unknown_type type1;
 			typedef typename	std::conditional<std::is_same<unknown_type, type1>::value, typename std::conditional< \
-								std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
+				std::is_lvalue_reference<T>::value, cast_lvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type1>::type, type1 >::type type2;
 			typedef typename	std::conditional<std::is_same<unknown_type, type2>::value, typename std::conditional< \
-								std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
+				std::is_rvalue_reference<T>::value, cast_rvalue_reference_from_pointer<typename std::remove_reference<T>::type>, type2 >::type, type2 >::type type3;
 			typedef typename	std::conditional < std::is_same<unknown_type, type3>::value, typename std::conditional < \
-								std::is_array<T>::value, cast_as_it_is <typename std::decay<T>::type> , type3 > ::type, type3 > ::type type4;
+				std::is_array<T>::value, cast_as_it_is <typename std::decay<T>::type>, type3 > ::type, type3 > ::type type4;
 			typedef typename	std::conditional<std::is_same<unknown_type, type4>::value, cast_as_it_is<T>, type4 >::type caster_type;
 
 			return caster_type::cast_internal(m);
@@ -175,6 +215,15 @@ namespace GFramework
 			typedef T TYPE;
 			static many create_internal(T& t) {
 				return many(static_cast<TYPE>(t));
+			}
+		};
+
+		template<typename T>
+		struct create_not_copyable {
+			typedef T TYPE;
+			static many create_internal(T&& t) {
+				auto a = many(std::move(t));
+				return a;
 			}
 		};
 

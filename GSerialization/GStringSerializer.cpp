@@ -17,18 +17,18 @@ GStringSerializer::~GStringSerializer()
 {
 
 }
-GSerializer& GStringSerializer::write(const GObject& _obj)
+GSerializer& GStringSerializer::write(const GObjectSharedPtr& _obj)
 {
 
 	if (!stream->good())
 		return *this;
 
-	GMetaclass* m = _obj.getMetaclass();
+	GMetaclass* m = _obj->getMetaclass();
 	string nmstr = m->getFullNamespace();
 	//GMetaclass* m = GMetaclassList::instance().getMetaclass(_obj->metaclassName());
 	//const char* classname = m->getName().c_str();
 	*stream << "class name:" << nmstr << endl;
-	*stream << "GObjectId:" << _obj.getObjectId() << endl;
+	*stream << "GObjectId:" << _obj->getObjectId() << endl;
 	*stream << "class version:" << m->getVersion() << endl;
 	//_obj->serialize(*this);
 
@@ -40,7 +40,7 @@ GSerializer& GStringSerializer::write(const GObject& _obj)
 		string property_name = *it;
 		auto p = m->getProperty(property_name.c_str());
 
-		writeMetaProperty(&_obj, p);
+		writeMetaProperty(_obj.get(), p);
 	}
 	*stream << objectDelimiter << endl;
 	return *this;
@@ -113,6 +113,7 @@ bool GStringSerializer::writeMetaProperty(const GObject* _obj, GMetaproperty* pr
 		{
 			cerr << "stream corrupted when writing metaproperty:" << property << endl;
 		}
+		return false;
 	}
 	*stream << endl;
 	return true;
@@ -177,7 +178,7 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 			class_name = line.substr(pos + strlen("class name:"));
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (class_name.empty())
 	{
@@ -195,7 +196,7 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 			std::istringstream(line) >> unique_id;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
@@ -213,14 +214,14 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 			std::istringstream(line) >> version;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
 		return *this;
 	}
 
-	if (!stream->eof())
+	if (stream->good())
 	{
 		std::vector < std::string > namespaces_class;
 		GMetaNamespace* nm = &GMetaNamespaceList::_global();
@@ -236,11 +237,15 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 		}
 
 		GMetaclass* metaclass = nm->getMetaclass(namespaces_class.back().c_str());
+		if (!metaclass)
+		{
+			cerr << "Unable to find metaclass " << namespaces_class.back() << endl;
+		}
 		*_obj = metaclass->createInstance();
 
 		setObject_id(*_obj, unique_id);
 
-		while (!stream->eof())
+		while (stream->good())
 		{
 			std::getline(*stream, line);
 			auto pos = line.find(objectDelimiter);
@@ -301,7 +306,7 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 			class_name = line.substr(pos + strlen("class name:"));
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (class_name.empty())
 	{
@@ -319,7 +324,7 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 			std::istringstream(line) >> unique_id;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
@@ -337,14 +342,14 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 			std::istringstream(line) >> version;
 			break;
 		}
-	} while (!stream->eof());
+	} while (stream->good());
 
 	if (line.empty())
 	{
 		return *this;
 	}
 
-	if (!stream->eof())
+	if (stream->good())
 	{
 		std::vector < std::string > namespaces_class;
 		GMetaNamespace* nm = &GMetaNamespaceList::_global();
@@ -364,7 +369,7 @@ GDeserializer& GStringDeserializer::operator>>(GObject** _obj)
 
 		setObject_id(*_obj, unique_id);
 
-		while (!stream->eof())
+		while (stream->good())
 		{
 			std::getline(*stream, line);
 			auto pos = line.find(objectDelimiter);
@@ -406,7 +411,7 @@ namespace GStringSerializerWriter
 	template<>
 	GStringSerializer& write<int>(GStringSerializer& stream, int& value)
 	{
-		*stream.getStream() << std::hex << value << " ";
+		*stream.getStream() << value << " ";
 		return stream;
 	}
 }
@@ -416,7 +421,7 @@ namespace GStringDeserializerReader
 	template<>
 	GStringDeserializer& read<int>(GStringDeserializer& stream, int& value)
 	{
-		*stream.getStream() >> std::hex >> value;
+		*stream.getStream() >> value;
 		return stream;
 	}
 }

@@ -5,56 +5,45 @@ using namespace GFramework;
 using namespace GFrameworkTest;
 
 //template class __declspec(dllexport) GMetaNonAbstractclass<GFrameworkTest::Node>;
-
-
-	/*BEGIN_DEFINE_META(Node)
-		GMetaclassList::instance().define<Node>("node")
-			.baseMetaclass("GObject")
-			.version(1)
-			.function("about", &Node::about)
-			.function("getPosition", &Node::getPosition)
-			.function("setPosition", &Node::setPosition)
-			.function("setParent", &Node::setParent)
-			.function("getParent", &Node::getParent)
-			.function("addChild", &Node::addChild)
-			.function("getChild", &Node::getChild)
-			.editableProperty("position", &Node::position)
-			.property("parent", &Node::parent);
-	END_DEFINE_META(Node)*/
-
-	BEGIN_DEFINE_META(Node)
-		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
-		.function("NodeFileInfo", NodeFileInfo)
-		.define<Node>("Node")
-		.baseMetaclass("GObject", { "GFramework" })
-		.version(1)
-		.functionPublic("about", &Node::about)
-		.functionPublic("getPosition", &Node::getPosition)
-		.functionPublic("setPosition", &Node::setPosition)
-		.functionPublic("setParent", &Node::setParent)
-		.functionPublic("getParent", &Node::getParent)
-		.functionPublic("addChild", &Node::addChild)
-		.functionPublic("getChild", &Node::getChild)
-		.property("visibility", &Node::visibility)
-		.property("Position", &Node::getPosition, &Node::setPosition)
-		/*.editableProperty("position", &Node::position)*/
-		.property("parent", &Node::parent);
-	END_DEFINE_META(Node)
 namespace GFrameworkTest
 {
-	void NodeFileInfo()
+	uint32 globalCounter = 0;
+	void IncrementGlobalCounter();
+}
+
+BEGIN_DEFINE_META(Node)
+	GMetaNamespaceList::_global()._namespace("GFrameworkTest")
+	.function("IncrementGlobalCounter", GFrameworkTest::IncrementGlobalCounter)
+	.define<Node>("Node")
+	.baseMetaclass("GObject", { "GFramework" })
+	.version(1)
+	.functionPublic("about", &Node::about)
+	.functionPublic("reset", &Node::reset)
+	.functionPublic("getPosition", &Node::getPosition)
+	.functionPublic("setPosition", &Node::setPosition)
+	.functionPublic("setParent", &Node::setParent)
+	.functionPublic("getParent", &Node::getParent)
+	.functionPublic("addChild", &Node::addChild)
+	.functionPublic("getChild", &Node::getChild)
+	.property("visibility", &Node::visibility)
+	.property("Position", &Node::getPosition, &Node::setPosition)
+	/*.editableProperty("position", &Node::position)*/
+	.property("parent", &Node::parent);
+END_DEFINE_META(Node)
+namespace GFrameworkTest
+{
+	void IncrementGlobalCounter()
 	{
-		std::cout << "NodeFileInfo\n";
+		globalCounter++;
 	}
+
 	Node::Node(const char *_name, NodeSharedPtr& _parent) : GObject(_name)
 	{	
 		parent.setValue(_parent);
-		cout << "Node '" << getName() << "' constructed." << endl;
 	}
 
 	Node::~Node()
 	{
-		cout << "Node '" << getName() << "' destroyed." << endl;
 	}
 
 	void Node::setPosition(const glm::vec3& _pos)
@@ -76,6 +65,11 @@ namespace GFrameworkTest
 			cout << "Parent: " << parent.getValue()->getName() << endl;
 	}
 
+	void Node::reset()
+	{
+		position = glm::vec3(0, 0, 0);
+	}
+
 	NodeSharedPtr Node::getChild(size_t index)
 	{
 		return children.at(index);
@@ -83,7 +77,7 @@ namespace GFrameworkTest
 
 	void Node::initialize()
 	{
-		cout << "Node '" << getName() << "' initialized." << endl;
+
 	}
 
 	GMetaclass* Node::getMetaclass() const

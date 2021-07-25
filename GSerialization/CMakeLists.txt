@@ -9,10 +9,15 @@ set(GSERIALIZATION_ROOT ${GFRAMEWORK_ROOT}/GSerialization)
 project(GSerialization)
 
 list(APPEND include_paths ${GSERIALIZATION_ROOT}/../GSerialization)
-list(APPEND include_paths ${THIRDPARTY_LUA_PATH}/src)
-list(APPEND include_paths ${THIRDPARTY_BOOST_PATH})
+list(APPEND include_paths ${THIRDPARTY_LUA_PATH})
 list(APPEND include_paths ${THIRDPARTY_GLM_PATH})
 
+find_package(Boost 1.63.0) 
+if(Boost_FOUND)
+	list(APPEND include_paths ${Boost_INCLUDE_DIRS})
+else()
+	list(APPEND include_paths ${THIRDPARTY_BOOST_PATH})
+endif()
 file(
 	GLOB
 	header_files
