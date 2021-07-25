@@ -30,3 +30,6 @@ To build this project you need
 
 ## Unit test reports
 [Windows_VS2015_Debug](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2015_Debug_Report.xml)
+
+## Coverage reports
+[![Code Coverage](https://codecov.io/gh/asankar1/GFramework/branch/integration/graph/badge.svg?token=C3FOMEPHJ3)](https://codecov.io/gh/asankar1/GFramework)
