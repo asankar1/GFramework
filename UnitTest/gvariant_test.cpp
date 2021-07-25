@@ -500,13 +500,13 @@ GVariant gv;
 
 
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, void)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, nullptr_t)
+GTEST_GVARIANT2(GVariantTest$$FundementalTypes, nullptrType, nullptr_t)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, bool)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, int8)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint8)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, char)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, char16_t)
-GTEST_GVARIANT(GVariantTest$$FundementalTypes, char32_t)
+GTEST_GVARIANT2(GVariantTest$$FundementalTypes, char16Type, char16_t)
+GTEST_GVARIANT2(GVariantTest$$FundementalTypes, char32Type, char32_t)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, int16)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, uint16)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, int32)
@@ -517,7 +517,7 @@ GTEST_GVARIANT(GVariantTest$$FundementalTypes, float32)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, float64)
 GTEST_GVARIANT(GVariantTest$$FundementalTypes, float80)
 
-TEST_F(GVariantTest$$CompoundTypes, One_Dimensional_Array) {
+TEST_F(GVariantTest$$CompoundTypes, OneDimensionalArray) {
 	EXPECT_EQ(true, dataType<decltype(arr1)>::variant_test(gv, arr1));
 	//EXPECT_EQ(true, dataType<decltype(arr2)>::variant_test(gv, arr2)); //Must give compilation error
 	EXPECT_EQ(true, dataType<decltype(arr3)>::variant_test(gv, arr3));

@@ -4,6 +4,7 @@
 #endif
 #include <typeindex>
 #include <vector>
+#include <cctype>   //isupper, islower
 #include <map>
 #include "gtest/gtest.h"
 #include "gvariant_test.h"
@@ -106,18 +107,34 @@ namespace {
             const char* fail = "[====FAIL====]";
             const char* skip = "[    SKIP    ]";
             const char* result = pass;
+            auto test_name = test_info.name();
+            std::string pretty_test_name = "";
+            pretty_test_name += test_name;
+#if 0   //TODO: to be improved
+            for (int i = 1; i < strlen(test_name); i++)
+            {
+                if (std::isupper(test_name[i]))
+                {
+                    if (std::islower(test_name[i-1]))
+                    {
+                        pretty_test_name += ' ';
+                    }
+                }
+                pretty_test_name += test_name[i];
+            }
+#endif
             if (test_info.result()->Failed()){
                 result = fail;
-                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Red),result, GetColor(Color::Reset), test_info.name(), test_info.result()->elapsed_time());
+                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Red),result, GetColor(Color::Reset), pretty_test_name.c_str(), test_info.result()->elapsed_time());
             }
             else if (test_info.result()->Skipped()){
                 result = skip;
-                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Yellow), result, GetColor(Color::Reset), test_info.name(), test_info.result()->elapsed_time());
+                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Yellow), result, GetColor(Color::Reset), pretty_test_name.c_str(), test_info.result()->elapsed_time());
             }
             else
             {
                 result = pass;
-                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Green), result, GetColor(Color::Reset), test_info.name(), test_info.result()->elapsed_time());
+                fprintf(stdout, "%s%s%s Test: %s (%d ms)\n", GetColor(Color::Green), result, GetColor(Color::Reset), pretty_test_name.c_str(), test_info.result()->elapsed_time());
             }
             
             fflush(stdout);

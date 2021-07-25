@@ -143,7 +143,7 @@ TEST_F(GReflectionTest, DISABLED_ListDerivedClassPublicMemberFunctions)
 }
 
 
-TEST_F(GReflectionTest, Invoke_static_function_returning_void_and_taking_void_arguments)
+TEST_F(GReflectionTest, InvokeStaticFunctionReturningVoidAndTakingVoidArguments)
 {
 	auto sf = objectmeta->getStaticFunction("about");
 	vector<GVariant> args;
@@ -206,10 +206,12 @@ TEST_F(GReflectionTest, InvokeMemberFunctionReturningConstantReferenceAndTakingV
 // call function taking void arguments and return void 
 TEST_F(GReflectionTest, CallMemberFunctionTakingVoidArgumentsAndReturnVoid)
 {
-	auto m = nodemeta->getPublicMemberFunction("about");
+	auto m = nodemeta->getPublicMemberFunction("reset");
 	std::vector<GVariant> args;
+	node1.setPosition({ 5, 5, 5 });
 	GVariant r = m->invoke(&node1, args);
 	EXPECT_EQ(r.empty(), true);
+	EXPECT_EQ(node1.getPosition(), glm::vec3(0,0,0));
 }
 
 // call function taking void arguments but return a value
