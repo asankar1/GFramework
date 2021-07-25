@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Setup OpenCppCoverage and add to PATH
-        id: setup_opencppcoverage
+      id: setup_opencppcoverage
         run: |
           choco install OpenCppCoverage -y
           echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH      
