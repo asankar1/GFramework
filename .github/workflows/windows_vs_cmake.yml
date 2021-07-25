@@ -1,4 +1,4 @@
-name: CMake
+name: windows_vs_cmake
 
 on: 
   push:
@@ -24,6 +24,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       
+    - name: Setup OpenCppCoverage and add to PATH
+      id: setup_opencppcoverage
+      run: |
+        choco install OpenCppCoverage -y
+        echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH      
+      
     - name: Checkout submodule third_party/lua
       run: git submodule update --init third_party/lua
       
@@ -42,16 +48,23 @@ jobs:
     - name: Build Unit test with configuration ${{ matrix.build_config }}
       run: cmake --build ${{github.workspace}}/UnitTest/build_${{ matrix.build_toolset }} --config ${{ matrix.build_config }} --target install      
       
-    - name: Run Unit test
+    - name: Run Unit test and generate code coverage report
       run: |
         cd ${{github.workspace}}/UnitTest/output/build_${{ matrix.build_toolset }}/test/${{ matrix.build_config }}
-        .\gframework_static_test.exe --gtest_output="xml:${{github.workspace}}/UnitTest/Reports/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Report.xml"
+        OpenCppCoverage --export_type cobertura:${{github.workspace}}/UnitTest/Coverage/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Coverage.xml --sources ${{github.workspace}} --excluded_sources ${{github.workspace}}\third_party --excluded_sources ${{github.workspace}}\unittest\build_* -- .\gframework_static_test.exe --gtest_output="xml:${{github.workspace}}/UnitTest/Reports/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Report.xml"
         
     - name: Publish Unit Test Results
       uses: EnricoMi/publish-unit-test-result-action/composite@v1.19
       if: always()
       with:
         files: ${{github.workspace}}/UnitTest/Reports/*.xml
+        
+    - name: Upload Report to Codecov
+      uses: codecov/codecov-action@v1.3.2
+      with:
+        files: ./UnitTest/Coverage/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Coverage.xml
+        fail_ci_if_error: true
+        functionalities: fix        
       
     - name: Verify New or Changed report files
       if: ${{ success() }}
@@ -59,7 +72,7 @@ jobs:
       id: verify-changed-files
       with:
           files: |
-             ${{github.workspace}}/UnitTest/Reports
+             ${{github.workspace}}/UnitTest
   
     - name: setup git config to commit the reports
       if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
@@ -76,7 +89,8 @@ jobs:
           # Stage the file, commit and push
           cd ${{github.workspace}}
           git pull
-          git add UnitTest/Reports/*.xml
+          git add UnitTest/Reports/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Report.xml
+          git add UnitTest/Coverage/Windows_${{ matrix.build_toolset }}_${{ matrix.build_config }}_Coverage.xml
           git commit -m "Updated auto-generated unit test reports"
-          git push origin ci_setup
+          git push origin integration
     

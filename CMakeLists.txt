@@ -88,10 +88,17 @@ install	(	TARGETS gframework_static gframework_shared
 		)
 
 install	(	TARGETS gframework_static gframework_shared
+			CONFIGURATIONS RelWithDebInfo
+			RUNTIME DESTINATION ./bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_RelWithDebInfo
+			LIBRARY DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_RelWithDebInfo
+			ARCHIVE DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_RelWithDebInfo
+		)
+		
+install	(	TARGETS gframework_static gframework_shared
 			CONFIGURATIONS Release
 			RUNTIME DESTINATION ./bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 			LIBRARY DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
 			ARCHIVE DESTINATION ./lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_Release
-		)
+		)		
 #add_subdirectory(Test)
 
