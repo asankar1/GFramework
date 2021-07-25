@@ -26,7 +26,7 @@ To build this project you need
   * Doxygen generator
 
 ## Build status
-Visual Studio 2015 and 2017: [![Badge for Visual Studio 2015 and 2017](https://github.com/asankar1/GFramework/actions/workflows/windows_vs_cmake.yml/badge.svg?branch=integration)](https://github.com/asankar1/GFramework/actions/workflows/windows_vs_cmake.yml)
+[![Badge for Visual Studio 2015 and 2017](https://img.shields.io/github/workflow/status/asankar1/GFramework/windows_vs_cmake/integration?label=Visual%20Studio%202015%20and%202017&style=plastic)](https://github.com/asankar1/GFramework/actions/workflows/windows_vs_cmake.yml)
 
 ## Unit test reports
 [Windows_VS2015_Debug](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2015_Debug_Report.xml)  
