@@ -149,6 +149,18 @@ install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMP
 		)
 		
 install	(	TARGETS gframework_static_test gframework_shared_test
+			CONFIGURATIONS RelWithDebInfo
+			RUNTIME DESTINATION ./test/RelWithDebInfo
+		)
+		
+install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_RelWithDebInfo/"
+						"${GFRAMEWORK_PATH}/bin/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_RelWithDebInfo/"
+			CONFIGURATIONS RelWithDebInfo
+			DESTINATION ./test/RelWithDebInfo
+			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
+		)			
+		
+install	(	TARGETS gframework_static_test gframework_shared_test
 			CONFIGURATIONS Release
 			RUNTIME DESTINATION ./test/Release
 		)
