@@ -26,10 +26,15 @@ To build this project you need
   * Doxygen generator
 
 ## Build status
-[![CMake](https://github.com/asankar1/GFramework/actions/workflows/cmake.yml/badge.svg?branch=ci_setup)](https://github.com/asankar1/GFramework/actions/workflows/cmake.yml)
+[![Visual Studio 2015 and 2017](https://github.com/asankar1/GFramework/actions/workflows/cmake.yml/badge.svg?branch=ci_setup)](https://github.com/asankar1/GFramework/actions/workflows/windows_vs_cmake.yml)
 
 ## Unit test reports
 [Windows_VS2015_Debug](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2015_Debug_Report.xml)
+[Windows_VS2015_RelWithDebInfo](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2015_RelWithDebInfo_Report.xml)
+[Windows_VS2015_Release](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2015_Debug_Release.xml)
+[Windows_VS2017_Debug](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2017_Debug_Report.xml)
+[Windows_VS2017_RelWithDebInfo](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2017_RelWithDebInfo_Report.xml)
+[Windows_VS2017_Release](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2017_Debug_Release.xml)
 
 ## Coverage reports
 [![Code Coverage](https://codecov.io/gh/asankar1/GFramework/branch/integration/graph/badge.svg?token=C3FOMEPHJ3)](https://codecov.io/gh/asankar1/GFramework)
