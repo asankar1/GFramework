@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <GFramework/GVariant/GVariant.h>
-#include <sphere.h>
+#include <Sphere.h>
 #include "gscript_test.h"
 using namespace std;
 using namespace GFramework;
