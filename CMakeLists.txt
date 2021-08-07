@@ -46,6 +46,9 @@ endif(${HOSTNAME_PREFIX} MATCHES "Linux")
 # get access to our actual CMake file
 #include(cpackconfig)
 
+# Common cmake options
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # third party libraries
 set(THIRDPARTY_LUA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lua CACHE PATH "Lua 5.3.4 path")
 set(THIRDPARTY_GLM_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm CACHE PATH "glm 0.9.8 path")
