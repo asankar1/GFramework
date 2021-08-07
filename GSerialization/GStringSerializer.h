@@ -10,7 +10,8 @@ namespace GFramework
 		template<typename T>
 		GStringSerializer& write(GStringSerializer& stream, T& _obj)
 		{
-			static_assert (false, "You must specialize the write function template for GStringSerializer!");
+			//TODO:
+			//static_assert (false, "You must specialize the write function template for GStringSerializer!");
 			return stream;
 		}
 
@@ -80,7 +81,8 @@ namespace GFramework
 		template<typename T>
 		GStringDeserializer& read(GStringDeserializer& stream, T& _obj)
 		{
-			static_assert (false, "You must specialize the write function template for GStringDeserializer!");
+			//TODO:
+			//static_assert (false, "You must specialize the write function template for GStringDeserializer!");
 			return stream;
 		}
 

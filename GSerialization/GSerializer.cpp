@@ -45,6 +45,30 @@ namespace GFramework
 		stream->flush();
 	}
 
+	GSerializer& GSerializer::operator<<(const GPropertyInterface& prop)
+	{
+		if (prop.isGObjectPointer())
+		{
+			auto pointer_prop = dynamic_cast<const GPointerPropertyInterface*>(&prop);
+			if (pointer_prop->getGObjectPointer())
+			{
+				postProcessor.addPointer(pointer_prop);
+			}
+			/*{
+				auto itr = reference_providers.find(pointer_prop->getObjectId());
+				if (itr == reference_providers.end())
+				{
+					reference_providers.insert({ pointer_prop->getObjectId(), std::vector<GObjectSharedPtr>({ pointer_prop->getGObjectPointer() }) });
+				}
+				else
+				{
+					itr->second.push_back(pointer_prop->getGObjectPointer());
+				}
+			}*/
+		}
+		return write(prop);
+	}
+
 	OStreamSharedPtr GSerializer::getStream()
 	{
 		return stream;
@@ -84,7 +108,7 @@ namespace GFramework
 		}
 	}
 
-	void GSerializer::addReferenceProvider(GObjectSharedPtr& obj)
+	void GSerializer::addReferenceProvider(GObjectSharedPtr obj)
 	{
 		auto itr = reference_providers.find(obj->getObjectId());
 		if (itr == reference_providers.end())
