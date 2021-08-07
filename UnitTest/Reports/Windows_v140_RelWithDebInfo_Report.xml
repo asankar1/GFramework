@@ -1,126 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites tests="111" failures="0" disabled="4" errors="0" time="0.452" timestamp="2021-08-07T18:45:13.637" name="AllTests">
-  <testsuite name="GReflectionTest" tests="20" failures="0" disabled="1" skipped="0" errors="0" time="0.05" timestamp="2021-08-07T18:45:13.639">
-    <testcase name="CallNamespaceFuntion" status="run" result="completed" time="0.01" timestamp="2021-08-07T18:45:13.639" classname="GReflectionTest" />
-    <testcase name="CallNestedNamespaceFuntion" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.650" classname="GReflectionTest" />
-    <testcase name="ListConstructors" status="run" result="completed" time="0" timestamp="2021-08-07T18:45:13.654" classname="GReflectionTest" />
-    <testcase name="CallDefaultConstructor" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.655" classname="GReflectionTest" />
-    <testcase name="CallNonDefaultConstructor" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.656" classname="GReflectionTest" />
-    <testcase name="ListClassStaticFunctions" status="run" result="completed" time="0" timestamp="2021-08-07T18:45:13.659" classname="GReflectionTest" />
-    <testcase name="ListBaseClassPublicMemberFunctions" status="run" result="completed" time="0" timestamp="2021-08-07T18:45:13.660" classname="GReflectionTest" />
+<testsuites tests="111" failures="0" disabled="4" errors="0" time="0.471" timestamp="2021-08-07T18:55:28.870" name="AllTests">
+  <testsuite name="GReflectionTest" tests="20" failures="0" disabled="1" skipped="0" errors="0" time="0.048" timestamp="2021-08-07T18:55:28.871">
+    <testcase name="CallNamespaceFuntion" status="run" result="completed" time="0.01" timestamp="2021-08-07T18:55:28.871" classname="GReflectionTest" />
+    <testcase name="CallNestedNamespaceFuntion" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:28.882" classname="GReflectionTest" />
+    <testcase name="ListConstructors" status="run" result="completed" time="0" timestamp="2021-08-07T18:55:28.886" classname="GReflectionTest" />
+    <testcase name="CallDefaultConstructor" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:55:28.887" classname="GReflectionTest" />
+    <testcase name="CallNonDefaultConstructor" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:55:28.888" classname="GReflectionTest" />
+    <testcase name="ListClassStaticFunctions" status="run" result="completed" time="0" timestamp="2021-08-07T18:55:28.890" classname="GReflectionTest" />
+    <testcase name="ListBaseClassPublicMemberFunctions" status="run" result="completed" time="0" timestamp="2021-08-07T18:55:28.891" classname="GReflectionTest" />
     <testcase name="DISABLED_ListDerivedClassPublicMemberFunctions" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="GReflectionTest" />
-    <testcase name="InvokeStaticFunctionReturningVoidAndTakingVoidArguments" status="run" result="completed" time="0" timestamp="2021-08-07T18:45:13.661" classname="GReflectionTest" />
-    <testcase name="InvokeMemberFunctionReturningVoidAndTakingConstantReferenceArguments" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.661" classname="GReflectionTest" />
-    <testcase name="InvokeMemberFunctionReturningConstantReferenceAndTakingVoidArguments" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.665" classname="GReflectionTest" />
-    <testcase name="CallMemberFunctionTakingVoidArgumentsAndReturnVoid" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.667" classname="GReflectionTest" />
-    <testcase name="CallMemberFunctionTakingVoidArgumentsButReturnValue" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.670" classname="GReflectionTest" />
-    <testcase name="CallMemberFunctionTakingNonvoidArgumentsAndReturnVoid" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.672" classname="GReflectionTest" />
-    <testcase name="CallFunctionTakingVoidArgumentsButReturnSharedPointer" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.674" classname="GReflectionTest" />
-    <testcase name="CallMemberFunctionTakingSharedPointerArgumentsButReturnVoid" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.678" classname="GReflectionTest" />
-    <testcase name="CallNonvirtualPublicMemberFunctionOfBaseClass" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.681" classname="GReflectionTest" />
-    <testcase name="CallVirtualPublicMemberFunctionUsingBaseClassPointerWithDerivedClassInstance" status="run" result="completed" time="0" timestamp="2021-08-07T18:45:13.683" classname="GReflectionTest" />
-    <testcase name="ListThePropertiesOfNodeClass" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.684" classname="GReflectionTest" />
-    <testcase name="SetPublicPropertyOfClass" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.686" classname="GReflectionTest" />
+    <testcase name="InvokeStaticFunctionReturningVoidAndTakingVoidArguments" status="run" result="completed" time="0" timestamp="2021-08-07T18:55:28.892" classname="GReflectionTest" />
+    <testcase name="InvokeMemberFunctionReturningVoidAndTakingConstantReferenceArguments" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:28.893" classname="GReflectionTest" />
+    <testcase name="InvokeMemberFunctionReturningConstantReferenceAndTakingVoidArguments" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:28.896" classname="GReflectionTest" />
+    <testcase name="CallMemberFunctionTakingVoidArgumentsAndReturnVoid" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:28.898" classname="GReflectionTest" />
+    <testcase name="CallMemberFunctionTakingVoidArgumentsButReturnValue" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:28.901" classname="GReflectionTest" />
+    <testcase name="CallMemberFunctionTakingNonvoidArgumentsAndReturnVoid" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:55:28.903" classname="GReflectionTest" />
+    <testcase name="CallFunctionTakingVoidArgumentsButReturnSharedPointer" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:28.905" classname="GReflectionTest" />
+    <testcase name="CallMemberFunctionTakingSharedPointerArgumentsButReturnVoid" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:28.909" classname="GReflectionTest" />
+    <testcase name="CallNonvirtualPublicMemberFunctionOfBaseClass" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:28.911" classname="GReflectionTest" />
+    <testcase name="CallVirtualPublicMemberFunctionUsingBaseClassPointerWithDerivedClassInstance" status="run" result="completed" time="0" timestamp="2021-08-07T18:55:28.914" classname="GReflectionTest" />
+    <testcase name="ListThePropertiesOfNodeClass" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:55:28.914" classname="GReflectionTest" />
+    <testcase name="SetPublicPropertyOfClass" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:28.916" classname="GReflectionTest" />
   </testsuite>
-  <testsuite name="GSerialization$$GPropertyTypes" tests="42" failures="0" disabled="0" skipped="0" errors="0" time="0.187" timestamp="2021-08-07T18:45:13.690">
-    <testcase name="gvec2PropertyPublic" status="run" result="completed" time="0.098" timestamp="2021-08-07T18:45:13.690" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gvec3PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.788" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gvec4PropertyPublic" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.790" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gmat2PropertyPublic" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.792" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gmat3PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.794" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gmat4PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.796" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gboolPropertyPublic" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.798" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gcharPropertyPublic" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.800" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint8PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.801" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint8PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.803" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint16PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.806" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint16PropertyPublic" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.808" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint32PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.810" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint32PropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.812" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint64PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.816" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint64PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.819" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gfloatPropertyPublic" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.821" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gstringPropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.823" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gdoublePropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.826" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gobjectpointerPropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.828" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gcolorPropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.830" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gvec2PropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.832" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gvec3PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.836" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gvec4PropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.838" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gmat2PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.840" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gmat3PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.842" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gmat4PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.844" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gboolPropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.847" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gcharPropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.849" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint8PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.850" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint8PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.852" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint16PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.855" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint16PropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.857" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint32PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.859" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint32PropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.861" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gint64PropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.863" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="guint64PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.865" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gfloatPropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.867" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gstringPropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.869" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gdoublePropertyPrivate" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.871" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gobjectpointerPropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.873" classname="GSerialization$$GPropertyTypes" />
-    <testcase name="gcolorPropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.876" classname="GSerialization$$GPropertyTypes" />
+  <testsuite name="GSerialization$$GPropertyTypes" tests="42" failures="0" disabled="0" skipped="0" errors="0" time="0.227" timestamp="2021-08-07T18:55:28.920">
+    <testcase name="gvec2PropertyPublic" status="run" result="completed" time="0.086" timestamp="2021-08-07T18:55:28.920" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gvec3PropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.007" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gvec4PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.010" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gmat2PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.012" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gmat3PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.015" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gmat4PropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.018" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gboolPropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.021" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gcharPropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.024" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint8PropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.026" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint8PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.030" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint16PropertyPublic" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.033" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint16PropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.037" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint32PropertyPublic" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.040" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint32PropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.045" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint64PropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.048" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint64PropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.051" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gfloatPropertyPublic" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.055" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gstringPropertyPublic" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.057" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gdoublePropertyPublic" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.062" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gobjectpointerPropertyPublic" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.065" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gcolorPropertyPublic" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.069" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gvec2PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.074" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gvec3PropertyPrivate" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.076" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gvec4PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.080" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gmat2PropertyPrivate" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.083" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gmat3PropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.087" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gmat4PropertyPrivate" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.091" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gboolPropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.095" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gcharPropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.099" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint8PropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.101" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint8PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.105" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint16PropertyPrivate" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.108" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint16PropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.112" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint32PropertyPrivate" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.116" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint32PropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.120" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gint64PropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.124" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="guint64PropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.126" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gfloatPropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.130" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gstringPropertyPrivate" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.133" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gdoublePropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.138" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gobjectpointerPropertyPrivate" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.141" classname="GSerialization$$GPropertyTypes" />
+    <testcase name="gcolorPropertyPrivate" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.144" classname="GSerialization$$GPropertyTypes" />
   </testsuite>
-  <testsuite name="GVariantTest$$FundementalTypes" tests="17" failures="0" disabled="0" skipped="0" errors="0" time="0.066" timestamp="2021-08-07T18:45:13.878">
-    <testcase name="void" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.878" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="nullptrType" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:45:13.879" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="bool" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.880" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="int8" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.884" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="uint8" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.889" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="char" status="run" result="completed" time="0" timestamp="2021-08-07T18:45:13.893" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="char16Type" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.893" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="char32Type" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.897" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="int16" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.901" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="uint16" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.905" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="int32" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.910" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="uint32" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.914" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="int64" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:45:13.918" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="uint64" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.923" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="float32" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:45:13.927" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="float64" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:45:13.932" classname="GVariantTest$$FundementalTypes" />
-    <testcase name="float80" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:45:13.939" classname="GVariantTest$$FundementalTypes" />
+  <testsuite name="GVariantTest$$FundementalTypes" tests="17" failures="0" disabled="0" skipped="0" errors="0" time="0.054" timestamp="2021-08-07T18:55:29.148">
+    <testcase name="void" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:55:29.148" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="nullptrType" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:55:29.149" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="bool" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.150" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="int8" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.154" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="uint8" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.158" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="char" status="run" result="completed" time="0" timestamp="2021-08-07T18:55:29.162" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="char16Type" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.162" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="char32Type" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.165" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="int16" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.169" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="uint16" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.172" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="int32" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.175" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="uint32" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.178" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="int64" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.182" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="uint64" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.185" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="float32" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.189" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="float64" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.194" classname="GVariantTest$$FundementalTypes" />
+    <testcase name="float80" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.198" classname="GVariantTest$$FundementalTypes" />
   </testsuite>
-  <testsuite name="GVariantTest$$CompoundTypes" tests="10" failures="0" disabled="0" skipped="0" errors="0" time="0.034" timestamp="2021-08-07T18:45:13.944">
-    <testcase name="OneDimensionalArray" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.944" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="FunctionObject" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.947" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="Class" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.950" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="SharedPtr" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.953" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="string" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.956" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="wstring" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.959" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="Vector" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.963" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="List" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:45:13.966" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="Map" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:45:13.968" classname="GVariantTest$$CompoundTypes" />
-    <testcase name="Tuple" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.975" classname="GVariantTest$$CompoundTypes" />
+  <testsuite name="GVariantTest$$CompoundTypes" tests="10" failures="0" disabled="0" skipped="0" errors="0" time="0.034" timestamp="2021-08-07T18:55:29.202">
+    <testcase name="OneDimensionalArray" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.202" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="FunctionObject" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.205" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="Class" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.207" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="SharedPtr" status="run" result="completed" time="0.001" timestamp="2021-08-07T18:55:29.211" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="string" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.212" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="wstring" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.216" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="Vector" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.220" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="List" status="run" result="completed" time="0.002" timestamp="2021-08-07T18:55:29.223" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="Map" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:55:29.225" classname="GVariantTest$$CompoundTypes" />
+    <testcase name="Tuple" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:55:29.233" classname="GVariantTest$$CompoundTypes" />
   </testsuite>
   <testsuite name="DISABLED_GVariantTest$$CompoundTypes" tests="3" failures="0" disabled="3" skipped="0" errors="0" time="0" timestamp="1970-01-01T00:00:00.000">
     <testcase name="Multi_Dim_Array" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="DISABLED_GVariantTest$$CompoundTypes" />
     <testcase name="unique_ptr" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="DISABLED_GVariantTest$$CompoundTypes" />
     <testcase name="lvalue_ref" status="notrun" result="suppressed" time="0" timestamp="1970-01-01T00:00:00.000" classname="DISABLED_GVariantTest$$CompoundTypes" />
   </testsuite>
-  <testsuite name="GVariantTest$$GPropertyTypes" tests="19" failures="0" disabled="0" skipped="0" errors="0" time="0.11" timestamp="2021-08-07T18:45:13.979">
-    <testcase name="GBoolProperty" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:45:13.979" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GCharProperty" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.984" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GInt8Property" status="run" result="completed" time="0" timestamp="2021-08-07T18:45:13.989" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GUint8Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:13.989" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GInt16Property" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:45:13.993" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GUint16Property" status="run" result="completed" time="0.003" timestamp="2021-08-07T18:45:13.999" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GInt32Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:14.002" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GUint32Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:45:14.007" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GInt64Property" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:45:14.012" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GUint64Property" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:45:14.018" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GFloatProperty" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:45:14.023" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GDoubleProperty" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:45:14.030" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GVec2Property" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:45:14.037" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GVec3Property" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:45:14.044" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GVec4Property" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:45:14.051" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GMat2Property" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:45:14.058" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GMat3Property" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:45:14.065" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GMat4Property" status="run" result="completed" time="0.008" timestamp="2021-08-07T18:45:14.073" classname="GVariantTest$$GPropertyTypes" />
-    <testcase name="GObjectPointerProperty" status="run" result="completed" time="0.008" timestamp="2021-08-07T18:45:14.081" classname="GVariantTest$$GPropertyTypes" />
+  <testsuite name="GVariantTest$$GPropertyTypes" tests="19" failures="0" disabled="0" skipped="0" errors="0" time="0.105" timestamp="2021-08-07T18:55:29.236">
+    <testcase name="GBoolProperty" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.236" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GCharProperty" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.241" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GInt8Property" status="run" result="completed" time="0" timestamp="2021-08-07T18:55:29.246" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GUint8Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.246" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GInt16Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.250" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GUint16Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.255" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GInt32Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.260" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GUint32Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.265" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GInt64Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.269" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GUint64Property" status="run" result="completed" time="0.004" timestamp="2021-08-07T18:55:29.274" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GFloatProperty" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:55:29.279" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GDoubleProperty" status="run" result="completed" time="0.005" timestamp="2021-08-07T18:55:29.285" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GVec2Property" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:55:29.291" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GVec3Property" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:55:29.298" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GVec4Property" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:55:29.305" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GMat2Property" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:55:29.312" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GMat3Property" status="run" result="completed" time="0.007" timestamp="2021-08-07T18:55:29.319" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GMat4Property" status="run" result="completed" time="0.006" timestamp="2021-08-07T18:55:29.326" classname="GVariantTest$$GPropertyTypes" />
+    <testcase name="GObjectPointerProperty" status="run" result="completed" time="0.008" timestamp="2021-08-07T18:55:29.333" classname="GVariantTest$$GPropertyTypes" />
   </testsuite>
 </testsuites>
