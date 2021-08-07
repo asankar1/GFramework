@@ -4,7 +4,7 @@
 #include <vector>
 #include <istream>
 #include <ostream>
-//#include <GFramework/GReflection/GReflection.h>
+#include <GFramework/GReflection/GReflectionHelpers.h>
 
 namespace GFramework
 {
@@ -46,29 +46,8 @@ namespace GFramework
 
 		/*virtual GSerializer& operator<<(GObject& _obj) = 0;
 		virtual GSerializer& operator<<(GObject* _obj) = 0;*/
-		GSerializer& operator<<(const GPropertyInterface& prop)
-		{
-			if (prop.isGObjectPointer())
-			{
-				auto pointer_prop = dynamic_cast<const GPointerPropertyInterface*>(&prop);
-				if (pointer_prop->getGObjectPointer())
-				{
-					postProcessor.addPointer(pointer_prop);
-				}
-				/*{
-					auto itr = reference_providers.find(pointer_prop->getObjectId());
-					if (itr == reference_providers.end())
-					{
-						reference_providers.insert({ pointer_prop->getObjectId(), std::vector<GObjectSharedPtr>({ pointer_prop->getGObjectPointer() }) });
-					}
-					else
-					{
-						itr->second.push_back(pointer_prop->getGObjectPointer());
-					}
-				}*/
-			}
-			return write(prop);
-		}
+		GSerializer& operator<<(const GPropertyInterface& prop);
+
 		template<class T>
 		GSerializer& operator<<(std::shared_ptr<T> &prop)
 		{
@@ -100,7 +79,7 @@ namespace GFramework
 			return *this;
 		}
 
-		static void addReferenceProvider(GObjectSharedPtr& obj);
+		static void addReferenceProvider(GObjectSharedPtr obj);
 
 		class PostProcessor
 		{
@@ -168,7 +147,7 @@ namespace GFramework
 				auto t = find_type(setter);
 				using arg_type = typename std::remove_reference<ArgType<SETTER, 1> >::type;//actual type which may be derived from GObject
 				using class_member_t = decltype(t);
-				((dynamic_cast<class_member_t::class_type*>(obj))->*setter)(std::dynamic_pointer_cast<arg_type::element_type>(value));
+				((dynamic_cast<typename class_member_t::class_type*>(obj))->*setter)(std::dynamic_pointer_cast<typename arg_type::element_type>(value));
 			}
 		protected:
 			SETTER setter;
@@ -184,7 +163,7 @@ namespace GFramework
 				auto t = find_type(setter);
 				using arg_type = typename std::remove_reference<ArgType<SETTER, 1> >::type;//actual type which may be derived from GObject
 				using class_member_t = decltype(t);
-				((dynamic_cast<class_member_t::class_type*>(obj))->*setter)(value);
+				((dynamic_cast<typename class_member_t::class_type*>(obj))->*setter)(value);
 			}
 		protected:
 			SETTER setter;

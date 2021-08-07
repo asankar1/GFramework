@@ -118,10 +118,10 @@ void run_property_testcases()
 		CHECK_ARITHMETIC_PROPERTY(int64, GInt64Property);
 
 		//float property
-		CHECK_ARITHMETIC_PROPERTY(float, GFloatProperty);
+		//CHECK_ARITHMETIC_PROPERTY(float, GFloatProperty);
 
 		//double property
-		CHECK_ARITHMETIC_PROPERTY(double, GDoubleProperty);
+		//CHECK_ARITHMETIC_PROPERTY(double, GDoubleProperty);
 
 		cout << "Ok" << endl;
 	}

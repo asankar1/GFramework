@@ -37,9 +37,9 @@
 #define GET_METACLASS_INTERNAL(c) c##_metacreator_.m
 //#define END_DEFINE_META(c) GLuaState::register_script_for_metaclass(GMetaclassList::instance().getMetaclassByType<c>());} }; static c##_metacreator _c##_metacreator;
 
-#define IS_BASE(BASE_TYPE, DERIVED_TYPE) std::is_base_of<BASE_TYPE, DERIVED_TYPE>::value	
-#define IS_SHARED_PTR(TYPE) is_shared_ptr<TYPE>::value
-#define CONDITIONAL_TYPE(CONDITION, YES_TYPE, NO_TYPE) typename std::conditional<CONDITION, YES_TYPE, NO_TYPE>::type
+//#define IS_BASE(BASE_TYPE, DERIVED_TYPE) std::is_base_of<BASE_TYPE, DERIVED_TYPE>::value
+//#define IS_SHARED_PTR(TYPE) is_shared_ptr<TYPE>::value
+//#define CONDITIONAL_TYPE(CONDITION, YES_TYPE, NO_TYPE) typename std::conditional<CONDITION, YES_TYPE,NO_TYPE>::type
 
 /*! \file GReflection.h
 *	\brief class, functions, enums, typedefs, macros and other definitions related to GReflection class.
@@ -348,7 +348,7 @@ namespace GFramework
 			//TODO: avoid find_type function invoke
 			auto t = find_type(ptr);
 			using type = decltype(t);
-			using mem_type = type::member_var_type;
+			using mem_type = typename type::member_var_type;
 			//return mem_type().isGObjectPointer();
 			return false;
 		}
@@ -357,7 +357,7 @@ namespace GFramework
 			//TODO: avoid find_type function invoke
 			auto t = find_type(ptr);
 			using type = decltype(t);
-			using mem_type = type::member_var_type;
+			using mem_type = typename type::member_var_type;
 			//return mem_type().getPointedGObjectTypeIndex();
 			return typeid(T);
 		}
@@ -365,8 +365,8 @@ namespace GFramework
 		void set(void* _object, GVariant& value) {
 			auto t = find_type(ptr);
 			using type = decltype(t);
-			using mem_type = type::member_var_type;
-			using ValueGetterType = std::conditional < std::is_base_of < GPropertyInterface, mem_type > ::value, GPropertyValueGetter, NonGPropertyValueGetter > ::type;
+			using mem_type = typename type::member_var_type;
+			using ValueGetterType = typename std::conditional < std::is_base_of < GPropertyInterface, mem_type > ::value, GPropertyValueGetter, NonGPropertyValueGetter > ::type;
 			ValueGetterType::set(_object, value, ptr, onupdate_cb);
 			/*C* o = static_cast<C*>(_object);
 			//(o->*ptr).set(value);// = boost::get<T>(value);
@@ -382,9 +382,9 @@ namespace GFramework
 		GVariant get(void* _object) {
 			auto t = find_type(ptr);
 			using type = decltype(t);
-			using mem_type = type::member_var_type;
+			using mem_type = typename type::member_var_type;
 
-			using ValueGetterType = std::conditional < std::is_base_of < GPropertyInterface, mem_type > ::value, GPropertyValueGetter, NonGPropertyValueGetter > ::type;
+			using ValueGetterType = typename std::conditional < std::is_base_of < GPropertyInterface, mem_type > ::value, GPropertyValueGetter, NonGPropertyValueGetter > ::type;
 			return ValueGetterType::get(_object, ptr);
 		}
 
@@ -421,7 +421,7 @@ namespace GFramework
 				C* o = static_cast<C*>(_object);
 				auto t = find_type(ptr);
 				using type = decltype(t);
-				using mem_type = type::member_var_type;
+				using mem_type = typename type::member_var_type;
 				(o->*ptr).set(value);
 				if (onupdate_cb) {
 					onupdate_cb(o);
@@ -433,7 +433,7 @@ namespace GFramework
 				C* o = static_cast<C*>(_object);
 				auto t = find_type(ptr);
 				using type = decltype(t);
-				using mem_type = type::member_var_type;
+				using mem_type = typename type::member_var_type;
 				//mem_type v = o->*ptr;
 				return ((o->*ptr).get());
 			}
@@ -445,7 +445,7 @@ namespace GFramework
 				C* o = static_cast<C*>(_object);
 				auto t = find_type(ptr);
 				using type = decltype(t);
-				using mem_type = type::member_var_type;
+				using mem_type = typename type::member_var_type;
 				(o->*ptr) = GVariant::cast<mem_type&>(value);
 				if (onupdate_cb) {
 					onupdate_cb(o);
@@ -479,10 +479,10 @@ namespace GFramework
 
 		virtual bool isGObjectPointer() {
 
-			using mem_type = std::remove_pointer<ResultType<GETTER_F> >::type;
+			using mem_type = typename std::remove_pointer<ResultType<GETTER_F> >::type;
 			if (std::is_pointer<mem_type>::value)
 			{
-				if (std::is_base_of<GObject, std::remove_pointer<mem_type>::type >::value)
+				if (std::is_base_of<GObject, typename std::remove_pointer<mem_type>::type >::value)
 				{
 					return true;
 				}
@@ -492,7 +492,7 @@ namespace GFramework
 
 		virtual std::type_index getPointedGObjectTypeIndex() {
 			using type = ResultType<GETTER_F>;
-			return type_index(typeid(type));
+			return std::type_index(typeid(type));
 		}
 
 		void set(void* _object, GVariant& value) {
@@ -540,7 +540,7 @@ namespace GFramework
 			static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
 			{
 				using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-				using ReaderType = CONDITIONAL_TYPE(IS_BASE(GPointerPropertyInterface, arg_type), ObjectPointerPropertyHandler, NonObjectPointerPropertyHandler);
+				using ReaderType = typename std::conditional<std::is_base_of<GPointerPropertyInterface, arg_type>::value, ObjectPointerPropertyHandler, NonObjectPointerPropertyHandler>::type;
 				return ReaderType::readASCIIValue(is, obj, setter);
 			}
 
@@ -589,14 +589,14 @@ namespace GFramework
 			static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
 			{
 				using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-				using ReaderType = CONDITIONAL_TYPE(IS_SHARED_PTR(arg_type), SharedPointerHandler, NonPointerHandler);
+				using ReaderType = typename std::conditional<is_shared_ptr<arg_type>::value, SharedPointerHandler, NonPointerHandler>::type;
 				return ReaderType::readASCIIValue(is, obj, setter);
 			}
 
 			static GSerializer& writeASCIIValue(GSerializer& os, const GObject* obj, GETTER_F getter) {
 				const C* o = static_cast<const C*>(obj);
 				using arg_type = typename std::remove_reference<ResultType<GETTER_F> >::type;
-				auto prop = GPropertyUtility<std::remove_cv<arg_type>::type>::create((o->*getter)());
+				auto prop = GPropertyUtility<typename std::remove_cv<arg_type>::type>::create((o->*getter)());
 				//prop->writeASCIIValue(*os.getStream());
 				os << (*prop);
 				return os;
@@ -607,7 +607,7 @@ namespace GFramework
 				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
 				{
 					using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-					using ReaderType = CONDITIONAL_TYPE(IS_BASE(GObject, arg_type::element_type), GObjectSharedPointerHandler, NonObjectSharedPointerHandler);
+					using ReaderType = typename std::conditional<std::is_base_of<GObject, typename arg_type::element_type>::value, GObjectSharedPointerHandler, NonObjectSharedPointerHandler>::type;
 					return ReaderType::readASCIIValue(is, obj, setter);
 				}
 			};
@@ -631,7 +631,7 @@ namespace GFramework
 				static GDeserializer& readASCIIValue(GDeserializer& is, GObjectSharedPtr obj, SETTER_F setter)
 				{
 					//TODO
-					static_assert(false, "Deserializing shared_ptr<T> but T is not GObject is not yet implemented");
+					//static_assert(false, "Deserializing shared_ptr<T> but T is not GObject is not yet implemented");
 					return is;
 				}
 			};
@@ -642,7 +642,7 @@ namespace GFramework
 				{
 					auto o = std::static_pointer_cast<C>(obj);
 					using arg_type = typename std::remove_reference<ArgType<SETTER_F, 1> >::type;
-					auto prop = GPropertyUtility<std::remove_cv<arg_type>::type>::create();
+					auto prop = GPropertyUtility<typename std::remove_cv<arg_type>::type>::create();
 					is >> (*prop);
 					(o.get()->*setter)(GVariant::cast<arg_type>(prop->get()));
 					//(o.get()->*setter)(GVariant::cast<arg_type>(prop));

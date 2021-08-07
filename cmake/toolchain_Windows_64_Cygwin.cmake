@@ -1,5 +1,5 @@
 #
-# To compile for Linux x86_64
+# To compile for Cygwin x86_64
 #
 include(CMakeForceCompiler)
 
@@ -11,10 +11,10 @@ set(GFRAMEWORK_TARGET_OS "win")
 set(GFRAMEWORK_TARGET_ARCH "x86-64")
 set(GFRAMEWORK_TARGET_SOC "")
 set(GFRAMEWORK_TARGET_COMPILER "cygwin")
-set(GFRAMEWORK_SHARED_LIB_EXT "dll")
+set(GFRAMEWORK_SHARED_LIB_EXT "")
 
-set(CMAKE_C_COMPILER H:/cygwin64/bin/gcc.exe)
-set(CMAKE_CXX_COMPILER H:/cygwin64/bin/g++.exe)
+set(CMAKE_C_COMPILER gcc.exe)
+set(CMAKE_CXX_COMPILER g++.exe)
 
 set(GFRAMEWORK_IMPORT_API __declspec\(dllimport\))
 set(GFRAMEWORK_EXPORT_API __declspec\(dllexport\))

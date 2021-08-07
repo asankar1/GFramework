@@ -275,7 +275,7 @@ struct dataType <T, typename std::enable_if< is_vector<T>::value >::type>
 		gv = GVariant::create<T>(t);
 		result = result && (GVariant::cast<T>(gv) == t);
 		if (t.size() > 0)
-			result = result && dataType<T::value_type>::variant_test(t[0]);
+			result = result && dataType<typename T::value_type>::variant_test(t[0]);
 		return result;
 	}
 };
@@ -289,7 +289,7 @@ struct dataType <T, typename std::enable_if< is_list<T>::value >::type>
 		gv = GVariant::create<T>(t);
 		result = result && (GVariant::cast<T>(gv) == t);
 		if (t.size() > 0)
-			result = result && dataType<T::value_type>::variant_test(t.front());
+			result = result && dataType<typename T::value_type>::variant_test(t.front());
 		return result;
 	}
 };
@@ -303,8 +303,8 @@ struct dataType <T, typename std::enable_if< is_map<T>::value >::type>
 		gv = GVariant::create<T>(t);
 		result = result && (GVariant::cast<T>(gv) == t);
 		if (t.size() > 0) {
-			result = result && dataType<T::value_type>::variant_test(t.begin()->first);
-			result = result && dataType<T::value_type>::variant_test(t.begin()->second);
+			result = result && dataType<typename T::value_type>::variant_test(t.begin()->first);
+			result = result && dataType<typename T::value_type>::variant_test(t.begin()->second);
 		}
 		return result;
 	}
@@ -322,13 +322,13 @@ struct dataType <std::tuple<Types...>>
 		return result;
 	}
 private:
-	template<class U, class... Types>
+	template<class U, class... Types_Intenal>
 	struct forEachType
 	{
 		static bool variant_test(GVariant gv)
 		{
 			bool result = dataType<U>::variant_test(gv);
-			result = result && forEachType<Types...>::variant_test(gv);
+			result = result && forEachType<Types_Intenal...>::variant_test(gv);
 			return result;
 		}
 	};
@@ -404,7 +404,7 @@ struct dataType <T, typename std::enable_if< std::is_base_of<GPropertyInterface,
 		bool result = true;
 		T t;
 		result = result && gvariant_class_test<T>(gv, t);
-		result = result && dataType_internal<T::type>::variant_test(gv);
+		result = result && dataType_internal<typename T::type>::variant_test(gv);
 		return result;
 	}
 private:
@@ -477,7 +477,7 @@ protected:
 
 protected:
 	string str = "Default test string";
-	wstring wstr = L"olé";
+	wstring wstr = L"\x6f\x6c\xc3\xa9";
 	int arr1[5] = { 1,2,3,4,5 };
 	int arr2[2][5] = { { 1,2,3,4,5 }, { 1,2,3,4,5 } };
 	glm::vec3 arr3[3] = { glm::vec3(1),glm::vec3(2), glm::vec3(3) };
