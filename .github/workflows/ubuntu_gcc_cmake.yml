@@ -44,6 +44,7 @@ jobs:
     - name: Run Unit test
       run: |
         cd ${{github.workspace}}/UnitTest/output/build_gcc/test/${{ matrix.build_config }}
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{github.workspace}}/UnitTest/output/build_gcc/test/${{ matrix.build_config }}
         ./gframework_shared_test --gtest_output="xml:${{github.workspace}}/UnitTest/Reports/Ubuntu_gcc_${{ matrix.build_config }}_Report.xml"
         
     - name: Publish Unit Test Results
