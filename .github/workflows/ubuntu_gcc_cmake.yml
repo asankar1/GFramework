@@ -78,7 +78,6 @@ jobs:
           cd ${{github.workspace}}
           git pull
           git add UnitTest/Reports/Ubuntu_gcc_${{ matrix.build_config }}_Report.xml
-          git add UnitTest/Coverage/Ubuntu_gcc_${{ matrix.build_config }}_Coverage.xml
           git commit -m "Updated auto-generated unit test reports"
           git push origin integration
     
