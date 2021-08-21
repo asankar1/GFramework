@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_config: [Debug]
+        build_config: [Release, Debug, RelWithDebInfo]
 
     steps:
     - name: Checkout repository
