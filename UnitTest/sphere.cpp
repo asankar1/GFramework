@@ -1,5 +1,5 @@
 #include <iostream>
-#include "sphere.h"
+#include "Sphere.h"
 
 using namespace std;
 using namespace GFrameworkTest;

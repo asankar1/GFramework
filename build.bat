@@ -1,9 +1,29 @@
-REM cmake -DCMAKE_TOOLCHAIN_FILE=H:\Android\sdk\ndk_bundle\build\cmake\android.toolchain.cmake h:\github\GFramework -G"Unix Makefiles"
+REM VS Clang
+cmake -B ./build_clang -G "Visual Studio 16 2019" -A x64 -T ClangCL
+cmake --build ./build_clang --config Debug --target install
 
-REM cmake -DCMAKE_TOOLCHAIN_FILE=H:\Android\sdk\ndk_bundle\build\cmake\android.toolchain.cmake -DANDROID_NDK=H:\Android\sdk\ndk_bundle -DCMAKE_BUILD_TYPE=Debug -DANDROID_ABI="armeabi_v7a with NEON" h:\github\GFramework -G"Unix Makefiles"
+cmake UnitTest -B ./UnitTest/build_clang -G "Visual Studio 16 2019" -A x64 -T ClangCL
+cmake --build ./UnitTest/build_clang --config Debug --target install
 
+cmake -B ./build_clang -G "Visual Studio 16 2019" -A x64 -T ClangCL
+cmake --build ./build_clang --config Release --target install
 
-REM cmake -DCMAKE_TOOLCHAIN_FILE=H:\github\GFramework\cmake\toolchain_android_arm.cmake -DANDROID_NDK=H:\Android\sdk\ndk_bundle -DCMAKE_BUILD_TYPE=Debug -DANDROID_ABI="armeabi_v7a with NEON" h:\github\GFramework -G"Unix Makefiles"
+cmake UnitTest -B ./UnitTest/build_clang -G "Visual Studio 16 2019" -A x64 -T ClangCL
+cmake --build ./UnitTest/build_clang --config Release --target install
+
+REM WSL clang
+cmake -B ./build_clang_wsl -G "Unix Makefiles"  -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain_clang.cmake
+cmake --build ./build_clang_wsl --config Debug --target install
+
+cmake UnitTest -B ./UnitTest/build_clang_wsl -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_clang.cmake
+cmake --build ./UnitTest/build_clang_wsl --config Debug --target install
+
+cmake -B ./build_clang_wsl -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles"  -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain_clang.cmake
+cmake --build ./build_clang_wsl --config Release --target install
+
+cmake UnitTest -B ./UnitTest/build_clang_wsl -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_clang.cmake
+cmake --build ./UnitTest/build_clang_wsl --config Release --target install
+
 
 REM MSVC
 cmake -B ./build_vs2015 -G "Visual Studio 16 2019" -A x64 -T v140
@@ -42,21 +62,16 @@ cmake -B ./UnitTest/build_wsl -DCMAKE_BUILD_TYPE=Release -G"Unix Makefiles" ./Un
 cmake --build ./UnitTest/build_wsl --config Release --target install
 
 
-REM android_arm_Debug
-mkdir Build\android_arm_Debug
-cd Build\android_arm_Debug
-start "GFramework build: android_arm_Debug" cmd /K cmake -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain_android_arm.cmake -DCMAKE_BUILD_TYPE=Debug ../../ 
-mkdir Test_android_arm_Debug
-cd Test_android_arm_Debug
-start "GFramework Test build: android_arm_Debug" cmd /K cmake -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../../cmake/toolchain_android_arm.cmake -DCMAKE_BUILD_TYPE=Debug ../../../Test
-cd ..\..\..\
+REM Android NDK
+cmake -B ./build_android -DCMAKE_BUILD_TYPE=Debug -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain_android_arm.cmake .
+cmake --build ./build_android --config Debug --target install -j 8
 
-REM android_arm_Release
-mkdir Build\android_arm_Release
-cd Build\android_arm_Release
-start "GFramework build: android_arm_Release" cmd /K cmake -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain_android_arm.cmake -DCMAKE_BUILD_TYPE=Release ../../ 
-mkdir Test_android_arm_Release
-cd Test_android_arm_Release
-start "GFramework Test build: android_arm_Release" cmd /K cmake -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../../cmake/toolchain_android_arm.cmake -DCMAKE_BUILD_TYPE=Release ../../../Test
-cd ..\..\..\
+cmake -B ./UnitTest/build_android -DCMAKE_BUILD_TYPE=Debug -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_android_arm.cmake ./UnitTest
+cmake --build ./UnitTest/build_android --config Debug --target install  -j 8
 
+
+cmake -B ./build_android -DCMAKE_BUILD_TYPE=Release -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain_android_arm.cmake .
+cmake --build ./build_android --config Release --target install -j 8
+
+cmake -B ./UnitTest/build_android -DCMAKE_BUILD_TYPE=Release -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_android_arm.cmake ./UnitTest
+cmake --build ./UnitTest/build_android --config Release --target install  -j 8
