@@ -917,16 +917,9 @@ namespace GFramework
 			typedef typename std::conditional<std::is_abstract<T>::value, GMetaAbstractclass<T>, GMetaNonAbstractclass<T>>::type MetaclassType;
 
 			MetaclassType* m = MetaclassType::getInstance();
-			if (m->name.empty())
-			{
-				m->name = std::string(_name);
-				metaclasslist.insert(std::make_pair(_name, m));
-				std::cout << "GMetaclass '" << _name << "' added to metaclasslist." << std::endl;
-			}
-			else
-			{
-				std::cout << "GMetaclass already exist under the name '" << m->name << "' in the metaclasslist." << std::endl;
-			}
+			assert(m->name.empty());
+			m->name = std::string(_name);
+			metaclasslist.insert(std::make_pair(_name, m));
 			m->parentNamespace = this;
 			return *m;
 		}
