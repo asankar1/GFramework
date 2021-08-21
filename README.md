@@ -28,7 +28,7 @@ To build this project you need
 ## Build status
 [![Badge for Visual Studio 2015 and 2017](https://img.shields.io/github/workflow/status/asankar1/GFramework/windows_vs_cmake/integration?label=Visual%20Studio%202015%20and%202017&style=plastic)](https://github.com/asankar1/GFramework/actions/workflows/windows_vs_cmake.yml)
 [![Badge forUbuntu gcc](https://img.shields.io/github/workflow/status/asankar1/GFramework/ubuntu_gcc_cmake/integration?label=Ubuntu%20gcc&style=plastic)](https://github.com/asankar1/GFramework/actions/workflows/ubuntu_gcc_cmake.yml)
-[![Badge for Android NDK](https://img.shields.io/github/workflow/status/asankar1/GFramework/ubuntu_android_ndk/integration?label=Android%20NDK&style=plastic)](https://github.com/asankar1/GFramework/actions/workflows/ubuntu_android_ndk.yml)
+[![Badge for Android NDK](https://img.shields.io/github/workflow/status/asankar1/GFramework/ubuntu_android_cmake/integration?label=Android%20NDK&style=plastic)](https://github.com/asankar1/GFramework/actions/workflows/ubuntu_android_ndk.yml)
 
 ## Unit test reports
 [Windows_VS2015_Debug](https://github.com/asankar1/GFramework/blob/master/UnitTest/Reports/Windows_VS2015_Debug_Report.xml)  
