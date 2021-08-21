@@ -1,0 +1,83 @@
+name: ubuntu_gcc_cmake
+
+on: 
+  push:
+    branches:
+      - integration
+
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        build_config: [Release, Debug, RelWithDebInfo]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Checkout submodule third_party/lua
+      run: git submodule update --init third_party/lua
+      
+    - name: Checkout submodule third_party/glm
+      run: git submodule update --init third_party/glm
+
+    - name: Configure CMake for GFramework with configuration ${{ matrix.build_config }}
+      run: cmake -B ${{github.workspace}}/build_gcc -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -G"Unix Makefiles" .
+
+    - name: Build GFramework with configuration ${{ matrix.build_config }}
+      run: cmake --build ${{github.workspace}}/build_gcc --config ${{ matrix.build_config }} --target install
+      
+    - name: Configure CMake for Unit test with configuration ${{ matrix.build_config }}
+      run: cmake UnitTest -B ${{github.workspace}}/UnitTest/build_gcc -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/UnitTest/output/build_gcc/ -G"Unix Makefiles"
+
+    - name: Build Unit test with configuration ${{ matrix.build_config }}
+      run: cmake --build ${{github.workspace}}/UnitTest/build_gcc --config ${{ matrix.build_config }} --target install      
+      
+    - name: Run Unit test
+      run: |
+        cd ${{github.workspace}}/UnitTest/output/build_gcc/test/${{ matrix.build_config }}
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{github.workspace}}/UnitTest/output/build_gcc/test/${{ matrix.build_config }}
+        ./gframework_shared_test --gtest_output="xml:${{github.workspace}}/UnitTest/Reports/Ubuntu_gcc_${{ matrix.build_config }}_Report.xml"
+        
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action/composite@v1.19
+      if: always()
+      with:
+        files: ${{github.workspace}}/UnitTest/Reports/*.xml
+        
+      
+    - name: Verify New or Changed report files
+      if: ${{ success() }}
+      uses: tj-actions/verify-changed-files@v7.1
+      id: verify-changed-files
+      with:
+          files: |
+             ${{github.workspace}}/UnitTest
+  
+    - name: setup git config to commit the reports
+      if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
+      run: |
+          echo "Changed files: ${{ steps.verify_changed_files.outputs.changed_files }}"
+          # setup the username and email. I tend to use 'GitHub Actions Bot' with no email by default
+          cd ${{github.workspace}}
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+    - name: commit the reports
+      if: steps.verify-changed-files.outputs.files_changed == 'true' && ${{ success() }}
+      run: |
+          # Stage the file, commit and push
+          cd ${{github.workspace}}
+          git pull
+          git add UnitTest/Reports/Ubuntu_gcc_${{ matrix.build_config }}_Report.xml
+          git commit -m "Updated auto-generated unit test reports"
+          git push origin integration
+    

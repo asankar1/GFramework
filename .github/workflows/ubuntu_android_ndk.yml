@@ -1,0 +1,42 @@
+name: ubuntu_android_cmake
+
+on: 
+  push:
+    branches:
+      - integration
+
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        build_config: [Release, Debug, RelWithDebInfo]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Checkout submodule third_party/lua
+      run: git submodule update --init third_party/lua
+      
+    - name: Checkout submodule third_party/glm
+      run: git submodule update --init third_party/glm
+
+    - name: Configure CMake for GFramework with configuration ${{ matrix.build_config }}
+      run: cmake -B ${{github.workspace}}/build_android -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain_android_arm.cmake .
+
+    - name: Build GFramework with configuration ${{ matrix.build_config }}
+      run: cmake --build ${{github.workspace}}/build_android --config ${{ matrix.build_config }} --target install
+      
+    - name: Configure CMake for Unit test with configuration ${{ matrix.build_config }}
+      run: cmake -B ${{github.workspace}}/UnitTest/build_android -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/UnitTest/output/build_android/ -G"Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=../../cmake/toolchain_android_arm.cmake ./UnitTest
+
+    - name: Build Unit test with configuration ${{ matrix.build_config }}
+      run: cmake --build ${{github.workspace}}/UnitTest/build_android --config ${{ matrix.build_config }} --target install

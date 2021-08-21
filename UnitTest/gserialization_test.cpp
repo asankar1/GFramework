@@ -4,7 +4,7 @@
 
 #include <GFramework/GReflection/GReflection.h>
 #include <GFramework/GSerialization/GStringSerializer.h>
-#include "gserialization_test.h""
+#include "gserialization_test.h"
 #include <Node.h>
 #include <Sphere.h>
 
@@ -12,20 +12,27 @@ using namespace std;
 using namespace GFramework;
 using namespace GFrameworkTest;
 
-template<>
-GStringSerializer& GStringSerializerWriter::write<short>(GStringSerializer& stream, short& value)
+namespace GFramework
 {
-	*stream.getStream() << std::hex << value << " ";
-	return stream;
-}
-
-template<>
-GStringDeserializer& GStringDeserializerReader::read<short>(GStringDeserializer& stream, short& value)
+namespace GStringSerializerWriter 
 {
-	*stream.getStream() >> std::hex >> value;
-	return stream;
+	template<>
+	GStringSerializer& write<short>(GStringSerializer& stream, short& value)
+	{
+		*stream.getStream() << std::hex << value << " ";
+		return stream;
+	}
 }
-
+namespace GStringDeserializerReader
+{
+	template<>
+	GStringDeserializer& read<short>(GStringDeserializer& stream, short& value)
+	{
+		*stream.getStream() >> std::hex >> value;
+		return stream;
+	}
+}
+}
 class Color
 {
 public:
@@ -308,14 +315,14 @@ END_DEFINE_META(Circle)
 END_DEFINE_META(Square)*/
 
 #define SETUP_PUBLIC_PROPERTY(PROP, VALUE) \
-		auto PROP##_assigner = [&]() {write_obj->PROP## = VALUE; }; \
+		auto PROP##_assigner = [&]() {write_obj->PROP = VALUE; }; \
 		PROP##_assigner(); \
-		auto PROP##_verifier = [&](SerializationTestClass* read_obj)->bool {return (((SerializationTestClass*)read_obj)->PROP## == VALUE); }; 
+		auto PROP##_verifier = [&](SerializationTestClass* read_obj)->bool {return (((SerializationTestClass*)read_obj)->PROP == VALUE); };
 
 #define SETUP_PRIVATE_PROPERTY(PROP, VALUE) \
-		auto PROP##_assigner = [&]() {write_obj->set_##PROP##(VALUE); }; \
+		auto PROP##_assigner = [&]() {write_obj->set_##PROP(VALUE); }; \
 		PROP##_assigner(); \
-		auto PROP##_verifier = [&](SerializationTestClass* read_obj)->bool {return (((SerializationTestClass*)read_obj)->get_##PROP##() == VALUE); }; 
+		auto PROP##_verifier = [&](SerializationTestClass* read_obj)->bool {return (((SerializationTestClass*)read_obj)->get_##PROP() == VALUE); };
 
 #define VERIFY_PROPERTY(PROP, VALUE) \
 		PROP##_verifier(VALUE); 
@@ -442,8 +449,9 @@ protected:
 
 #define GTEST_GREFLECTION_PRIVATE(type) \
 	TEST_F(GSerialization$$GPropertyTypes, type) { \
-		EXPECT_EQ(std::static_pointer_cast<SerializationTestClass>(read_obj)->get_##type##(), write_obj->get_##type##()); \
+		EXPECT_EQ(std::static_pointer_cast<SerializationTestClass>(read_obj)->get_##type(), write_obj->get_##type()); \
 	}
+
 
 GTEST_GREFLECTION_PUBLIC(gvec2PropertyPublic)
 GTEST_GREFLECTION_PUBLIC(gvec3PropertyPublic)

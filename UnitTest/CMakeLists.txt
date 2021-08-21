@@ -15,6 +15,22 @@ if (NOT DEFINED CMAKE_INSTALL_PREFIX)
 	set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/output/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER} CACHE PATH "Select the install path for GFramework" FORCE)
 endif()
 
+if(${GENERATOR_IS_MULTI_CONFIG} MATCHES "True")
+	message(STATUS "doing GENERATOR_IS_MULTI_CONFIG")
+	set(BUILD_CONFIGURATION $(Configuration))
+else()	
+	message(STATUS "Not doing GENERATOR_IS_MULTI_CONFIG")
+	set(BUILD_CONFIGURATION ${CMAKE_BUILD_TYPE})
+endif()
+
+if("${CMAKE_BUILD_TYPE} " STREQUAL " ")
+	set(GFRAMEWORK_BUILD_TYPE "$(Configuration)")
+else()
+	set(GFRAMEWORK_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+endif("${CMAKE_BUILD_TYPE} " STREQUAL " ")
+message(STATUS "CMAKE_BUILD_TYPE:${CMAKE_BUILD_TYPE}")
+message(STATUS "GFRAMEWORK_BUILD_TYPE:${GFRAMEWORK_BUILD_TYPE}")
+
 
 include(FetchContent)
 FetchContent_Declare(
@@ -31,6 +47,9 @@ project(GFramework_Test)
 
 include(toolchain_utilities)
 #include(utilities)
+
+ADD_DEFINITIONS(-DUNICODE)
+ADD_DEFINITIONS(-D_UNICODE)
 
 file(
 	GLOB
@@ -60,16 +79,10 @@ include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
 include_directories(${googletest_SOURCE_DIR}/googletest)
 include_directories(${googletest_SOURCE_DIR}/googletest/include)
-link_directories(${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_$(Configuration))
+link_directories("${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_${GFRAMEWORK_BUILD_TYPE}")
 
 
-if("${CMAKE_BUILD_TYPE} " STREQUAL " ")
-	set(GFRAMEWORK_BUILD_TYPE "$(Configuration)")
-else()
-	set(GFRAMEWORK_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
-endif("${CMAKE_BUILD_TYPE} " STREQUAL " ")
-message(STATUS "CMAKE_BUILD_TYPE:${CMAKE_BUILD_TYPE}")
-message(STATUS "GFRAMEWORK_BUILD_TYPE:${GFRAMEWORK_BUILD_TYPE}")
+
 
 # add_library(
 	# gframework_test_shared_lib

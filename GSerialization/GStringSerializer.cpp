@@ -247,16 +247,17 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 
 		while (stream->good())
 		{
-			std::getline(*stream, line);
-			auto pos = line.find(objectDelimiter);
-			if (pos != string::npos)
+			std::getline(*stream, line, ':');
+			//auto pos = line.find(objectDelimiter);
+			if (line == objectDelimiter)
 			{
 				break;
 			}
 			else
 			{
 				//std::pair<string, string> prop = parseProperty(line);
-				string prop = findNextProperty(line);
+				//string prop = findNextProperty(line);
+				string prop = line;
 				//if (!prop.first.empty())
 				{
 					auto metaprop = metaclass->getProperty(prop.c_str());
@@ -278,6 +279,10 @@ GDeserializer& GStringDeserializer::read(GObjectSharedPtr* _obj)
 								cerr << "stream corrupted when reading metaproperty:" << prop << endl;
 							}
 							return *this;
+						}
+						else
+						{
+							*stream >> std::ws;//read the remaining until the new line to start fresh for the next line
 						}
 					}
 				}

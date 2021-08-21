@@ -94,13 +94,13 @@ namespace GFramework
 	}
 
 	template <>
-	std::ostream& GArithmeticProperty<float>::writeASCIIValue(std::ostream& os) const {
+	GFRAMEWORK_API std::ostream& GArithmeticProperty<float>::writeASCIIValue(std::ostream& os) const {
 		os << *((int32*)&value) << " ";
 		return os;
 	}
 
 	template <>
-	std::ostream& GArithmeticProperty<double>::writeASCIIValue(std::ostream& os) const {
+	GFRAMEWORK_API std::ostream& GArithmeticProperty<double>::writeASCIIValue(std::ostream& os) const {
 		os << *((int64*)&value) << " ";
 		return os;
 	}
@@ -112,13 +112,13 @@ namespace GFramework
 	}
 
 	template <>
-	std::istream& GArithmeticProperty<float>::readASCIIValue(std::istream& is) {
+	GFRAMEWORK_API std::istream& GArithmeticProperty<float>::readASCIIValue(std::istream& is) {
 		is >> *((int32*)&value);
 		return is;
 	}
 
 	template <>
-	std::istream& GArithmeticProperty<double>::readASCIIValue(std::istream& is) {
+	GFRAMEWORK_API std::istream& GArithmeticProperty<double>::readASCIIValue(std::istream& is) {
 		is >> *((int64*)&value);
 		return is;
 	}

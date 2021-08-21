@@ -78,6 +78,8 @@ namespace {
             case White:  	return "\u001b[97m";
             case Reset:  	return "\u001b[0m";
             }
+
+            return "";
         }
         // Called before any test activity starts.
         void OnTestProgramStart(const UnitTest&  unit_test ) override {
@@ -158,13 +160,13 @@ namespace {
             fprintf(stdout, "\n");
             fprintf(stdout, "TEST SUMMARY:\n");
             fprintf(stdout, "=============\n");
-            fprintf(stdout, "Total tests          : %d\n", unit_test.total_test_count());
-            fprintf(stdout, "Total suites         : %d\n", unit_test.test_suite_to_run_count());
-            fprintf(stdout, "Total tests passed   : %d\n", unit_test.successful_test_case_count());
-            fprintf(stdout, "Total tests failed   : %d\n", unit_test.failed_test_case_count());
-            fprintf(stdout, "Total tests skipped  : %d\n", unit_test.skipped_test_count());
-            fprintf(stdout, "Total tests disabled : %d\n", unit_test.disabled_test_count());
-            fprintf(stdout, "Total time taken     : %d ms", unit_test.elapsed_time());
+            fprintf(stdout, "Total suites available : %d\n", unit_test.test_suite_to_run_count());
+            fprintf(stdout, "Total tests available  : %d\n", unit_test.total_test_count());
+            fprintf(stdout, "Total tests disabled   : %d\n", unit_test.disabled_test_count());
+            fprintf(stdout, "Total tests passed     : %d\n", unit_test.successful_test_count());
+            fprintf(stdout, "Total tests failed     : %d\n", unit_test.failed_test_count());
+            fprintf(stdout, "Total tests skipped    : %d\n", unit_test.skipped_test_count());
+            fprintf(stdout, "Total time taken       : %d ms", unit_test.elapsed_time());
             fprintf(stdout, "\n");
             fflush(stdout);
 
