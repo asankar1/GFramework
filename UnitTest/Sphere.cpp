@@ -4,32 +4,21 @@
 using namespace std;
 using namespace GFrameworkTest;
 
-	/*BEGIN_DEFINE_META(sphere)
-		GMetaclassList::instance().define<sphere>("sphere")
-			.baseMetaclass("node")
+	
+BEGIN_DEFINE_META(sphere)
+	GMetaNamespaceList::_global()._namespace("GFrameworkTest")
+		.define<sphere>("sphere")
+			.baseMetaclass("Node", {"GFrameworkTest"})
 			.version(1)
 			.constructor<void*()>("DefaultCons")
 			.constructor<void*(unsigned int)>("Cons1")
-			.function("setRadius", &sphere::setRadius)
-			.function("getRadius", &sphere::getRadius)
+			.functionPublic("setRadius", &sphere::setRadius)
+			.functionPublic("getRadius", &sphere::getRadius)
 			.editableProperty("radius", &sphere::radius);
-	END_DEFINE_META(sphere)*/
 
-
-	BEGIN_DEFINE_META(sphere)
-		GMetaNamespaceList::_global()._namespace("GFrameworkTest")
-			.define<sphere>("sphere")
-				.baseMetaclass("Node", {"GFrameworkTest"})
-				.version(1)
-				.constructor<void*()>("DefaultCons")
-				.constructor<void*(unsigned int)>("Cons1")
-				.functionPublic("setRadius", &sphere::setRadius)
-				.functionPublic("getRadius", &sphere::getRadius)
-				.editableProperty("radius", &sphere::radius);
-
-		GMetaNamespaceList::_global()._namespace("GFrameworkTest")._namespace("sphere_func")
-			.function("getSphereVolume", sphere_func::getSphereVolume);
-	END_DEFINE_META(sphere)
+	GMetaNamespaceList::_global()._namespace("GFrameworkTest")._namespace("sphere_func")
+		.function("getSphereVolume", sphere_func::getSphereVolume);
+END_DEFINE_META(sphere)
 namespace GFrameworkTest
 {
 
