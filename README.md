@@ -40,3 +40,6 @@ To build this project you need
 
 ## Coverage reports
 [![Code Coverage](https://codecov.io/gh/asankar1/GFramework/branch/integration/graph/badge.svg?token=C3FOMEPHJ3)](https://codecov.io/gh/asankar1/GFramework)
+
+## Code Quality
+[![CodeFactor](https://www.codefactor.io/repository/github/asankar1/gframework/badge)](https://www.codefactor.io/repository/github/asankar1/gframework)
