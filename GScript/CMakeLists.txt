@@ -25,6 +25,8 @@ file(
 	${GSCRIPT_ROOT}/GFrameworkLua.h
 	${GSCRIPT_ROOT}/GLua_data_exchange.h
 	${GSCRIPT_ROOT}/GLuaScript.h
+	${GSCRIPT_ROOT}/GScript.h
+	
 )
 
 file(
@@ -32,6 +34,7 @@ file(
 	source_files
 	${GSCRIPT_ROOT}/GLua_data_exchange.cpp
 	${GSCRIPT_ROOT}/GLuaScript.cpp
+	${GSCRIPT_ROOT}/GScript.cpp
 	${THIRDPARTY_LUA_PATH}/lapi.c ${THIRDPARTY_LUA_PATH}/lcode.c ${THIRDPARTY_LUA_PATH}/lctype.c ${THIRDPARTY_LUA_PATH}/ldebug.c ${THIRDPARTY_LUA_PATH}/ldo.c 
 	${THIRDPARTY_LUA_PATH}/ldump.c ${THIRDPARTY_LUA_PATH}/lfunc.c ${THIRDPARTY_LUA_PATH}/lgc.c ${THIRDPARTY_LUA_PATH}/llex.c ${THIRDPARTY_LUA_PATH}/lmem.c 
 	${THIRDPARTY_LUA_PATH}/lobject.c ${THIRDPARTY_LUA_PATH}/lopcodes.c ${THIRDPARTY_LUA_PATH}/lparser.c ${THIRDPARTY_LUA_PATH}/lstate.c ${THIRDPARTY_LUA_PATH}/lstring.c 

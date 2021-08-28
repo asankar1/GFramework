@@ -6,7 +6,7 @@ using namespace std;
 
 namespace GFramework
 {
-#if 1
+#if 0
 	int member_function(lua_State *L);
 	int static_member_function(lua_State *L);
 	static vector<string> lua_tables_name_list;
@@ -346,6 +346,7 @@ namespace GFramework
 	}
 #endif
 
+#if 0
 	GLuaScriptChunk::GLuaScriptChunk(const std::string & script) : chunk(script)
 	{
 		L = luaL_newstate();
@@ -454,4 +455,5 @@ namespace GFramework
 	{
 		return 0;
 	}
+#endif
 }

@@ -209,7 +209,7 @@ namespace GFramework
 
 	GMetaNamespace& GMetaNamespaceList::_global()
 	{
-		static GMetaNamespace globalNamespace("");
+		static GMetaNamespace globalNamespace("global");
 		return globalNamespace;
 	}
 

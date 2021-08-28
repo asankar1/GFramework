@@ -11,7 +11,7 @@
 namespace GFramework
 {
 	class GMetaclass;
-	
+#if 0	
 	class GFRAMEWORK_API GLuaState
 	{
 	public:
@@ -84,6 +84,7 @@ namespace GFramework
 		const std::string chunk;
 		lua_State* L;
 	};
+#endif
 
 	/*void GFRAMEWORK_API add_constructors_metatable();
 	void GFRAMEWORK_API create_metatable(const char* name);

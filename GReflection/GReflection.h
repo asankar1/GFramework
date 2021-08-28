@@ -29,12 +29,16 @@
 #include <GFramework/GReflection/GReflectionHelpers.h>
 #include <GFramework/GScript/GLua_data_exchange.h>
 #include <GFramework/GScript/GLuaScript.h>
+#include <GFramework/GScript/GScript.h>
 
 #define DECLARE_META_CLASS(c) class c##_metacreator; /*friend GMetaNonAbstractclass<c>;*/
 #define DECLARE_META_FRIEND(c) friend c##_metacreator; /*friend GMetaNonAbstractclass<c>;*/
 #define BEGIN_DEFINE_META(c) struct c##_metacreator	{ GMetaclass* m; c##_metacreator() { m =&
 #define END_DEFINE_META(c) } }; static const c##_metacreator c##_metacreator_;
 #define GET_METACLASS_INTERNAL(c) c##_metacreator_.m
+
+#define BEGIN_DEFINE_META_FUNCTION(n) struct n##_metacreator	{ GMetaNamespace* m; n##_metacreator() { m =&
+#define END_DEFINE_META_FUNCTION(n) } }; static const n##_metacreator n##_metacreator_;
 //#define END_DEFINE_META(c) GLuaState::register_script_for_metaclass(GMetaclassList::instance().getMetaclassByType<c>());} }; static c##_metacreator _c##_metacreator;
 
 //#define IS_BASE(BASE_TYPE, DERIVED_TYPE) std::is_base_of<BASE_TYPE, DERIVED_TYPE>::value
@@ -909,6 +913,10 @@ namespace GFramework
 		{
 			auto f = new GMetafunction_derived<FUNC>(_name, _f);
 			metafunctionsList.insert(std::pair<std::string, GMetafunction*>(_name, f));
+
+			GLuaInterface::getInstance().addNamespace(getName);
+			GLuaInterface::getInstance().addFunction(getName(), f);
+
 			return *this;
 		}
 		template<typename T>
