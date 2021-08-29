@@ -27,8 +27,8 @@
 #include <GFramework/GVariant/GProperty.h>
 #include <GFramework/GSerialization/GSerializer.h>
 #include <GFramework/GReflection/GReflectionHelpers.h>
-#include <GFramework/GScript/GLua_data_exchange.h>
-#include <GFramework/GScript/GLuaScript.h>
+//#include <GFramework/GScript/GLua_data_exchange.h>
+//#include <GFramework/GScript/GLuaScript.h>
 #include <GFramework/GScript/GScript.h>
 
 #define DECLARE_META_CLASS(c) class c##_metacreator; /*friend GMetaNonAbstractclass<c>;*/
@@ -914,8 +914,8 @@ namespace GFramework
 			auto f = new GMetafunction_derived<FUNC>(_name, _f);
 			metafunctionsList.insert(std::pair<std::string, GMetafunction*>(_name, f));
 
-			GLuaInterface::getInstance().addNamespace(getName);
-			GLuaInterface::getInstance().addFunction(getName(), f);
+			GLuaInterface::getInstance().addNamespace(getName());
+			GLuaInterface::getInstance().addFunction(_name, f);
 
 			return *this;
 		}
