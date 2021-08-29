@@ -145,10 +145,10 @@ END_DEFINE_META_FUNCTION(ScriptTest)
 
 TEST_F(GScriptTest, namespace_test)
 {
-	GLuaInterface& lua = GLuaInterface::getInstance();
+	auto & script = GScriptInterface::getInstance();
 	//lua.addNamespace("TestLib1");
 	//lua.addFunction("printcpp", printcpp);
-	EXPECT_EQ(true, lua.loadScriptFile("./script.lua"));
+	EXPECT_EQ(true, script.runScriptFile("./script.lua"));
 }
 
 #if 1

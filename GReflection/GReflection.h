@@ -914,8 +914,8 @@ namespace GFramework
 			auto f = new GMetafunction_derived<FUNC>(_name, _f);
 			metafunctionsList.insert(std::pair<std::string, GMetafunction*>(_name, f));
 
-			GLuaInterface::getInstance().addNamespace(getName());
-			GLuaInterface::getInstance().addFunction(_name, f);
+			GScriptInterface::getInstance().addNamespace(getName());
+			GScriptInterface::getInstance().addFunction(_name, f);
 
 			return *this;
 		}
