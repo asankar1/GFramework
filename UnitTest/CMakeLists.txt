@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 
 message(STATUS "----------------------------------------")
 message(STATUS "Main CMakeLists file for GFramework Test")
@@ -45,6 +45,15 @@ FetchContent_MakeAvailable(googletest)
 
 project(GFramework_Test)
 
+find_package (Python3 COMPONENTS Interpreter Development)
+
+
+if(NOT Python3_FOUND)
+	message(FATAL_ERROR "Python3 not found, cannot proceed with building!")
+endif(NOT Python3_FOUND)
+
+
+
 include(toolchain_utilities)
 #include(utilities)
 
@@ -79,10 +88,14 @@ include_directories(${THIRDPARTY_BOOST_PATH})
 include_directories(${THIRDPARTY_GLM_PATH})
 include_directories(${googletest_SOURCE_DIR}/googletest)
 include_directories(${googletest_SOURCE_DIR}/googletest/include)
+include_directories(${Python3_INCLUDE_DIRS})
+
 link_directories("${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMPILER}_${GFRAMEWORK_BUILD_TYPE}")
+link_directories("${Python3_LIBRARY_DIRS}")
 
 
-
+ SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${Python3_LINK_OPTIONS}")
+ SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${Python3_LINK_OPTIONS}")
 
 # add_library(
 	# gframework_test_shared_lib
@@ -118,12 +131,14 @@ target_link_libraries (
 	gframework_static_test
 	gframework_static
 	gtest_main
+	${Python3_LIBRARIES}
 )
 
 target_link_libraries (
 	gframework_shared_test
 	gframework_shared
 	gtest_main
+	${Python3_LIBRARIES}
 )
 
 # target_link_libraries (
