@@ -71,13 +71,13 @@ file(
 file(
 	GLOB
 	source_files
-	#${TEST_ROOT}/gvariant_test.cpp
-	#${TEST_ROOT}/gproperty_test.cpp
-	#${TEST_ROOT}/greflection_test.cpp
-	#${TEST_ROOT}/gserialization_test.cpp
+	${TEST_ROOT}/gvariant_test.cpp
+	${TEST_ROOT}/gproperty_test.cpp
+	${TEST_ROOT}/greflection_test.cpp
+	${TEST_ROOT}/gserialization_test.cpp
 	${TEST_ROOT}/gscript_test.cpp
-	#${TEST_ROOT}/Node.cpp
-	#${TEST_ROOT}/Sphere.cpp
+	${TEST_ROOT}/Node.cpp
+	${TEST_ROOT}/Sphere.cpp
 )
 
 
