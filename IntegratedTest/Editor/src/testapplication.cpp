@@ -32,7 +32,7 @@ void TestApplication::initialize()
 	Application::initialize();
 
     //create additional windows
-    nodeBrowserWindow = make_shared<TreeListWindow<Node>>("Node Browser", mainWindow);
+    nodeBrowserWindow = make_shared<TreeListWindow>("Node Browser", mainWindow);
     mainWindow->addWindow(nodeBrowserWindow.get(), Qt::LeftDockWidgetArea);
 
 	//register types
@@ -40,7 +40,7 @@ void TestApplication::initialize()
     std::shared_ptr<GObjectEditorInfo> node_info = std::make_shared<GObjectEditorInfo>();
 	node_info->contextMenu = std::make_shared<ContextMenu>();
     node_info->contextMenu->add("ResetNode", []() {
-        auto window = dynamic_cast<TreeListWindow<Node>*>(Application::instance()->mainWindow->getWindow("Node Browser"));
+        auto window = dynamic_cast<TreeListWindow*>(Application::instance()->mainWindow->getWindow("Node Browser"));
         for(auto var : window->getSelection())
 		{
 			Logger::debug() << "Node " << var->getName().c_str() << " reset";
@@ -57,7 +57,7 @@ void TestApplication::initialize()
 
     prj_window_ctx_mnu->add("Create/Node", []
     {
-        auto window = dynamic_cast<TreeListWindow<Node>*>(Application::instance()->mainWindow->getWindow("Node Browser"));
+        auto window = dynamic_cast<TreeListWindow*>(Application::instance()->mainWindow->getWindow("Node Browser"));
         if(window == nullptr)
         {
             Logger::critical() << "Unable to cast 'Node Browser' window when invoking content menu 'Create/Node'";
@@ -76,7 +76,7 @@ void TestApplication::initialize()
             parent = dynamic_pointer_cast<Node>(project->getSceneGraphRoot());
         }
         auto object = make_shared<Node>("DefaultNode", parent);
-        auto section = dynamic_pointer_cast<ProjectSectionOfType<Node>>(Application::instance()->getProject()->getSection("SceneGraph"));
+        auto section = dynamic_pointer_cast<ProjectSection>(Application::instance()->getProject()->getSection("SceneGraph"));
         if(!section)
         {
             Logger::critical() << "Unable to cast 'SceneGraph' section when invoking content menu 'Create/Node'";

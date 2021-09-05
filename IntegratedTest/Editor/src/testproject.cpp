@@ -1,9 +1,11 @@
 #include <memory>
 #include "testproject.h"
 #include <Engine/Node.h>
+#include <GFramework/GReflection/GReflection.h>
 #include <GEditor/utilities/logger.h>
 
 using namespace std;
+using namespace GFramework;
 using namespace GFramework::Editor;
 using namespace GFrameworkTest;
 
@@ -13,7 +15,8 @@ TestProject::TestProject(QFile* proj_file)
     sceneGraphSection = nullptr;
 	jsonDocument = QJsonDocument::fromJson(file->readAll());
     //rootJsonObject = jsonDocument.object();
-    if(addSection<Node>("SceneGraph"))
+    //GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node")
+    if(addSection("SceneGraph", GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node")))
     {
         sceneGraphSection = getSection("SceneGraph");
     }

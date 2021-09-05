@@ -19,5 +19,5 @@ public:
 	virtual void openProject(QString path) override;
 
 private:
-   std::shared_ptr<TreeListWindow<GFrameworkTest::Node>> nodeBrowserWindow;
+   std::shared_ptr<TreeListWindow> nodeBrowserWindow;
 };
