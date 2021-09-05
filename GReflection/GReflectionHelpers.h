@@ -92,7 +92,7 @@ namespace GFramework
 		static GVariant call_internal(void* _object, F2 f, std::vector<GVariant>& args, std::index_sequence<I...>)
 		{
 			auto casted_object = static_cast<C*>(_object);
-			return (casted_object->*f)(GVariant::cast<ArgType<F2, I + 1>>(args[I])...);
+			return static_cast<R>((casted_object->*f)(GVariant::cast<ArgType<F2, I + 1>>(args[I])...));
 		}
 	};
 
@@ -123,7 +123,7 @@ namespace GFramework
 		{
 			GVariant result;
 			auto casted_object = static_cast<C*>(_object);
-			result = (casted_object->*f)();
+			result = static_cast<R>((casted_object->*f)());
 			return result;
 		}
 	};
@@ -136,7 +136,7 @@ namespace GFramework
 			GVariant result;
 			auto casted_object = static_cast<C*>(_object);
 			typedef typename std::remove_reference<R>::type NON_REFERENCE_TYPE;
-			result = GVariant::ref<NON_REFERENCE_TYPE>((casted_object->*f)());
+			result = GVariant::ref<NON_REFERENCE_TYPE>(static_cast<R>((casted_object->*f)()));
 			return result;
 		}
 	};
@@ -178,7 +178,7 @@ namespace GFramework
 		template<typename F2, std::size_t... I>
 		static GVariant static_call_internal(F2 f, std::vector<GVariant>& args, std::index_sequence<I...>)
 		{
-			return (*f)(GVariant::cast<ArgType<F2, I>>(args[I])...);
+			return static_cast<R>((*f)(GVariant::cast<ArgType<F2, I>>(args[I])...));
 		}
 	};
 

@@ -37,7 +37,7 @@ namespace GFramework
 	{
 	}
 
-	void GMetaclass::getConstructorsList(std::vector<std::string> &constructors_list)
+	void GMetaclass::getConstructorsList(std::vector<std::string> &constructors_list) const
 	{
 		for (auto it = Gmetaconstructors.begin(); it != Gmetaconstructors.end(); ++it) {
 			constructors_list.push_back(it->first);
@@ -45,7 +45,7 @@ namespace GFramework
 		return;
 	}
 
-	void GMetaclass::getFunctionsList(std::vector<std::string> &functions_list)
+	void GMetaclass::getFunctionsList(std::vector<std::string> &functions_list) const
 	{
 		for (auto baseclass : GBaseMetaclasses)
 		{
@@ -60,7 +60,7 @@ namespace GFramework
 		return;
 	}
 
-	void GMetaclass::getStaticFunctionsList(std::vector<std::string> &functions_list)
+	void GMetaclass::getStaticFunctionsList(std::vector<std::string> &functions_list) const
 	{
 		for (auto baseclass : GBaseMetaclasses)
 		{
@@ -74,7 +74,7 @@ namespace GFramework
 		return;
 	}
 
-	void GMetaclass::getPropertiesList(std::vector<std::string> &properties_list)
+	void GMetaclass::getPropertiesList(std::vector<std::string> &properties_list) const
 	{
 		for (auto baseclass : GBaseMetaclasses)
 		{
@@ -90,7 +90,7 @@ namespace GFramework
 		return;
 	}
 
-	void GMetaclass::getEditablePropertiesList(std::vector<std::string> &properties_list)
+	void GMetaclass::getEditablePropertiesList(std::vector<std::string> &properties_list) const
 	{
 		for (auto baseclass : GBaseMetaclasses)
 		{
@@ -106,7 +106,7 @@ namespace GFramework
 		return;
 	}
 
-	unsigned int GMetaclass::getVersion()
+	unsigned int GMetaclass::getVersion() const
 	{
 		return properties_version;
 	}
@@ -133,7 +133,7 @@ namespace GFramework
 		return mc;
 	}
 
-	std::string GMetaclass::getFullNamespace()
+	std::string GMetaclass::getFullNamespace() const
 	{
 		std::string nmstr = name;
 		GMetaNamespace* nm = parentNamespace;
@@ -209,7 +209,7 @@ namespace GFramework
 
 	GMetaNamespace& GMetaNamespaceList::_global()
 	{
-		static GMetaNamespace globalNamespace("global");
+		static GMetaNamespace globalNamespace("");
 		return globalNamespace;
 	}
 

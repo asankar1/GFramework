@@ -790,6 +790,7 @@ namespace GFramework
 	public:
 		GMetaMemberfunction(const char* _name) : GMetafunction_Base(_name) {
 		}
+                //TODO: see if args can be skipped for functions takes no arguments
 		virtual GVariant invoke(void* o, std::vector<GVariant>& args) = 0;
 	};
 
@@ -811,8 +812,14 @@ namespace GFramework
 		}
 
 		virtual GVariant invoke(void* _object, std::vector<GVariant>& _args) {
+                        using return_type = typename std::conditional<std::is_convertible<ResultType<F>, GObjectSharedPtr>::value, GObjectSharedPtr, ResultType<F>>::type;
 			GVariant result;
-			result = member_function_invoke_helper<ResultType<F>, C, F, Arity<F>::value>::call(_object, func, _args);
+                        auto aa1 = typeid (return_type).name();
+                        auto aa2 = typeid (ResultType<F>).name();
+                        //result = member_function_invoke_helper<ResultType<F>, C, F, Arity<F>::value>::call(_object, func, _args);
+                        result = member_function_invoke_helper<return_type, C, F, Arity<F>::value>::call(_object, func, _args);
+                        //return_type r1 = GVariant::cast<ResultType<F>>(result);
+                        //result = r1;
 			return result;
 		}
 
@@ -1009,21 +1016,21 @@ namespace GFramework
 	class GFRAMEWORK_API GMetaclass
 	{
 	public:
-		const std::string& getName() { return name; }
+                const std::string& getName() const { return name; }
 		virtual GObjectSharedPtr createInstance() = 0;
-		virtual GMetaconstructor* getConstructor(const char* _name) = 0;
-		virtual GMetaMemberfunction* getPublicMemberFunction(const char* _name) = 0;
-		virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name) = 0;
-		virtual GMetaStaticfunction* getStaticFunction(const char* _name) = 0;
-		virtual GMetaproperty* getProperty(const char* _name) = 0;
-		void getConstructorsList(std::vector<std::string>& constructors_list);
-		void getFunctionsList(std::vector<std::string>& functions_list);
-		void getStaticFunctionsList(std::vector<std::string>& functions_list);
-		void getPropertiesList(std::vector<std::string>& properties_list);
-		void getEditablePropertiesList(std::vector<std::string>& properties_list);
-		unsigned int getVersion();
-		static GMetaclass* getBaseMetaclass(std::vector<std::string>& class_list);
-		std::string getFullNamespace();
+                virtual GMetaconstructor* getConstructor(const char* _name) const = 0;
+                virtual GMetaMemberfunction* getPublicMemberFunction(const char* _name) const = 0;
+                virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name) const = 0;
+                virtual GMetaStaticfunction* getStaticFunction(const char* _name) const = 0;
+                virtual GMetaproperty* getProperty(const char* _name) const = 0;
+                void getConstructorsList(std::vector<std::string>& constructors_list) const;
+                void getFunctionsList(std::vector<std::string>& functions_list) const;
+                void getStaticFunctionsList(std::vector<std::string>& functions_list) const;
+                void getPropertiesList(std::vector<std::string>& properties_list) const;
+                void getEditablePropertiesList(std::vector<std::string>& properties_list) const;
+                unsigned int getVersion() const;
+                static GMetaclass* getBaseMetaclass(std::vector<std::string>& class_list);
+                std::string getFullNamespace() const;
 	protected:
 		void addConstructor(const char* _name, GMetaconstructor* _c);
 		void addPublicFunction(const char* _name, GMetaMemberfunction* _f);
@@ -1070,7 +1077,7 @@ namespace GFramework
 		}
 
 		//not applicable for abstract meta class. So assert if called.
-		virtual GObjectSharedPtr createInstance() {
+		virtual GObjectSharedPtr createInstance() override {
 			return GObjectSharedPtr();
 		}
 
@@ -1143,10 +1150,12 @@ namespace GFramework
 			return *this;
 		}
 
-		GMetaconstructor* getConstructor(const char* _name) {
-			if (Gmetaconstructors.find(std::string(_name)) != Gmetaconstructors.end())
+		GMetaconstructor* getConstructor(const char* _name) const override 
+		{
+			auto itr = Gmetaconstructors.find(std::string(_name));
+			if (itr != Gmetaconstructors.end())
 			{
-				return Gmetaconstructors[std::string(_name)];
+				return itr->second;
 			}
 			else
 			{
@@ -1154,11 +1163,12 @@ namespace GFramework
 			}
 		}
 
-		virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name)
+		virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name) const override
 		{
-			if (protectedMemberFunctions.find(std::string(_name)) != protectedMemberFunctions.end())
+			auto itr = protectedMemberFunctions.find(std::string(_name));
+			if (itr != protectedMemberFunctions.end())
 			{
-				return protectedMemberFunctions[std::string(_name)];
+				return itr->second;
 			}
 			else
 			{
@@ -1174,11 +1184,12 @@ namespace GFramework
 			return nullptr;
 		}
 
-		GMetaMemberfunction* getPublicMemberFunction(const char* _name)
+		GMetaMemberfunction* getPublicMemberFunction(const char* _name) const override
 		{
-			if (publicMemberFunctions.find(std::string(_name)) != publicMemberFunctions.end())
+			auto itr = publicMemberFunctions.find(std::string(_name));
+			if (itr != publicMemberFunctions.end())
 			{
-				return publicMemberFunctions[std::string(_name)];
+				return itr->second;
 			}
 			else
 			{
@@ -1194,11 +1205,12 @@ namespace GFramework
 			return nullptr;
 		}
 
-		GMetaStaticfunction* getStaticFunction(const char* _name)
+		GMetaStaticfunction* getStaticFunction(const char* _name) const override
 		{
-			if (staticMemberFunctions.find(std::string(_name)) != staticMemberFunctions.end())
+			auto itr = staticMemberFunctions.find(std::string(_name));
+			if (itr != staticMemberFunctions.end())
 			{
-				return staticMemberFunctions[std::string(_name)];
+				return itr->second;
 			}
 			else
 			{
@@ -1214,11 +1226,11 @@ namespace GFramework
 			return NULL;
 		}
 
-		GMetaproperty* getProperty(const char* _name)
+		GMetaproperty* getProperty(const char* _name) const override
 		{
-			std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
+			auto it1 = Gmetaeditableproperties.begin();
 			for (; it1 != Gmetaeditableproperties.end(); ++it1) {
-				std::unordered_map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
+				auto result = it1->second.find(std::string(_name));
 				if (result != it1->second.end())
 				{
 					return result->second;
@@ -1283,7 +1295,7 @@ namespace GFramework
 			return *this;
 		}
 
-		virtual GObjectSharedPtr createInstance() {
+		virtual GObjectSharedPtr createInstance()  override {
 			return std::make_shared<T>();
 		}
 
@@ -1349,7 +1361,7 @@ namespace GFramework
 			return *this;
 		}
 
-		GMetaconstructor* getConstructor(const char* _name) {
+		GMetaconstructor* getConstructor(const char* _name) const {
 			auto itr = Gmetaconstructors.find(std::string(_name));
 			if (itr != Gmetaconstructors.end())
 			{
@@ -1361,11 +1373,12 @@ namespace GFramework
 			}
 		}
 
-		virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name)
+		virtual GMetaMemberfunction* getProtectedMemberFunction(const char* _name) const override
 		{
-			if (protectedMemberFunctions.find(std::string(_name)) != protectedMemberFunctions.end())
+			auto itr = protectedMemberFunctions.find(std::string(_name));
+			if (itr != protectedMemberFunctions.end())
 			{
-				return protectedMemberFunctions[std::string(_name)];
+				return itr->second;
 			}
 			else
 			{
@@ -1381,11 +1394,12 @@ namespace GFramework
 			return nullptr;
 		}
 
-		GMetaMemberfunction* getPublicMemberFunction(const char* _name)
+		GMetaMemberfunction* getPublicMemberFunction(const char* _name) const override
 		{
-			if (publicMemberFunctions.find(std::string(_name)) != publicMemberFunctions.end())
+			auto itr = publicMemberFunctions.find(std::string(_name));
+			if (itr != publicMemberFunctions.end())
 			{
-				return publicMemberFunctions[std::string(_name)];
+				return itr->second;
 			}
 			else
 			{
@@ -1401,11 +1415,12 @@ namespace GFramework
 			return NULL;
 		}
 
-		GMetaStaticfunction* getStaticFunction(const char* _name)
+		GMetaStaticfunction* getStaticFunction(const char* _name) const override
 		{
-			if (staticMemberFunctions.find(std::string(_name)) != staticMemberFunctions.end())
+			auto itr = staticMemberFunctions.find(std::string(_name));
+            if (itr != staticMemberFunctions.end())
 			{
-				return staticMemberFunctions[std::string(_name)];
+				return itr->second;
 			}
 			/*else
 			{
@@ -1421,11 +1436,11 @@ namespace GFramework
 			return nullptr;
 		}
 
-		GMetaproperty* getProperty(const char* _name)
+		GMetaproperty* getProperty(const char* _name) const override
 		{
-			std::unordered_map<unsigned int, std::unordered_map<std::string, GMetaproperty*>>::iterator it1 = Gmetaeditableproperties.begin();
+            auto it1 = Gmetaeditableproperties.begin();
 			for (; it1 != Gmetaeditableproperties.end(); ++it1) {
-				std::unordered_map<std::string, GMetaproperty*>::iterator result = it1->second.find(std::string(_name));
+                                auto result = it1->second.find(std::string(_name));
 				if (result != it1->second.end())
 				{
 					return result->second;
