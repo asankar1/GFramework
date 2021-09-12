@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 
-message(STATUS "----------------------------------------")
-message(STATUS "Main CMakeLists file for GFramework Test")
-message(STATUS "----------------------------------------")
+message(STATUS "------------------------------------------------------")
+message(STATUS "Main CMakeLists file for GFramework Test and benchmark")
+message(STATUS "------------------------------------------------------")
 
 set(TEST_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(GFRAMEWORK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../output/GFramework)
@@ -39,9 +39,23 @@ FetchContent_Declare(
   GIT_TAG        e2239ee6043f73722e7aa812a459f54a28552929 # release-1.11.0
 )
 
+FetchContent_Declare(
+  googlebenchmark
+  GIT_REPOSITORY https://github.com/google/benchmark.git
+  GIT_TAG        f91b6b42b1b9854772a90ae9501464a161707d1e # release-1.6.0
+)
+
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+set(BENCHMARK_ENABLE_TESTING OFF)
+FetchContent_MakeAvailable(googlebenchmark)
+
+FetchContent_GetProperties( googlebenchmark
+  SOURCE_DIR googlebenchmark_src_dir )
+
+source_group(benchmark FILES ${googlebenchmark_src_dir})
 
 project(GFramework_Test)
 
@@ -70,7 +84,7 @@ file(
 
 file(
 	GLOB
-	source_files
+	test_source_files
 	${TEST_ROOT}/gvariant_test.cpp
 	${TEST_ROOT}/gproperty_test.cpp
 	${TEST_ROOT}/greflection_test.cpp
@@ -78,6 +92,12 @@ file(
 	${TEST_ROOT}/gscript_test.cpp
 	${TEST_ROOT}/Node.cpp
 	${TEST_ROOT}/Sphere.cpp
+)
+
+file(
+	GLOB
+	benchmark_source_files
+	${TEST_ROOT}/gproperty_benchmark.cpp
 )
 
 
@@ -101,30 +121,36 @@ link_directories("${Python3_LIBRARY_DIRS}")
 	# gframework_test_shared_lib
 	# SHARED
 	# ${header_files}
-	# ${source_files}
+	# ${test_source_files}
 # )
 
 # add_library(
 	# gframework_test_static_lib
 	# STATIC
 	# ${header_files}
-	# ${source_files}
+	# ${test_source_files}
 # )
 
 add_executable(
 	gframework_shared_test
-	${TEST_ROOT}/main.cpp
+	${TEST_ROOT}/test_main.cpp
 	${header_files}
-	${source_files}
+	${test_source_files}
 
 )
 
 add_executable(
 	gframework_static_test
-	${TEST_ROOT}/main.cpp
+	${TEST_ROOT}/test_main.cpp
 	${header_files}
-	${source_files}
+	${test_source_files}
+)
 
+add_executable(
+	gframework_benchmark
+	${TEST_ROOT}/benchmark_main.cpp
+	${header_files}
+	${benchmark_source_files}
 )
 
 target_link_libraries (
@@ -139,6 +165,12 @@ target_link_libraries (
 	gframework_shared
 	gtest_main
 	${Python3_LIBRARIES}
+)
+
+target_link_libraries (
+	gframework_benchmark
+	gframework_static
+	benchmark::benchmark
 )
 
 # target_link_libraries (
@@ -164,7 +196,13 @@ set_property(TARGET gframework_shared_test PROPERTY CXX_STANDARD 14)
 set_property(TARGET gframework_static_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/$(Configuration))
 set_property(TARGET gframework_shared_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/$(Configuration))
 
-install	(	TARGETS gframework_static_test gframework_shared_test
+target_compile_definitions(gframework_benchmark PUBLIC GFRAMEWORK_API=)
+target_compile_definitions(gframework_benchmark PUBLIC GFRAMEWORK_TEST_API=)
+set_property(TARGET gframework_benchmark PROPERTY CXX_STANDARD 14)
+set_property(TARGET gframework_benchmark PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/test/$(Configuration))
+
+
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_benchmark
 			CONFIGURATIONS Debug
 			RUNTIME DESTINATION ./test/Debug
 		)
@@ -176,7 +214,7 @@ install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMP
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
 		)
 		
-install	(	TARGETS gframework_static_test gframework_shared_test
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_benchmark
 			CONFIGURATIONS RelWithDebInfo
 			RUNTIME DESTINATION ./test/RelWithDebInfo
 		)
@@ -188,7 +226,7 @@ install	(	DIRECTORY "${GFRAMEWORK_PATH}/lib/${GFRAMEWORK_TARGET_OS_ARCH_SOC_COMP
 			FILES_MATCHING PATTERN "*.${GFRAMEWORK_SHARED_LIB_EXT}"
 		)			
 		
-install	(	TARGETS gframework_static_test gframework_shared_test
+install	(	TARGETS gframework_static_test gframework_shared_test gframework_benchmark
 			CONFIGURATIONS Release
 			RUNTIME DESTINATION ./test/Release
 		)
