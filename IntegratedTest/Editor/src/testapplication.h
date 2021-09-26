@@ -17,6 +17,7 @@ public:
 	virtual void initialize() override;
 	virtual void newProject(QString path) override;
 	virtual void openProject(QString path) override;
+        virtual void closeProject() override;
 
 private:
    std::shared_ptr<TreeListWindow> nodeBrowserWindow;

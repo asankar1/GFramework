@@ -104,7 +104,7 @@ void TestApplication::newProject(QString path)
 
 	project = new TestProject(file);
     project->initialize();
-    nodeBrowserWindow->setModel(project->getSection("SceneGraph")->getModel());
+    nodeBrowserWindow->setSection(project->getSection("SceneGraph"));
 }
 
 void TestApplication::openProject(QString path)
@@ -115,5 +115,10 @@ void TestApplication::openProject(QString path)
 		return;
 	}
     project = TestProject::openProject(path);
-    nodeBrowserWindow->setModel(project->getSection("SceneGraph")->getModel());
+    nodeBrowserWindow->setSection(project->getSection("SceneGraph"));
+}
+
+void TestApplication::closeProject()
+{
+    Application::closeProject();
 }

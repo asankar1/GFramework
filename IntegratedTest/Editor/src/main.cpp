@@ -22,6 +22,8 @@ public:
 
 int main(int argc, char *argv[])
 {
+    qRegisterMetaType<GFramework::GObjectSharedPtr>("GObjectSharedPtr");
+    qRegisterMetaTypeStreamOperators<GFramework::GObjectSharedPtr>("GObjectSharedPtr");
     TestApplication app(argc, argv);
 	app.initialize();
     return app.exec();

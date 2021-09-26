@@ -16,7 +16,8 @@ TestProject::TestProject(QFile* proj_file)
 	jsonDocument = QJsonDocument::fromJson(file->readAll());
     //rootJsonObject = jsonDocument.object();
     //GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node")
-    if(addSection("SceneGraph", GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node")))
+    QStringList sceneGraphMimeTypes = {"application/gobject.node"};
+    if(addSection("SceneGraph", sceneGraphMimeTypes, GMetaNamespaceList::_global()._namespace("GFrameworkTest").getMetaclass("node")))
     {
         sceneGraphSection = getSection("SceneGraph");
     }
@@ -32,6 +33,7 @@ void TestProject::initialize()
 {
     sceneGraphRoot = make_shared<Node>("RootNode");
     sceneGraphSection->addObject(sceneGraphRoot);
+    Project::initialize();
 }
 
 Project * TestProject::openProject(QString proj_path)
