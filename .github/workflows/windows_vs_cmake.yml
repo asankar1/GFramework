@@ -68,7 +68,7 @@ jobs:
       
     - name: Verify New or Changed report files
       if: ${{ success() }}
-      uses: tj-actions/verify-changed-files@v7.1
+      uses: tj-actions/verify-changed-files@v17
       id: verify-changed-files
       with:
           files: |
